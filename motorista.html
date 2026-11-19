@@ -1,1 +1,76 @@
 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nerocar - Motoristas</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #101010;
+      color: white;
+      padding: 25px 15px;
+    }
+    .container {
+      max-width: 430px;
+      margin: 35px auto;
+      background: #1c1c1c;
+      padding: 28px;
+      border-radius: 18px;
+      border: 1px solid #383838;
+    }
+    h1 { text-align: center; color: #f5c400; }
+    p { text-align: center; color: #bbb; }
+    input, button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 12px;
+      border-radius: 9px;
+      font-size: 15px;
+    }
+    input {
+      background: #292929;
+      color: white;
+      border: 1px solid #444;
+    }
+    button {
+      background: #f5c400;
+      color: #111;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .secondary {
+      background: transparent;
+      color: #f5c400;
+      border: 1px solid #f5c400;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Nerocar</h1>
+    <p>Central dos Motoristas</p>
+
+    <h3>Criar minha conta</h3>
+    <input type="text" placeholder="Nome completo">
+    <input type="email" placeholder="Seu e-mail">
+    <input type="password" placeholder="Crie uma senha">
+    <input type="text" placeholder="Modelo do veículo">
+    <input type="text" placeholder="Cor do veículo">
+    <input type="text" placeholder="Placa do veículo">
+    <button type="button">Cadastrar motorista</button>
+
+    <hr style="border-color:#444;margin:25px 0">
+
+    <h3>Já tenho cadastro</h3>
+    <input type="email" placeholder="Seu e-mail">
+    <input type="password" placeholder="Sua senha">
+    <button class="secondary" type="button">Entrar</button>
+  </div>
+</body>
+</html>
+
