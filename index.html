@@ -1,0 +1,344 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nerocar Central</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f5f8;color:#20252d}
+header{background:#17191f;color:white;padding:20px;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:23px;font-weight:bold;color:#f5c400}
+header button{background:#333;color:white;border:0;padding:10px 16px;border-radius:8px;cursor:pointer}
+.container{max-width:1150px;margin:25px auto;padding:0 16px}
+.card{background:white;padding:20px;border-radius:13px;box-shadow:0 2px 10px #0000000b}
+.login{max-width:400px;margin:90px auto}
+input{width:100%;padding:14px;margin:9px 0;border:1px solid #ddd;border-radius:8px;font-size:15px}
+button.primary{background:#e8b900;color:#17191f;border:0;padding:14px;border-radius:8px;font-weight:bold;cursor:pointer;width:100%}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin:20px 0}
+.stat strong{font-size:30px;display:block;margin-top:10px}
+.stat span{color:#777;font-size:13px}
+.section{margin-top:22px}
+h2{font-size:19px}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:12px;border-bottom:1px solid #eee;font-size:14px}
+th{color:#777}
+.status{font-weight:bold}
+.online{color:#159447}
+.offline{color:#999}
+.open{color:#c18b00}
+.accepted{color:#159447}
+.message{padding:12px;border-radius:8px;margin:10px 0;overflow-wrap:anywhere}
+.error{background:#ffe5e5;color:#a00000}
+.hidden{display:none}
+.small{font-size:12px;color:#888}
+.refresh{width:auto;padding:10px 16px}
+@media(max-width:700px){
+.stats{grid-template-columns:repeat(2,1fr)}
+table{min-width:550px}
+.table-wrap{overflow-x:auto}
+header{padding:15px}
+}
+</style>
+</head>
+
+<body>
+
+<div id="loginScreen" class="login card">
+<h1 style="color:#d6a900">NEROCAR</h1>
+<h2>Central de Corridas</h2>
+<p class="small">Acesso administrativo</p>
+
+<form id="loginForm">
+<input id="email" type="email" placeholder="Seu e-mail" required>
+<input id="password" type="password" placeholder="Sua senha" required>
+<button class="primary" type="submit">ENTRAR NO PAINEL</button>
+</form>
+<div id="loginMessage"></div>
+</div>
+
+<div id="dashboard" class="hidden">
+<header>
+<div>
+<div class="logo">NEROCAR</div>
+<small>Central de Corridas</small>
+</div>
+<button id="logout">Sair</button>
+</header>
+
+<div class="container">
+<h2>Painel administrativo</h2>
+<p class="small" id="welcome">Bem-vindo à Central Nerocar</p>
+
+<div class="stats">
+<div class="card stat"><span>Motoristas cadastrados</span><strong id="totalDrivers">0</strong></div>
+<div class="card stat"><span>Motoristas online</span><strong id="onlineDrivers">0</strong></div>
+<div class="card stat"><span>Corridas disponíveis</span><strong id="openRides">0</strong></div>
+<div class="card stat"><span>Corridas aceitas</span><strong id="acceptedRides">0</strong></div>
+</div>
+
+<div class="card section">
+<h2>Motoristas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Nome</th><th>Telefone</th><th>Aprovação</th><th>Disponibilidade</th></tr></thead>
+<tbody id="driversTable"><tr><td colspan="4">Carregando...</td></tr></tbody>
+</table>
+</div>
+</div>
+
+<div class="card section">
+<h2>Últimas corridas</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Origem</th><th>Destino</th><th>Valor</th><th>Status</th><th>Data</th></tr></thead>
+<tbody id="ridesTable"><tr><td colspan="5">Carregando...</td></tr></tbody>
+</table>
+</div>
+</div>
+
+<div class="section">
+<button class="primary refresh" id="refresh">ATUALIZAR PAINEL</button>
+<p class="small" id="lastUpdate"></p>
+</div>
+</div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://lgemdswryijvphzuluih.supabase.co";
+const SUPABASE_KEY = "sb_publishable_5pC0rg4nYow7EifhFiksSg_mr4cM0cK";
+
+const db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $ = id => document.getElementById(id);
+let realtimeChannel = null;
+
+function showLogin(){
+$("loginScreen").classList.remove("hidden");
+$("dashboard").classList.add("hidden");
+}
+
+function showDashboard(){
+$("loginScreen").classList.add("hidden");
+$("dashboard").classList.remove("hidden");
+}
+
+function message(text){
+$("loginMessage").innerHTML="";
+const div=document.createElement("div");
+div.className="message error";
+div.textContent=text;
+$("loginMessage").appendChild(div);
+}
+
+async function verifyAdmin(){
+try{
+const {data:userData,error:userError}=await db.auth.getUser();
+
+if(userError){
+showLogin();
+message("Erro ao identificar usuário: "+userError.message);
+return false;
+}
+
+if(!userData.user){
+showLogin();
+message("Faça login novamente.");
+return false;
+}
+
+const user=userData.user;
+
+const {data,error}=await db
+.from("profiles")
+.select("full_name,role")
+.eq("id",user.id)
+.maybeSingle();
+
+if(error){
+console.error("Erro no perfil:",error);
+showLogin();
+message("ERRO AO CONSULTAR PERFIL: "+error.message);
+return false;
+}
+
+if(!data){
+showLogin();
+message("Perfil não encontrado para: "+user.email);
+return false;
+}
+
+if(data.role!=="admin"){
+showLogin();
+message("Conta: "+user.email+" | Permissão encontrada: "+data.role);
+return false;
+}
+
+$("welcome").textContent="Bem-vindo, "+(data.full_name||user.email);
+
+showDashboard();
+await loadDashboard();
+subscribeRealtime();
+return true;
+
+}catch(error){
+console.error(error);
+showLogin();
+message("Erro inesperado: "+error.message);
+return false;
+}
+}
+
+async function verifySession(){
+const {data,error}=await db.auth.getSession();
+
+if(error){
+showLogin();
+message("Erro na sessão: "+error.message);
+return;
+}
+
+if(!data.session){
+showLogin();
+return;
+}
+
+await verifyAdmin();
+}
+
+$("loginForm").addEventListener("submit",async e=>{
+e.preventDefault();
+$("loginMessage").textContent="Verificando acesso...";
+
+const {error}=await db.auth.signInWithPassword({
+email:$("email").value.trim(),
+password:$("password").value
+});
+
+if(error){
+message("Erro no login: "+error.message);
+return;
+}
+
+await verifyAdmin();
+});
+
+$("logout").addEventListener("click",async()=>{
+if(realtimeChannel){
+await db.removeChannel(realtimeChannel);
+realtimeChannel=null;
+}
+await db.auth.signOut();
+showLogin();
+});
+
+async function loadDashboard(){
+const [driversResult,profilesResult,ridesResult]=await Promise.all([
+db.from("drivers").select("*"),
+db.from("profiles").select("id,full_name,phone"),
+db.from("rides").select("*").order("created_at",{ascending:false}).limit(30)
+]);
+
+if(driversResult.error||profilesResult.error||ridesResult.error){
+console.error("Erros:",driversResult.error,profilesResult.error,ridesResult.error);
+alert("Erro ao carregar dados: "+
+(driversResult.error?.message||profilesResult.error?.message||ridesResult.error?.message));
+return;
+}
+
+const drivers=driversResult.data||[];
+const profiles=profilesResult.data||[];
+const rides=ridesResult.data||[];
+
+const profileMap={};
+profiles.forEach(p=>profileMap[p.id]=p);
+
+$("totalDrivers").textContent=drivers.length;
+$("onlineDrivers").textContent=drivers.filter(d=>d.is_online&&d.approval_status==="approved").length;
+$("openRides").textContent=rides.filter(r=>r.status==="open").length;
+$("acceptedRides").textContent=rides.filter(r=>r.status==="accepted").length;
+
+const driversTable=$("driversTable");
+driversTable.innerHTML="";
+
+if(!drivers.length){
+driversTable.innerHTML='<tr><td colspan="4">Nenhum motorista cadastrado.</td></tr>';
+}
+
+drivers.forEach(d=>{
+const p=profileMap[d.id]||{};
+const tr=document.createElement("tr");
+
+const values=[
+p.full_name||"Sem nome",
+p.phone||"Não informado",
+d.approval_status,
+d.is_online?"Online":"Offline"
+];
+
+values.forEach((value,index)=>{
+const td=document.createElement("td");
+td.textContent=value;
+if(index===2)td.className="status "+(value==="approved"?"online":"open");
+if(index===3)td.className="status "+(d.is_online?"online":"offline");
+tr.appendChild(td);
+});
+driversTable.appendChild(tr);
+});
+
+const ridesTable=$("ridesTable");
+ridesTable.innerHTML="";
+
+if(!rides.length){
+ridesTable.innerHTML='<tr><td colspan="5">Nenhuma corrida registrada.</td></tr>';
+}
+
+rides.forEach(r=>{
+const tr=document.createElement("tr");
+const values=[
+r.pickup||"",
+r.destination||"",
+r.fare==null?"A combinar":Number(r.fare).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}),
+r.status==="open"?"Disponível":r.status==="accepted"?"Aceita":r.status==="completed"?"Concluída":"Cancelada",
+new Date(r.created_at).toLocaleString("pt-BR")
+];
+
+values.forEach((value,index)=>{
+const td=document.createElement("td");
+td.textContent=value;
+if(index===3)td.className="status "+(r.status==="accepted"?"accepted":"open");
+tr.appendChild(td);
+});
+ridesTable.appendChild(tr);
+});
+
+$("lastUpdate").textContent="Última atualização: "+new Date().toLocaleTimeString("pt-BR");
+}
+
+function subscribeRealtime(){
+if(realtimeChannel){
+db.removeChannel(realtimeChannel);
+}
+
+realtimeChannel=db
+.channel("nerocar-central-updates")
+.on("postgres_changes",{event:"*",schema:"public",table:"rides"},()=>loadDashboard())
+.on("postgres_changes",{event:"*",schema:"public",table:"drivers"},()=>loadDashboard())
+.subscribe();
+}
+
+$("refresh").addEventListener("click",loadDashboard);
+
+db.auth.onAuthStateChange((event,session)=>{
+if(event==="SIGNED_OUT"){
+showLogin();
+}
+});
+
+verifySession();
+</script>
+
+</body>
+</html>
