@@ -2,75 +2,190 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nerocar - Motoristas</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #101010;
-      color: white;
-      padding: 25px 15px;
-    }
-    .container {
-      max-width: 430px;
-      margin: 35px auto;
-      background: #1c1c1c;
-      padding: 28px;
-      border-radius: 18px;
-      border: 1px solid #383838;
-    }
-    h1 { text-align: center; color: #f5c400; }
-    p { text-align: center; color: #bbb; }
-    input, button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 12px;
-      border-radius: 9px;
-      font-size: 15px;
-    }
-    input {
-      background: #292929;
-      color: white;
-      border: 1px solid #444;
-    }
-    button {
-      background: #f5c400;
-      color: #111;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .secondary {
-      background: transparent;
-      color: #f5c400;
-      border: 1px solid #f5c400;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nerocar | Motoristas</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:20px 14px;background:#101010;color:white;font-family:Arial,sans-serif}
+.container{max-width:440px;margin:30px auto;background:#1d1d1d;padding:25px;border-radius:18px;border:1px solid #393939}
+h1{text-align:center;color:#f5c400;margin-bottom:5px}
+p{text-align:center;color:#bbb}
+h3{margin-top:25px}
+input,button{width:100%;padding:14px;margin-top:11px;border-radius:9px;font-size:15px}
+input{background:#292929;color:white;border:1px solid #444}
+button{background:#f5c400;color:#111;border:0;font-weight:bold;cursor:pointer}
+.secondary{background:transparent;color:#f5c400;border:1px solid #f5c400}
+#message{padding:12px;border-radius:8px;margin-top:15px;display:none;line-height:1.5}
+#dashboard{display:none}
+hr{border:0;border-top:1px solid #444;margin:25px 0}
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>Nerocar</h1>
-    <p>Central dos Motoristas</p>
+<div class="container">
+  <h1>Nerocar</h1>
+  <p>Central dos Motoristas</p>
 
+  <div id="forms">
     <h3>Criar minha conta</h3>
-    <input type="text" placeholder="Nome completo">
-    <input type="email" placeholder="Seu e-mail">
-    <input type="password" placeholder="Crie uma senha">
-    <input type="text" placeholder="Modelo do veículo">
-    <input type="text" placeholder="Cor do veículo">
-    <input type="text" placeholder="Placa do veículo">
-    <button type="button">Cadastrar motorista</button>
+    <input id="name" placeholder="Nome completo">
+    <input id="email" type="email" placeholder="Seu e-mail">
+    <input id="password" type="password" placeholder="Crie uma senha (mínimo 6 caracteres)">
+    <input id="vehicle" placeholder="Modelo do veículo">
+    <input id="color" placeholder="Cor do veículo">
+    <input id="plate" placeholder="Placa do veículo">
+    <button id="register">Cadastrar motorista</button>
 
-    <hr style="border-color:#444;margin:25px 0">
+    <hr>
 
     <h3>Já tenho cadastro</h3>
-    <input type="email" placeholder="Seu e-mail">
-    <input type="password" placeholder="Sua senha">
-    <button class="secondary" type="button">Entrar</button>
+    <input id="loginEmail" type="email" placeholder="Seu e-mail">
+    <input id="loginPassword" type="password" placeholder="Sua senha">
+    <button class="secondary" id="login">Entrar</button>
   </div>
+
+  <div id="dashboard">
+    <h3>Minha conta</h3>
+    <p id="driverName"></p>
+    <h3 id="approvalStatus"></h3>
+    <p id="approvalText"></p>
+    <button class="secondary" id="logout">Sair da conta</button>
+  </div>
+
+  <div id="message"></div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://xfwkwcpnyvhvmreidqck.supabase.co";
+const SUPABASE_KEY = "sb_publishable_S9Ztcv3nh0EhzUl8VMeLmg_nQuBJ1hR";
+
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const message = document.getElementById("message");
+
+function showMessage(text, error=false) {
+  message.style.display = "block";
+  message.style.background = error ? "#572323" : "#23452d";
+  message.textContent = text;
+}
+
+async function showDriver(user) {
+  document.getElementById("forms").style.display = "none";
+  document.getElementById("dashboard").style.display = "block";
+
+  const {data, error} = await db
+    .from("drivers")
+    .select("name, approved")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if(error) {
+    showMessage("Não foi possível consultar seu cadastro: " + error.message, true);
+    return;
+  }
+
+  if(!data) {
+    showMessage("Sua conta ainda não possui cadastro de motorista. Entre em contato com a Nerocar.", true);
+    return;
+  }
+
+  document.getElementById("driverName").textContent = "Olá, " + data.name;
+
+  if(data.approved) {
+    document.getElementById("approvalStatus").textContent = "Cadastro aprovado";
+    document.getElementById("approvalText").textContent =
+      "Seu cadastro foi aprovado. Em breve você poderá acessar a fila de corridas.";
+  } else {
+    document.getElementById("approvalStatus").textContent = "Aguardando aprovação";
+    document.getElementById("approvalText").textContent =
+      "Seus dados foram recebidos. Aguarde a aprovação do administrador para entrar na fila.";
+  }
+}
+
+document.getElementById("register").onclick = async () => {
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  const vehicle = document.getElementById("vehicle").value.trim();
+  const color = document.getElementById("color").value.trim();
+  const plate = document.getElementById("plate").value.trim().toUpperCase();
+
+  if(!name || !email || !password || !vehicle || !color || !plate) {
+    showMessage("Preencha todos os campos.", true);
+    return;
+  }
+
+  if(password.length < 6) {
+    showMessage("A senha precisa ter pelo menos 6 caracteres.", true);
+    return;
+  }
+
+  const button = document.getElementById("register");
+  button.disabled = true;
+  button.textContent = "Cadastrando...";
+
+  const {data, error} = await db.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        name,
+        vehicle_model: vehicle,
+        vehicle_color: color,
+        vehicle_plate: plate
+      }
+    }
+  });
+
+  button.disabled = false;
+  button.textContent = "Cadastrar motorista";
+
+  if(error) {
+    showMessage("Erro no cadastro: " + error.message, true);
+    return;
+  }
+
+  if(data.session) {
+    showMessage("Conta criada com sucesso!");
+    await showDriver(data.user);
+  } else {
+    showMessage("Conta criada! Confira seu e-mail para confirmar o cadastro. Depois volte aqui e faça login.");
+  }
+};
+
+document.getElementById("login").onclick = async () => {
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+
+  if(!email || !password) {
+    showMessage("Informe seu e-mail e sua senha.", true);
+    return;
+  }
+
+  const {data, error} = await db.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if(error) {
+    showMessage("Erro ao entrar: " + error.message, true);
+    return;
+  }
+
+  await showDriver(data.user);
+};
+
+document.getElementById("logout").onclick = async () => {
+  await db.auth.signOut();
+  document.getElementById("dashboard").style.display = "none";
+  document.getElementById("forms").style.display = "block";
+  showMessage("Você saiu da sua conta.");
+};
+
+db.auth.getSession().then(({data}) => {
+  if(data.session) showDriver(data.session.user);
+});
+</script>
 </body>
 </html>
-
