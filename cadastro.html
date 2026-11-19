@@ -1,0 +1,307 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadastro de Motoristas | Nerocar</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ font-family:Arial,sans-serif;
+ background:#f2f4f7;
+ color:#20252d;
+}
+header{
+ background:#17191f;
+ color:white;
+ padding:22px;
+ text-align:center;
+}
+.logo{
+ color:#f5c400;
+ font-size:27px;
+ font-weight:bold;
+}
+.container{
+ max-width:650px;
+ margin:30px auto;
+ padding:0 15px;
+}
+.card{
+ background:white;
+ padding:25px;
+ border-radius:14px;
+ box-shadow:0 3px 15px #00000010;
+}
+h2{margin-top:0}
+label{
+ display:block;
+ margin-top:15px;
+ font-weight:bold;
+ font-size:14px;
+}
+input{
+ width:100%;
+ padding:13px;
+ margin-top:7px;
+ border:1px solid #ddd;
+ border-radius:8px;
+ font-size:15px;
+}
+input[type=file]{background:#fafafa}
+button{
+ width:100%;
+ padding:15px;
+ margin-top:20px;
+ border:0;
+ border-radius:8px;
+ background:#e8b900;
+ color:#17191f;
+ font-weight:bold;
+ font-size:15px;
+ cursor:pointer;
+}
+button:disabled{opacity:.6;cursor:wait}
+.info{
+ background:#fff8d9;
+ padding:13px;
+ border-radius:8px;
+ font-size:13px;
+ line-height:1.5;
+ margin:15px 0;
+}
+.status{
+ padding:13px;
+ margin-top:15px;
+ border-radius:8px;
+ background:#e8f5eb;
+ color:#17652b;
+ display:none;
+ overflow-wrap:anywhere;
+}
+.error{
+ background:#ffe5e5;
+ color:#a00000;
+}
+.hidden{display:none}
+small{color:#777;line-height:1.5}
+footer{text-align:center;color:#888;font-size:12px;padding:25px}
+</style>
+</head>
+
+<body>
+
+<header>
+ <div class="logo">NEROCAR</div>
+ <div>Cadastro de Motoristas</div>
+</header>
+
+<div class="container">
+<div class="card">
+
+<h2>Faça seu cadastro</h2>
+<p>Preencha seus dados para participar da Nerocar.</p>
+
+<div class="info">
+Após o cadastro, seus dados e documentos serão analisados.
+Você somente poderá ficar online depois da aprovação administrativa.
+</div>
+
+<form id="registerForm">
+
+<label>Nome completo</label>
+<input id="name" type="text" required placeholder="Seu nome completo">
+
+<label>E-mail</label>
+<input id="email" type="email" required placeholder="Seu e-mail">
+
+<label>Telefone / WhatsApp</label>
+<input id="phone" type="tel" required placeholder="(62) 99999-9999">
+
+<label>Crie uma senha</label>
+<input id="password" type="password" required minlength="6" placeholder="Mínimo de 6 caracteres">
+
+<label>Modelo do veículo</label>
+<input id="vehicle" type="text" required placeholder="Ex.: Chevrolet Onix 2020">
+
+<label>Placa do veículo</label>
+<input id="plate" type="text" required maxlength="10" placeholder="ABC1D23">
+
+<label>Foto ou PDF da CNH</label>
+<input id="cnh" type="file" accept=".jpg,.jpeg,.png,.pdf" required>
+
+<label>Documento do veículo (CRLV)</label>
+<input id="vehicleDoc" type="file" accept=".jpg,.jpeg,.png,.pdf" required>
+
+<small>Arquivos permitidos: JPG, PNG e PDF. Tamanho máximo: 10 MB por arquivo.</small>
+
+<button id="registerButton" type="submit">FINALIZAR CADASTRO</button>
+</form>
+
+<div id="loginAgain" class="hidden">
+ <div class="info">
+ Seu cadastro foi criado. Confirme seu e-mail pelo link enviado pelo Supabase.
+ Depois, volte a esta página e clique abaixo para entrar e enviar seus documentos.
+ </div>
+ <button id="loginButton" type="button">JÁ CONFIRMEI MEU E-MAIL — ENTRAR E ENVIAR DOCUMENTOS</button>
+</div>
+
+<div id="status" class="status"></div>
+
+</div>
+</div>
+
+<footer>
+NEROCAR — Mobilidade com segurança e confiança.
+</footer>
+
+<script>
+const SUPABASE_URL = "https://lgemdswryijvphzuluih.supabase.co";
+const SUPABASE_KEY = "sb_publishable_5pC0rg4nYow7EifhFiksSg_mr4cM0cK";
+
+const db = window.supabase.createClient(
+ SUPABASE_URL,
+ SUPABASE_KEY
+);
+
+const $ = id => document.getElementById(id);
+
+function showStatus(text,error=false){
+ const box=$("status");
+ box.textContent=text;
+ box.className="status"+(error?" error":"");
+ box.style.display="block";
+}
+
+function validateFiles(){
+ const cnh=$("cnh").files[0];
+ const doc=$("vehicleDoc").files[0];
+
+ if(!cnh || !doc){
+  throw new Error("Selecione a CNH e o documento do veículo.");
+ }
+
+ const allowed=["image/jpeg","image/png","application/pdf"];
+
+ for(const file of [cnh,doc]){
+  if(!allowed.includes(file.type)){
+   throw new Error("Use somente arquivos JPG, PNG ou PDF.");
+  }
+
+  if(file.size>10*1024*1024){
+   throw new Error("Cada arquivo deve ter no máximo 10 MB.");
+  }
+ }
+
+ return {cnh,doc};
+}
+
+async function uploadDocuments(user){
+ const {cnh,doc}=validateFiles();
+
+ const cnhPath=user.id+"/cnh_"+Date.now()+"_"+cnh.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+ const docPath=user.id+"/veiculo_"+Date.now()+"_"+doc.name.replace(/[^a-zA-Z0-9._-]/g,"_");
+
+ showStatus("Enviando CNH...");
+
+ const cnhUpload=await db.storage
+  .from("nerocar-documentos")
+  .upload(cnhPath,cnh,{contentType:cnh.type});
+
+ if(cnhUpload.error) throw cnhUpload.error;
+
+ showStatus("Enviando documento do veículo...");
+
+ const docUpload=await db.storage
+  .from("nerocar-documentos")
+  .upload(docPath,doc,{contentType:doc.type});
+
+ if(docUpload.error) throw docUpload.error;
+
+ const save=await db.rpc("save_driver_documents",{
+  p_cnh_path:cnhPath,
+  p_vehicle_document_path:docPath
+ });
+
+ if(save.error) throw save.error;
+
+ $("registerForm").classList.add("hidden");
+ $("loginAgain").classList.add("hidden");
+
+ showStatus("Cadastro enviado com sucesso! Seus documentos estão protegidos e seu cadastro está aguardando aprovação da Nerocar.");
+}
+
+$("registerForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+
+ const button=$("registerButton");
+ button.disabled=true;
+
+ try{
+  validateFiles();
+
+  showStatus("Criando seu cadastro...");
+
+  const {data,error}=await db.auth.signUp({
+   email:$("email").value.trim(),
+   password:$("password").value,
+   options:{
+    data:{
+     full_name:$("name").value.trim(),
+     phone:$("phone").value.trim(),
+     vehicle_model:$("vehicle").value.trim(),
+     vehicle_plate:$("plate").value.trim().toUpperCase()
+    }
+   }
+  });
+
+  if(error) throw error;
+
+  if(data.session){
+   await uploadDocuments(data.user);
+  }else{
+   $("loginAgain").classList.remove("hidden");
+   showStatus("Cadastro criado! Se o Supabase solicitar confirmação de e-mail, confirme antes de continuar.");
+  }
+
+ }catch(error){
+  console.error(error);
+  showStatus("Não foi possível concluir: "+error.message,true);
+ }finally{
+  button.disabled=false;
+ }
+});
+
+$("loginButton").addEventListener("click",async()=>{
+ const button=$("loginButton");
+ button.disabled=true;
+
+ try{
+  showStatus("Verificando seu acesso...");
+
+  const {data,error}=await db.auth.signInWithPassword({
+   email:$("email").value.trim(),
+   password:$("password").value
+  });
+
+  if(error) throw error;
+
+  if(!data.user) throw new Error("Não foi possível identificar sua conta.");
+
+  await uploadDocuments(data.user);
+
+ }catch(error){
+  console.error(error);
+  showStatus("Não foi possível entrar ou enviar os documentos: "+error.message,true);
+ }finally{
+  button.disabled=false;
+ }
+});
+</script>
+
+</body>
+</html>
