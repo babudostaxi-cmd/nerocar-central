@@ -75,6 +75,12 @@ button:disabled{opacity:.5}
 <h3>Minha conta</h3>
 <p>Olá, <strong id="nomeMotorista"></strong></p>
 <p id="veiculoMotorista" class="small"></p>
+
+<button id="btnAlerta" class="primary" onclick="ativarAlertaSonoro()">
+ATIVAR ALERTA SONORO
+</button>
+<p id="statusAlerta" class="small">Alerta sonoro ainda não ativado.</p>
+
 <div id="status" class="status">Verificando situação...</div>
 <p id="explicacao" class="small"></p>
 
@@ -102,7 +108,6 @@ button:disabled{opacity:.5}
 
 <p id="mensagemCorrida" class="small"></p>
 
-<!-- CHAT PRIVADO COM O PASSAGEIRO -->
 <div id="chatArea" class="chat-area hidden">
 <h3>Chat com o passageiro</h3>
 <p class="small">Envie mensagens diretamente para o passageiro desta corrida.</p>
@@ -136,8 +141,95 @@ let carregandoChat = false;
 let enviandoChat = false;
 let ultimoConteudoChat = "";
 
+/* CONTROLE DO ALERTA SONORO */
+let audioContext = null;
+let alertaAtivado = false;
+let ultimaCorridaAlertada = null;
+
 function mensagem(texto){
  document.getElementById("mensagemAcesso").textContent=texto;
+}
+
+/* ATIVAR O SOM COM INTERAÇÃO DO MOTORISTA */
+async function ativarAlertaSonoro(){
+ const btn=document.getElementById("btnAlerta");
+ const status=document.getElementById("statusAlerta");
+
+ try{
+  const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+
+  if(!AudioContextClass){
+   status.textContent="Este navegador não suporta alerta sonoro.";
+   return;
+  }
+
+  if(!audioContext){
+   audioContext=new AudioContextClass();
+  }
+
+  if(audioContext.state==="suspended"){
+   await audioContext.resume();
+  }
+
+  alertaAtivado=true;
+  btn.textContent="ALERTA SONORO ATIVADO";
+  btn.style.background="#25884b";
+  btn.style.color="white";
+  status.textContent="Alerta ativado! Você ouvirá quando chegar uma nova corrida.";
+
+  tocarSomTeste();
+
+ }catch(e){
+  alertaAtivado=false;
+  status.textContent="Não foi possível ativar o som. Tente novamente.";
+ }
+}
+
+/* SOM DE TESTE E ALERTA */
+function tocarSomTeste(){
+ if(!alertaAtivado || !audioContext)return;
+
+ tocarBipes();
+}
+
+function tocarBipes(){
+ if(!audioContext || audioContext.state!=="running")return;
+
+ const agora=audioContext.currentTime;
+
+ for(let i=0;i<3;i++){
+  const oscillator=audioContext.createOscillator();
+  const gain=audioContext.createGain();
+
+  oscillator.type="sine";
+  oscillator.frequency.value=i===1?1050:850;
+
+  gain.gain.setValueAtTime(0,agora+i*0.32);
+  gain.gain.linearRampToValueAtTime(0.22,agora+i*0.32+0.025);
+  gain.gain.exponentialRampToValueAtTime(0.001,agora+i*0.32+0.20);
+
+  oscillator.connect(gain);
+  gain.connect(audioContext.destination);
+
+  oscillator.start(agora+i*0.32);
+  oscillator.stop(agora+i*0.32+0.22);
+ }
+}
+
+/* ALERTAR SOMENTE UMA VEZ POR NOVA CHAMADA */
+function alertarNovaCorrida(c){
+ if(!c || c.status!=="pending")return;
+
+ if(ultimaCorridaAlertada===c.ride_id)return;
+
+ ultimaCorridaAlertada=c.ride_id;
+
+ if(alertaAtivado){
+  tocarBipes();
+ }else{
+  document.getElementById("statusAlerta").textContent=
+   "Nova corrida recebida! Ative o alerta sonoro para ouvir as próximas chamadas.";
+ }
 }
 
 async function cadastrar(){
@@ -305,6 +397,11 @@ async function sairFila(){
 
 function mostrarCorrida(c){
  const corridaMudou=!corridaAtual || corridaAtual.ride_id!==c.ride_id;
+
+ if(corridaMudou){
+  alertarNovaCorrida(c);
+ }
+
  corridaAtual=c;
 
  document.getElementById("painelCorrida").classList.remove("hidden");
