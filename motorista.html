@@ -323,23 +323,44 @@ async function responderCorrida(funcao){
  const id=corridaAtual.ride_id;
  const btnAceitar=document.getElementById("btnAceitar");
  const btnRecusar=document.getElementById("btnRecusar");
+ const mensagemFila=document.getElementById("mensagemFila");
+ const mensagemCorrida=document.getElementById("mensagemCorrida");
+
  btnAceitar.disabled=true;
  btnRecusar.disabled=true;
- document.getElementById("mensagemCorrida").textContent="Enviando resposta...";
+ mensagemCorrida.textContent="Enviando resposta...";
 
  try{
-  const {data,error}=await db.rpc(funcao,{p_corrida_id:id});
+  const {data,error}=await db.rpc(funcao,{
+   p_corrida_id:id
+  });
+
   if(error)throw error;
 
   if(!data || !data.success){
    throw new Error(data?.message||"Não foi possível responder.");
   }
 
-  document.getElementById("mensagemCorrida").textContent=data.message;
-  await verificarCorrida();
-  await atualizarStatus();
+  if(funcao==="recusar_corrida"){
+   if(data.reassigned){
+    mensagemFila.textContent=
+     "Corrida recusada. Chamada encaminhada ao próximo motorista da fila.";
+   }else{
+    mensagemFila.textContent=
+     "Corrida recusada. Não há outro motorista disponível no momento.";
+   }
+
+   esconderCorrida();
+   await atualizarStatus();
+
+  }else{
+   mensagemCorrida.textContent=data.message||"Corrida aceita com sucesso.";
+   await verificarCorrida();
+   await atualizarStatus();
+  }
+
  }catch(e){
-  document.getElementById("mensagemCorrida").textContent="Erro: "+e.message;
+  mensagemCorrida.textContent="Erro: "+e.message;
  }finally{
   btnAceitar.disabled=false;
   btnRecusar.disabled=false;
