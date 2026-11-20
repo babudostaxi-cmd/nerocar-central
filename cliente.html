@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nerocar | Solicitar corrida</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#101010;color:white;font-family:Arial,sans-serif;padding:20px}
@@ -31,6 +32,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .hidden{display:none}
 </style>
 </head>
+
 <body>
 <div class="container">
 
@@ -60,6 +62,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
 </form>
 
 <p class="small">Confira se o endereço está correto antes de solicitar.</p>
+
+<div id="resultado" class="dado hidden" aria-live="polite"></div>
 </section>
 
 <section id="painelAcompanhamento" class="card hidden" aria-live="polite">
@@ -85,7 +89,7 @@ Aguardando informações...
 Atualizando situação automaticamente...
 </p>
 
-<button id="btnNovaCorrida" class="hidden" onclick="novaCorrida()">
+<button id="btnNovaCorrida" class="hidden" type="button">
 SOLICITAR OUTRA CORRIDA
 </button>
 </section>
@@ -99,6 +103,7 @@ const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 const form=document.getElementById("formCorrida");
 const botao=document.getElementById("btnSolicitar");
+const resultado=document.getElementById("resultado");
 const painel=document.getElementById("painelAcompanhamento");
 
 let corridaAtual=null;
@@ -125,6 +130,13 @@ function recuperarCorrida(){
  }
 }
 
+function pararAcompanhamento(){
+ if(timerAcompanhamento){
+  clearInterval(timerAcompanhamento);
+  timerAcompanhamento=null;
+ }
+}
+
 function mostrarDadosMotorista(data){
  if(!data.driver_name)return;
 
@@ -137,6 +149,7 @@ function mostrarDadosMotorista(data){
 
 function atualizarVisual(data){
  painel.classList.remove("hidden");
+
  document.getElementById("origem").textContent=data.pickup_address||"";
  mostrarDadosMotorista(data);
 
@@ -150,24 +163,18 @@ function atualizarVisual(data){
   status.textContent="Aguardando confirmação do motorista";
   mensagem.textContent="Seu pedido foi enviado. Estamos aguardando a resposta.";
   exibir("btnNovaCorrida",false);
-  botao.disabled=true;
-  botao.textContent="CORRIDA SOLICITADA";
 
  }else if(data.status==="accepted"){
   status.classList.add("verde");
   status.textContent="Motorista confirmou sua corrida!";
   mensagem.textContent="Sua corrida foi aceita. O motorista está responsável pelo atendimento.";
   exibir("btnNovaCorrida",false);
-  botao.disabled=true;
-  botao.textContent="CORRIDA CONFIRMADA";
 
  }else if(data.status==="completed"){
   status.classList.add("verde");
   status.textContent="Corrida finalizada!";
   mensagem.textContent="Obrigado por viajar com a Nerocar.";
   exibir("btnNovaCorrida",true);
-  botao.disabled=true;
-
   pararAcompanhamento();
 
  }else if(data.status==="cancelled"){
@@ -175,14 +182,13 @@ function atualizarVisual(data){
   status.textContent="Corrida cancelada";
   mensagem.textContent="Esta solicitação foi cancelada. Você pode solicitar outra corrida.";
   exibir("btnNovaCorrida",true);
-  botao.disabled=true;
-
   pararAcompanhamento();
  }
 }
 
 async function acompanhar(){
  if(!corridaAtual||consultando)return;
+
  consultando=true;
 
  try{
@@ -203,7 +209,7 @@ async function acompanhar(){
 
  }catch(e){
   document.getElementById("mensagemAcompanhamento").textContent=
-   "Erro ao atualizar: "+e.message;
+   "Não foi possível atualizar a corrida. Tentaremos novamente.";
  }finally{
   consultando=false;
  }
@@ -216,18 +222,29 @@ function iniciarAcompanhamento(){
  timerAcompanhamento=setInterval(acompanhar,5000);
 }
 
-function pararAcompanhamento(){
- if(timerAcompanhamento){
-  clearInterval(timerAcompanhamento);
-  timerAcompanhamento=null;
- }
+function mostrarSemMotorista(){
+ pararAcompanhamento();
+
+ form.reset();
+ botao.disabled=false;
+ botao.textContent="PROCURAR MOTORISTA";
+
+ painel.classList.add("hidden");
+ resultado.className="dado erro";
+ resultado.innerHTML=`
+  <h3>Nenhum motorista disponível no momento.</h3>
+  <p>No momento, nossos motoristas estão ocupados ou fora da fila.</p>
+  <p>Pedimos desculpas pelo transtorno! Tente novamente em alguns instantes.</p>
+  <p>A Nerocar agradece sua preferência.</p>
+ `;
+ resultado.classList.remove("hidden");
 }
 
 form.addEventListener("submit",async function(event){
  event.preventDefault();
 
  if(corridaAtual){
-  alert("Você já possui uma solicitação registrada.");
+  alert("Você já possui uma corrida em andamento.");
   return;
  }
 
@@ -243,6 +260,9 @@ form.addEventListener("submit",async function(event){
  botao.disabled=true;
  botao.textContent="PROCURANDO MOTORISTA...";
 
+ resultado.classList.add("hidden");
+ resultado.textContent="";
+
  try{
   const {data,error}=await db.rpc("solicitar_corrida",{
    p_nome:nome,
@@ -252,22 +272,9 @@ form.addEventListener("submit",async function(event){
 
   if(error)throw error;
 
-if(!data.success){
-  form.classList.add("hidden");
-  painel.classList.remove("hidden");
-
-  const status=document.getElementById("statusCorrida");
-  status.className="status vermelho";
-  status.textContent="Nenhum motorista disponível no momento.";
-
-  document.getElementById("mensagemAcompanhamento").textContent=
-   "No momento, nossos motoristas estão ocupados ou fora da fila. Pedimos desculpas pelo transtorno! Tente novamente em alguns instantes. A Nerocar agradece sua preferência.";
-
-  exibir("dadosMotorista",false);
-  exibir("btnNovaCorrida",true);
-
-  return;
-}
+  if(!data.success){
+   mostrarSemMotorista();
+   return;
   }
 
   if(!data.passenger_token||!data.ride_id){
@@ -279,8 +286,10 @@ if(!data.success){
    passenger_token:data.passenger_token
   });
 
-  form.reset();
   form.classList.add("hidden");
+  resultado.classList.add("hidden");
+
+  painel.classList.remove("hidden");
 
   document.getElementById("origem").textContent=endereco;
   document.getElementById("motorista").textContent=data.driver_name||"";
@@ -291,33 +300,44 @@ if(!data.success){
   iniciarAcompanhamento();
 
  }catch(error){
-  alert("Não foi possível solicitar: "+error.message);
-  botao.disabled=false;
-  botao.textContent="PROCURAR MOTORISTA";
+  resultado.className="dado erro";
+  resultado.textContent="Não foi possível solicitar: "+error.message;
+  resultado.classList.remove("hidden");
+
+ }finally{
+  if(!corridaAtual){
+   botao.disabled=false;
+   botao.textContent="PROCURAR MOTORISTA";
+  }
  }
 });
 
-function novaCorrida(){
+document.getElementById("btnNovaCorrida").addEventListener("click",function(){
  pararAcompanhamento();
+
  sessionStorage.removeItem("nerocar_corrida");
  corridaAtual=null;
 
  painel.classList.add("hidden");
+ resultado.classList.add("hidden");
  form.classList.remove("hidden");
  form.reset();
 
  botao.disabled=false;
  botao.textContent="PROCURAR MOTORISTA";
  exibir("btnNovaCorrida",false);
-}
+});
 
 corridaAtual=recuperarCorrida();
 
 if(corridaAtual&&corridaAtual.ride_id&&corridaAtual.passenger_token){
  form.classList.add("hidden");
- painel.classList.remove("hidden");
  iniciarAcompanhamento();
+}else{
+ sessionStorage.removeItem("nerocar_corrida");
+ corridaAtual=null;
 }
 </script>
+
 </body>
 </html>
