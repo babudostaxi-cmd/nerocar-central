@@ -26,6 +26,20 @@ button:disabled{opacity:.5}
 .green{color:#43d17a}
 .red{color:#ff6969}
 .info{background:#292929;padding:12px;border-radius:9px;margin:10px 0;overflow-wrap:anywhere}
+
+/* CHAT */
+.chat-area{border-top:1px solid #444;margin-top:20px;padding-top:16px}
+.chat-area h3{color:#f5c400;margin-top:0}
+.chat-lista{height:260px;overflow-y:auto;background:#111;border:1px solid #383838;border-radius:10px;padding:12px;margin:12px 0}
+.chat-vazio{text-align:center;color:#888;font-size:13px;padding:25px 5px}
+.chat-mensagem{max-width:88%;padding:10px 12px;border-radius:12px;margin:8px 0;overflow-wrap:anywhere;font-size:14px;line-height:1.4}
+.chat-mensagem.motorista{background:#514400;margin-left:auto;color:white}
+.chat-mensagem.passageiro{background:#303030;margin-right:auto;color:white}
+.chat-autor{font-size:11px;color:#f5c400;font-weight:bold;margin-bottom:4px}
+.chat-hora{font-size:10px;color:#aaa;margin-top:5px;text-align:right}
+.chat-envio{display:flex;gap:8px;align-items:center}
+.chat-envio input{margin:0;min-width:0;flex:1}
+.chat-envio button{width:auto;min-width:90px;margin:0;padding:14px 10px}
 </style>
 </head>
 <body>
@@ -87,6 +101,23 @@ button:disabled{opacity:.5}
 <button id="btnFinalizar" class="primary hidden" onclick="finalizarCorrida()">FINALIZAR CORRIDA</button>
 
 <p id="mensagemCorrida" class="small"></p>
+
+<!-- CHAT PRIVADO COM O PASSAGEIRO -->
+<div id="chatArea" class="chat-area hidden">
+<h3>Chat com o passageiro</h3>
+<p class="small">Envie mensagens diretamente para o passageiro desta corrida.</p>
+
+<div id="listaMensagens" class="chat-lista">
+<div class="chat-vazio">Carregando mensagens...</div>
+</div>
+
+<div class="chat-envio">
+<input id="textoMensagem" type="text" maxlength="1000" placeholder="Digite sua mensagem...">
+<button id="btnEnviarMensagem" class="primary" onclick="enviarMensagem()">ENVIAR</button>
+</div>
+<p id="statusChat" class="small"></p>
+</div>
+
 </div>
 </section>
 
@@ -99,7 +130,11 @@ const db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 let corridaAtual = null;
 let verificacaoTimer = null;
+let chatTimer = null;
 let consultando = false;
+let carregandoChat = false;
+let enviandoChat = false;
+let ultimoConteudoChat = "";
 
 function mensagem(texto){
  document.getElementById("mensagemAcesso").textContent=texto;
@@ -269,7 +304,9 @@ async function sairFila(){
 }
 
 function mostrarCorrida(c){
+ const corridaMudou=!corridaAtual || corridaAtual.ride_id!==c.ride_id;
  corridaAtual=c;
+
  document.getElementById("painelCorrida").classList.remove("hidden");
  document.getElementById("passageiro").textContent=c.passenger_name||"Não informado";
  document.getElementById("origem").textContent=c.pickup_address||"Não informado";
@@ -280,14 +317,26 @@ function mostrarCorrida(c){
  const aceita=c.status==="pending";
  document.getElementById("avisoCorrida").textContent=
   aceita?"Nova corrida aguardando sua resposta!":"Corrida aceita. Boa viagem!";
+
  document.getElementById("btnAceitar").classList.toggle("hidden",!aceita);
  document.getElementById("btnRecusar").classList.toggle("hidden",!aceita);
  document.getElementById("btnFinalizar").classList.toggle("hidden",aceita);
+
+ document.getElementById("chatArea").classList.remove("hidden");
+
+ if(corridaMudou){
+  ultimoConteudoChat="";
+  document.getElementById("listaMensagens").innerHTML=
+   '<div class="chat-vazio">Carregando mensagens...</div>';
+  carregarMensagens();
+ }
 }
 
 function esconderCorrida(){
  corridaAtual=null;
  document.getElementById("painelCorrida").classList.add("hidden");
+ document.getElementById("chatArea").classList.add("hidden");
+ ultimoConteudoChat="";
 }
 
 async function verificarCorrida(){
@@ -311,10 +360,123 @@ async function verificarCorrida(){
  }
 }
 
+/* BUSCAR MENSAGENS DO CHAT */
+async function carregarMensagens(){
+ if(!corridaAtual || carregandoChat)return;
+
+ const rideId=corridaAtual.ride_id;
+ carregandoChat=true;
+
+ try{
+  const {data,error}=await db.rpc("listar_mensagens_corrida",{
+   p_corrida_id:rideId
+  });
+
+  if(error)throw error;
+  if(!corridaAtual || corridaAtual.ride_id!==rideId)return;
+
+  const mensagens=Array.isArray(data)?data:[];
+  const assinatura=mensagens.map(m=>
+   [m.id,m.sender_role,m.message,m.created_at].join("|")
+  ).join("||");
+
+  if(assinatura===ultimoConteudoChat)return;
+  ultimoConteudoChat=assinatura;
+
+  const lista=document.getElementById("listaMensagens");
+  lista.innerHTML="";
+
+  if(mensagens.length===0){
+   const vazio=document.createElement("div");
+   vazio.className="chat-vazio";
+   vazio.textContent="Nenhuma mensagem ainda. Você pode iniciar a conversa.";
+   lista.appendChild(vazio);
+   return;
+  }
+
+  mensagens.forEach(m=>{
+   const item=document.createElement("div");
+   const souMotorista=m.sender_role==="driver";
+   item.className="chat-mensagem "+(souMotorista?"motorista":"passageiro");
+
+   const autor=document.createElement("div");
+   autor.className="chat-autor";
+   autor.textContent=souMotorista?"Você":"Passageiro";
+
+   const texto=document.createElement("div");
+   texto.textContent=m.message||"";
+
+   const hora=document.createElement("div");
+   hora.className="chat-hora";
+   hora.textContent=m.created_at?
+    new Date(m.created_at).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}):"";
+
+   item.appendChild(autor);
+   item.appendChild(texto);
+   item.appendChild(hora);
+   lista.appendChild(item);
+  });
+
+  lista.scrollTop=lista.scrollHeight;
+
+ }catch(e){
+  document.getElementById("statusChat").textContent=
+   "Erro ao carregar mensagens: "+e.message;
+ }finally{
+  carregandoChat=false;
+ }
+}
+
+/* ENVIAR MENSAGEM AO PASSAGEIRO */
+async function enviarMensagem(){
+ if(!corridaAtual || enviandoChat)return;
+
+ const campo=document.getElementById("textoMensagem");
+ const btn=document.getElementById("btnEnviarMensagem");
+ const status=document.getElementById("statusChat");
+ const texto=campo.value.trim();
+
+ if(!texto){
+  status.textContent="Digite uma mensagem antes de enviar.";
+  return;
+ }
+
+ const rideId=corridaAtual.ride_id;
+ enviandoChat=true;
+ btn.disabled=true;
+ status.textContent="Enviando mensagem...";
+
+ try{
+  const {data,error}=await db.rpc("enviar_mensagem_corrida",{
+   p_corrida_id:rideId,
+   p_mensagem:texto
+  });
+
+  if(error)throw error;
+  if(!data || !data.success){
+   throw new Error(data?.message||"Não foi possível enviar a mensagem.");
+  }
+
+  campo.value="";
+  status.textContent="Mensagem enviada.";
+  ultimoConteudoChat="";
+  await carregarMensagens();
+
+ }catch(e){
+  status.textContent="Erro ao enviar: "+e.message;
+ }finally{
+  enviandoChat=false;
+  btn.disabled=false;
+ }
+}
+
 function iniciarVerificacao(){
  if(verificacaoTimer)clearInterval(verificacaoTimer);
+ if(chatTimer)clearInterval(chatTimer);
+
  verificarCorrida();
  verificacaoTimer=setInterval(verificarCorrida,5000);
+ chatTimer=setInterval(carregarMensagens,4000);
 }
 
 async function responderCorrida(funcao){
@@ -402,9 +564,17 @@ async function finalizarCorrida(){
 
 async function sairConta(){
  if(verificacaoTimer)clearInterval(verificacaoTimer);
+ if(chatTimer)clearInterval(chatTimer);
  await db.auth.signOut();
  location.reload();
 }
+
+document.getElementById("textoMensagem").addEventListener("keydown",function(e){
+ if(e.key==="Enter"){
+  e.preventDefault();
+  enviarMensagem();
+ }
+});
 
 db.auth.getSession().then(async ({data})=>{
  if(data.session){
