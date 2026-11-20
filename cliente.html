@@ -252,9 +252,22 @@ form.addEventListener("submit",async function(event){
 
   if(error)throw error;
 
-  if(!data.success){
-   alert(data.message||"Nenhum motorista disponível.");
-   return;
+if(!data.success){
+  form.classList.add("hidden");
+  painel.classList.remove("hidden");
+
+  const status=document.getElementById("statusCorrida");
+  status.className="status vermelho";
+  status.textContent="Nenhum motorista disponível no momento.";
+
+  document.getElementById("mensagemAcompanhamento").textContent=
+   "No momento, nossos motoristas estão ocupados ou fora da fila. Pedimos desculpas pelo transtorno! Tente novamente em alguns instantes. A Nerocar agradece sua preferência.";
+
+  exibir("dadosMotorista",false);
+  exibir("btnNovaCorrida",true);
+
+  return;
+}
   }
 
   if(!data.passenger_token||!data.ride_id){
