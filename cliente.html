@@ -35,7 +35,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .chat h3{margin-top:0}
 .mensagens{height:260px;overflow-y:auto;background:#121212;border:1px solid #333;border-radius:12px;padding:12px;margin:12px 0}
 .mensagem{max-width:85%;padding:11px 13px;border-radius:12px;margin:9px 0;overflow-wrap:anywhere;font-size:14px;line-height:1.4}
-.mensagem passageiro{background:#5b4800}
 .mensagem.minha{background:#5b4800;margin-left:auto}
 .mensagem.motorista{background:#303030;margin-right:auto}
 .autor{font-size:11px;color:#f5c400;font-weight:bold;margin-bottom:5px}
@@ -76,16 +75,13 @@ button:disabled{opacity:.5;cursor:not-allowed}
 </form>
 
 <p class="small">Confira se o endereço está correto antes de solicitar.</p>
-
 <div id="resultado" class="dado hidden" aria-live="polite"></div>
 </section>
 
 <section id="painelAcompanhamento" class="card hidden" aria-live="polite">
 <h2>Acompanhar minha corrida</h2>
 
-<div id="statusCorrida" class="status amarelo">
-Aguardando informações...
-</div>
+<div id="statusCorrida" class="status amarelo">Aguardando informações...</div>
 
 <div id="dadosMotorista" class="dado hidden">
 <p><strong>Motorista:</strong> <span id="motorista"></span></p>
@@ -99,11 +95,8 @@ Aguardando informações...
 <p><strong>Valor:</strong> R$ 18,00</p>
 </div>
 
-<p id="mensagemAcompanhamento" class="small">
-Atualizando situação automaticamente...
-</p>
+<p id="mensagemAcompanhamento" class="small">Atualizando situação automaticamente...</p>
 
-<!-- CHAT PRIVADO -->
 <div id="painelChat" class="chat hidden">
 <h3>Conversa com o motorista</h3>
 <p class="small">Envie uma mensagem diretamente para o motorista da sua corrida.</p>
@@ -122,16 +115,14 @@ Atualizando situação automaticamente...
 <p class="chat-aviso">Esta conversa é privada e vinculada à sua corrida.</p>
 </div>
 
-<button id="btnNovaCorrida" class="hidden" type="button">
-SOLICITAR OUTRA CORRIDA
-</button>
+<button id="btnNovaCorrida" class="hidden" type="button">SOLICITAR OUTRA CORRIDA</button>
 </section>
 
 </div>
 
 <script>
 const SUPABASE_URL="https://xfwkwcpnyvhvmreidqck.supabase.co";
-const SUPABASE_KEY="sb_publishable_S9Ztcv3nh0EhzUl8VMeLmg_nQuBJ1h";
+const SUPABASE_KEY="sb_publishable_S9Ztcv3nh0EhzUl8VMeLmg_nQuBJ1hR";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 const form=document.getElementById("formCorrida");
@@ -175,7 +166,6 @@ function pararAcompanhamento(){
 
 function mostrarDadosMotorista(data){
  if(!data.driver_name)return;
-
  exibir("dadosMotorista",true);
  document.getElementById("motorista").textContent=data.driver_name||"";
  document.getElementById("veiculo").textContent=data.vehicle_model||"";
@@ -185,13 +175,11 @@ function mostrarDadosMotorista(data){
 
 function atualizarVisual(data){
  painel.classList.remove("hidden");
-
  document.getElementById("origem").textContent=data.pickup_address||"";
  mostrarDadosMotorista(data);
 
  const status=document.getElementById("statusCorrida");
  const mensagem=document.getElementById("mensagemAcompanhamento");
-
  status.className="status";
 
  if(data.status==="pending"){
@@ -235,7 +223,6 @@ function formatarHorario(data){
 
 async function carregarMensagens(){
  if(!corridaAtual||carregandoMensagens)return;
-
  carregandoMensagens=true;
 
  try{
@@ -248,12 +235,10 @@ async function carregarMensagens(){
 
   const mensagens=Array.isArray(data)?data:[];
   const lista=document.getElementById("listaMensagens");
-
   const assinatura=JSON.stringify(mensagens);
 
   if(assinatura===ultimoConteudoMensagens)return;
   ultimoConteudoMensagens=assinatura;
-
   lista.replaceChildren();
 
   if(mensagens.length===0){
@@ -296,13 +281,11 @@ async function carregarMensagens(){
 
 document.getElementById("formMensagem").addEventListener("submit",async function(event){
  event.preventDefault();
-
  if(!corridaAtual||enviandoMensagem)return;
 
  const campo=document.getElementById("textoMensagem");
  const botaoEnviar=document.getElementById("btnEnviarMensagem");
  const mensagem=campo.value.trim();
-
  if(!mensagem)return;
 
  enviandoMensagem=true;
@@ -322,6 +305,7 @@ document.getElementById("formMensagem").addEventListener("submit",async function
   }
 
   campo.value="";
+  ultimoConteudoMensagens="";
   await carregarMensagens();
 
  }catch(e){
@@ -336,7 +320,6 @@ document.getElementById("formMensagem").addEventListener("submit",async function
 
 async function acompanhar(){
  if(!corridaAtual||consultando)return;
-
  consultando=true;
 
  try{
@@ -376,12 +359,11 @@ function iniciarAcompanhamento(){
 
 function mostrarSemMotorista(){
  pararAcompanhamento();
-
  form.reset();
  botao.disabled=false;
  botao.textContent="PROCURAR MOTORISTA";
-
  painel.classList.add("hidden");
+
  resultado.className="dado erro";
  resultado.innerHTML=`
   <h3>Nenhum motorista disponível no momento.</h3>
@@ -411,7 +393,6 @@ form.addEventListener("submit",async function(event){
 
  botao.disabled=true;
  botao.textContent="PROCURANDO MOTORISTA...";
-
  resultado.classList.add("hidden");
  resultado.textContent="";
 
@@ -423,7 +404,6 @@ form.addEventListener("submit",async function(event){
   });
 
   if(error)throw error;
-
   if(!data.success){
    mostrarSemMotorista();
    return;
@@ -438,9 +418,9 @@ form.addEventListener("submit",async function(event){
    passenger_token:data.passenger_token
   });
 
+  ultimoConteudoMensagens="";
   form.classList.add("hidden");
   resultado.classList.add("hidden");
-
   painel.classList.remove("hidden");
 
   document.getElementById("origem").textContent=endereco;
@@ -466,7 +446,6 @@ form.addEventListener("submit",async function(event){
 
 document.getElementById("btnNovaCorrida").addEventListener("click",function(){
  pararAcompanhamento();
-
  sessionStorage.removeItem("nerocar_corrida");
  corridaAtual=null;
  ultimoConteudoMensagens="";
