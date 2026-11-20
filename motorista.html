@@ -3,188 +3,262 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nerocar | Motoristas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nerocar | Motorista</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
-body{margin:0;padding:20px 14px;background:#101010;color:white;font-family:Arial,sans-serif}
-.container{max-width:440px;margin:30px auto;background:#1d1d1d;padding:25px;border-radius:18px;border:1px solid #393939}
-h1{text-align:center;color:#f5c400;margin-bottom:5px}
-p{text-align:center;color:#bbb}
-h3{margin-top:25px}
-input,button{width:100%;padding:14px;margin-top:11px;border-radius:9px;font-size:15px}
-input{background:#292929;color:white;border:1px solid #444}
-button{background:#f5c400;color:#111;border:0;font-weight:bold;cursor:pointer}
-.secondary{background:transparent;color:#f5c400;border:1px solid #f5c400}
-#message{padding:12px;border-radius:8px;margin-top:15px;display:none;line-height:1.5}
-#dashboard{display:none}
-hr{border:0;border-top:1px solid #444;margin:25px 0}
+body{margin:0;background:#101010;color:white;font-family:Arial,sans-serif;padding:20px}
+.container{max-width:520px;margin:auto}
+header{text-align:center;margin:25px 0}
+.logo{font-size:34px;font-weight:bold;color:#f5c400}
+.card{background:#1d1d1d;border:1px solid #333;border-radius:16px;padding:20px;margin-bottom:16px}
+input{width:100%;padding:14px;margin:8px 0;border-radius:9px;border:1px solid #444;background:#292929;color:white;font-size:16px}
+button{width:100%;padding:15px;border:0;border-radius:9px;font-weight:bold;font-size:16px;cursor:pointer;margin-top:10px}
+.primary{background:#f5c400;color:#111}
+.secondary{background:#333;color:white}
+.danger{background:#a93232;color:white}
+.hidden{display:none}
+.small{font-size:13px;color:#aaa}
+.status{font-size:19px;font-weight:bold;margin:15px 0}
+.yellow{color:#f5c400}
+.green{color:#43d17a}
+.red{color:#ff6969}
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>Nerocar</h1>
-  <p>Central dos Motoristas</p>
 
-  <div id="forms">
-    <h3>Criar minha conta</h3>
-    <input id="name" placeholder="Nome completo">
-    <input id="email" type="email" placeholder="Seu e-mail">
-    <input id="password" type="password" placeholder="Crie uma senha (mínimo 6 caracteres)">
-    <input id="vehicle" placeholder="Modelo do veículo">
-    <input id="color" placeholder="Cor do veículo">
-    <input id="plate" placeholder="Placa do veículo">
-    <button id="register">Cadastrar motorista</button>
+<header>
+<div class="logo">NERO<span style="color:white">CAR</span></div>
+<h2>Central dos Motoristas</h2>
+<p class="small">Entre na sua conta para acessar a fila de corridas.</p>
+</header>
 
-    <hr>
+<section id="acesso" class="card">
+<h3>Entrar na minha conta</h3>
+<input id="loginEmail" type="email" placeholder="Seu e-mail">
+<input id="loginSenha" type="password" placeholder="Sua senha">
+<button class="primary" onclick="entrar()">Entrar</button>
 
-    <h3>Já tenho cadastro</h3>
-    <input id="loginEmail" type="email" placeholder="Seu e-mail">
-    <input id="loginPassword" type="password" placeholder="Sua senha">
-    <button class="secondary" id="login">Entrar</button>
-  </div>
+<hr style="border-color:#333;margin:25px 0">
 
-  <div id="dashboard">
-    <h3>Minha conta</h3>
-    <p id="driverName"></p>
-    <h3 id="approvalStatus"></h3>
-    <p id="approvalText"></p>
-    <button class="secondary" id="logout">Sair da conta</button>
-  </div>
+<h3>Cadastrar como motorista</h3>
+<input id="nome" placeholder="Nome completo">
+<input id="cadEmail" type="email" placeholder="Seu e-mail">
+<input id="cadSenha" type="password" placeholder="Crie uma senha">
+<input id="modelo" placeholder="Modelo do veículo">
+<input id="cor" placeholder="Cor do veículo">
+<input id="placa" placeholder="Placa do veículo">
+<button class="primary" onclick="cadastrar()">Criar minha conta</button>
+<p id="mensagemAcesso" class="small"></p>
+</section>
 
-  <div id="message"></div>
+<section id="conta" class="hidden">
+<div class="card">
+<h3>Minha conta</h3>
+<p>Olá, <strong id="nomeMotorista"></strong></p>
+<p id="veiculoMotorista" class="small"></p>
+<div id="status" class="status">Verificando situação...</div>
+<p id="explicacao" class="small"></p>
+
+<button id="btnEntrarFila" class="primary hidden" onclick="entrarFila()">Entrar na fila</button>
+<button id="btnSairFila" class="danger hidden" onclick="sairFila()">Sair da fila</button>
+<button class="secondary" onclick="atualizarStatus()">Atualizar situação</button>
+<button class="secondary" onclick="sairConta()">Sair da conta</button>
+<p id="mensagemFila" class="small"></p>
+</div>
+</section>
+
 </div>
 
 <script>
 const SUPABASE_URL = "https://xfwkwcpnyvhvmreidqck.supabase.co";
 const SUPABASE_KEY = "sb_publishable_S9Ztcv3nh0EhzUl8VMeLmg_nQuBJ1hR";
+const db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-const message = document.getElementById("message");
-
-function showMessage(text, error=false) {
-  message.style.display = "block";
-  message.style.background = error ? "#572323" : "#23452d";
-  message.textContent = text;
+function mensagem(texto){
+ document.getElementById("mensagemAcesso").textContent=texto;
 }
 
-async function showDriver(user) {
-  document.getElementById("forms").style.display = "none";
-  document.getElementById("dashboard").style.display = "block";
+async function cadastrar(){
+ const name=document.getElementById("nome").value.trim();
+ const email=document.getElementById("cadEmail").value.trim();
+ const password=document.getElementById("cadSenha").value;
+ const vehicle_model=document.getElementById("modelo").value.trim();
+ const vehicle_color=document.getElementById("cor").value.trim();
+ const vehicle_plate=document.getElementById("placa").value.trim().toUpperCase();
 
-  const {data, error} = await db
-    .from("drivers")
-    .select("name, approved")
-    .eq("user_id", user.id)
-    .maybeSingle();
+ if(!name || !email || !password || !vehicle_model || !vehicle_color || !vehicle_plate){
+  mensagem("Preencha todos os campos.");
+  return;
+ }
 
-  if(error) {
-    showMessage("Não foi possível consultar seu cadastro: " + error.message, true);
-    return;
+ if(password.length<6){
+  mensagem("A senha precisa ter pelo menos 6 caracteres.");
+  return;
+ }
+
+ mensagem("Criando sua conta...");
+
+ const {data,error}=await db.auth.signUp({
+  email,
+  password,
+  options:{
+   data:{name,vehicle_model,vehicle_color,vehicle_plate}
   }
+ });
 
-  if(!data) {
-    showMessage("Sua conta ainda não possui cadastro de motorista. Entre em contato com a Nerocar.", true);
-    return;
-  }
+ if(error){
+  mensagem("Não foi possível cadastrar: "+error.message);
+  return;
+ }
 
-  document.getElementById("driverName").textContent = "Olá, " + data.name;
-
-  if(data.approved) {
-    document.getElementById("approvalStatus").textContent = "Cadastro aprovado";
-    document.getElementById("approvalText").textContent =
-      "Seu cadastro foi aprovado. Em breve você poderá acessar a fila de corridas.";
-  } else {
-    document.getElementById("approvalStatus").textContent = "Aguardando aprovação";
-    document.getElementById("approvalText").textContent =
-      "Seus dados foram recebidos. Aguarde a aprovação do administrador para entrar na fila.";
-  }
+ if(data.session){
+  mensagem("Cadastro realizado! Entrando na sua conta...");
+  await carregarConta(data.session.user);
+ }else{
+  mensagem("Conta criada. Verifique seu e-mail para confirmar o cadastro e depois faça login.");
+ }
 }
 
-document.getElementById("register").onclick = async () => {
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-  const vehicle = document.getElementById("vehicle").value.trim();
-  const color = document.getElementById("color").value.trim();
-  const plate = document.getElementById("plate").value.trim().toUpperCase();
+async function entrar(){
+ const email=document.getElementById("loginEmail").value.trim();
+ const password=document.getElementById("loginSenha").value;
 
-  if(!name || !email || !password || !vehicle || !color || !plate) {
-    showMessage("Preencha todos os campos.", true);
-    return;
-  }
+ if(!email || !password){
+  mensagem("Informe seu e-mail e sua senha.");
+  return;
+ }
 
-  if(password.length < 6) {
-    showMessage("A senha precisa ter pelo menos 6 caracteres.", true);
-    return;
-  }
+ mensagem("Entrando...");
 
-  const button = document.getElementById("register");
-  button.disabled = true;
-  button.textContent = "Cadastrando...";
+ const {data,error}=await db.auth.signInWithPassword({email,password});
 
-  const {data, error} = await db.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        name,
-        vehicle_model: vehicle,
-        vehicle_color: color,
-        vehicle_plate: plate
-      }
-    }
-  });
+ if(error){
+  mensagem("Erro ao entrar: "+error.message);
+  return;
+ }
 
-  button.disabled = false;
-  button.textContent = "Cadastrar motorista";
+ await carregarConta(data.user);
+}
 
-  if(error) {
-    showMessage("Erro no cadastro: " + error.message, true);
-    return;
-  }
+async function carregarConta(user){
+ document.getElementById("acesso").classList.add("hidden");
+ document.getElementById("conta").classList.remove("hidden");
 
-  if(data.session) {
-    showMessage("Conta criada com sucesso!");
-    await showDriver(data.user);
-  } else {
-    showMessage("Conta criada! Confira seu e-mail para confirmar o cadastro. Depois volte aqui e faça login.");
-  }
-};
+ const {data,error}=await db
+  .from("drivers")
+  .select("name,vehicle_model,vehicle_color,vehicle_plate")
+  .eq("user_id",user.id)
+  .single();
 
-document.getElementById("login").onclick = async () => {
-  const email = document.getElementById("loginEmail").value.trim();
-  const password = document.getElementById("loginPassword").value;
+ if(error){
+  document.getElementById("status").textContent="Não foi possível carregar seu cadastro.";
+  document.getElementById("explicacao").textContent=error.message;
+  return;
+ }
 
-  if(!email || !password) {
-    showMessage("Informe seu e-mail e sua senha.", true);
-    return;
-  }
+ document.getElementById("nomeMotorista").textContent=data.name;
+ document.getElementById("veiculoMotorista").textContent=
+  data.vehicle_model+" • "+data.vehicle_color+" • "+data.vehicle_plate;
 
-  const {data, error} = await db.auth.signInWithPassword({
-    email,
-    password
-  });
+ await atualizarStatus();
+}
 
-  if(error) {
-    showMessage("Erro ao entrar: " + error.message, true);
-    return;
-  }
+async function atualizarStatus(){
+ const status=document.getElementById("status");
+ const explicacao=document.getElementById("explicacao");
+ const entrarBtn=document.getElementById("btnEntrarFila");
+ const sairBtn=document.getElementById("btnSairFila");
 
-  await showDriver(data.user);
-};
+ entrarBtn.classList.add("hidden");
+ sairBtn.classList.add("hidden");
+ status.className="status yellow";
+ status.textContent="Verificando...";
+ explicacao.textContent="";
 
-document.getElementById("logout").onclick = async () => {
-  await db.auth.signOut();
-  document.getElementById("dashboard").style.display = "none";
-  document.getElementById("forms").style.display = "block";
-  showMessage("Você saiu da sua conta.");
-};
+ const {data,error}=await db.rpc("meu_status_fila");
 
-db.auth.getSession().then(({data}) => {
-  if(data.session) showDriver(data.session.user);
+ if(error){
+  status.textContent="Erro ao consultar situação";
+  explicacao.textContent=error.message;
+  return;
+ }
+
+ if(data==="pending"){
+  status.textContent="Aguardando aprovação";
+  explicacao.textContent="Seu cadastro foi recebido. Aguarde a aprovação do administrador.";
+ }else if(data==="rejected"){
+  status.className="status red";
+  status.textContent="Cadastro reprovado";
+  explicacao.textContent="Entre em contato com a administração da Nerocar.";
+ }else if(data==="waiting"){
+  status.className="status green";
+  status.textContent="Você está na fila!";
+  explicacao.textContent="Aguarde sua vez para receber uma corrida.";
+  sairBtn.classList.remove("hidden");
+ }else if(data==="busy"){
+  status.className="status yellow";
+  status.textContent="Você está ocupado";
+  explicacao.textContent="Você possui uma corrida em andamento.";
+ }else if(data==="outside"){
+  status.textContent="Fora da fila";
+  explicacao.textContent="Quando quiser receber corridas, clique no botão abaixo.";
+  entrarBtn.classList.remove("hidden");
+ }else{
+  status.textContent="Cadastro não encontrado";
+  explicacao.textContent="Entre em contato com a administração.";
+ }
+}
+
+async function entrarFila(){
+ const btn=document.getElementById("btnEntrarFila");
+ const msg=document.getElementById("mensagemFila");
+ btn.disabled=true;
+ msg.textContent="Entrando na fila...";
+
+ const {data,error}=await db.rpc("entrar_na_fila");
+
+ btn.disabled=false;
+
+ if(error){
+  msg.textContent="Não foi possível entrar: "+error.message;
+  return;
+ }
+
+ msg.textContent=data;
+ await atualizarStatus();
+}
+
+async function sairFila(){
+ const btn=document.getElementById("btnSairFila");
+ const msg=document.getElementById("mensagemFila");
+ btn.disabled=true;
+ msg.textContent="Saindo da fila...";
+
+ const {data,error}=await db.rpc("sair_da_fila");
+
+ btn.disabled=false;
+
+ if(error){
+  msg.textContent="Não foi possível sair: "+error.message;
+  return;
+ }
+
+ msg.textContent=data;
+ await atualizarStatus();
+}
+
+async function sairConta(){
+ await db.auth.signOut();
+ location.reload();
+}
+
+db.auth.getSession().then(async ({data})=>{
+ if(data.session){
+  await carregarConta(data.session.user);
+ }
 });
 </script>
 </body>
