@@ -1,1 +1,136 @@
 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nerocar | Solicitar corrida</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101010;color:white;font-family:Arial,sans-serif;padding:20px}
+.container{max-width:500px;margin:auto}
+header{text-align:center;padding:25px 0}
+.logo{font-size:36px;font-weight:bold;color:#f5c400}
+.card{background:#1d1d1d;border:1px solid #333;border-radius:18px;padding:22px;margin-bottom:18px}
+h1{font-size:24px}
+input,textarea{width:100%;padding:15px;margin:9px 0 15px;border-radius:10px;border:1px solid #444;background:#292929;color:white;font-size:16px;font-family:Arial}
+textarea{min-height:90px;resize:vertical}
+label{font-weight:bold;font-size:14px}
+button{width:100%;padding:17px;border:0;border-radius:10px;background:#f5c400;color:#111;font-size:17px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+.preco{text-align:center;font-size:30px;font-weight:bold;color:#f5c400;margin:18px 0}
+.small{font-size:13px;color:#aaa;text-align:center;line-height:1.5}
+#resultado{display:none;margin-top:18px}
+.sucesso{color:#43d17a;font-weight:bold}
+.erro{color:#ff7777;font-weight:bold}
+.dado{background:#292929;border-radius:10px;padding:13px;margin:10px 0}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+<div class="logo">NERO<span style="color:white">CAR</span></div>
+<h1>Sua viagem começa aqui!</h1>
+<p class="small">Solicite seu motorista em Nerópolis.</p>
+</header>
+
+<section class="card">
+<h2>Solicitar corrida</h2>
+
+<div class="preco">R$ 18,00</div>
+<p class="small">Tarifa fixa para viagens dentro de Nerópolis.</p>
+
+<form id="formCorrida">
+<label for="nome">Seu nome</label>
+<input id="nome" maxlength="100" placeholder="Digite seu nome" required>
+
+<label for="endereco">Endereço de origem</label>
+<textarea id="endereco" maxlength="300" placeholder="Rua, número e bairro onde você está" required></textarea>
+
+<label for="referencia">Ponto de referência (opcional)</label>
+<input id="referencia" maxlength="200" placeholder="Ex.: perto da praça, portão azul">
+
+<button id="btnSolicitar" type="submit">PROCURAR MOTORISTA</button>
+</form>
+
+<p class="small">Confira se o endereço está correto antes de solicitar.</p>
+
+<div id="resultado" class="dado" aria-live="polite"></div>
+</section>
+
+</div>
+
+<script>
+const SUPABASE_URL="https://xfwkwcpnyvhvmreidqck.supabase.co";
+const SUPABASE_KEY="sb_publishable_S9Ztcv3nh0EhzUl8VMeLmg_nQuBJ1h";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+const form=document.getElementById("formCorrida");
+const botao=document.getElementById("btnSolicitar");
+const resultado=document.getElementById("resultado");
+
+form.addEventListener("submit",async function(event){
+ event.preventDefault();
+
+ const nome=document.getElementById("nome").value.trim();
+ const endereco=document.getElementById("endereco").value.trim();
+ const referencia=document.getElementById("referencia").value.trim();
+
+ if(!nome || !endereco){
+  alert("Preencha seu nome e endereço.");
+  return;
+ }
+
+ botao.disabled=true;
+ botao.textContent="PROCURANDO MOTORISTA...";
+ resultado.style.display="block";
+ resultado.textContent="Aguarde enquanto procuramos um motorista disponível.";
+
+ try{
+  const {data,error}=await db.rpc("solicitar_corrida",{
+   p_nome:nome,
+   p_endereco:endereco,
+   p_referencia:referencia || null
+  });
+
+  if(error)throw error;
+
+  if(!data.success){
+   resultado.className="dado erro";
+   resultado.textContent=data.message || "Nenhum motorista disponível.";
+   return;
+  }
+
+  resultado.className="dado";
+  resultado.innerHTML=`
+   <p class="sucesso">Motorista localizado!</p>
+   <h2>${escapar(data.driver_name)}</h2>
+   <p><strong>Veículo:</strong> ${escapar(data.vehicle_model)}</p>
+   <p><strong>Cor:</strong> ${escapar(data.vehicle_color)}</p>
+   <p><strong>Placa:</strong> ${escapar(data.vehicle_plate)}</p>
+   <p><strong>Valor:</strong> R$ ${Number(data.fare).toFixed(2).replace(".",",")}</p>
+   <p>Aguardando confirmação do motorista.</p>
+  `;
+
+  form.reset();
+
+ }catch(error){
+  resultado.className="dado erro";
+  resultado.textContent="Não foi possível solicitar: "+error.message;
+ }finally{
+  botao.disabled=false;
+  botao.textContent="PROCURAR MOTORISTA";
+ }
+});
+
+function escapar(valor){
+ return String(valor??"").replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+ })[c]);
+}
+</script>
+</body>
+</html>
+
