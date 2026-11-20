@@ -17,14 +17,18 @@ h1{font-size:24px}
 input,textarea{width:100%;padding:15px;margin:9px 0 15px;border-radius:10px;border:1px solid #444;background:#292929;color:white;font-size:16px;font-family:Arial}
 textarea{min-height:90px;resize:vertical}
 label{font-weight:bold;font-size:14px}
-button{width:100%;padding:17px;border:0;border-radius:10px;background:#f5c400;color:#111;font-size:17px;font-weight:bold;cursor:pointer}
+button{width:100%;padding:17px;border:0;border-radius:10px;background:#f5c400;color:#111;font-size:17px;font-weight:bold;cursor:pointer;margin-top:10px}
 button:disabled{opacity:.5;cursor:not-allowed}
 .preco{text-align:center;font-size:30px;font-weight:bold;color:#f5c400;margin:18px 0}
 .small{font-size:13px;color:#aaa;text-align:center;line-height:1.5}
-#resultado{display:none;margin-top:18px}
+.dado{background:#292929;border-radius:10px;padding:13px;margin:10px 0;overflow-wrap:anywhere}
 .sucesso{color:#43d17a;font-weight:bold}
 .erro{color:#ff7777;font-weight:bold}
-.dado{background:#292929;border-radius:10px;padding:13px;margin:10px 0}
+.status{font-size:19px;font-weight:bold;margin:15px 0}
+.amarelo{color:#f5c400}
+.verde{color:#43d17a}
+.vermelho{color:#ff7777}
+.hidden{display:none}
 </style>
 </head>
 <body>
@@ -56,8 +60,34 @@ button:disabled{opacity:.5;cursor:not-allowed}
 </form>
 
 <p class="small">Confira se o endereço está correto antes de solicitar.</p>
+</section>
 
-<div id="resultado" class="dado" aria-live="polite"></div>
+<section id="painelAcompanhamento" class="card hidden" aria-live="polite">
+<h2>Acompanhar minha corrida</h2>
+
+<div id="statusCorrida" class="status amarelo">
+Aguardando informações...
+</div>
+
+<div id="dadosMotorista" class="dado hidden">
+<p><strong>Motorista:</strong> <span id="motorista"></span></p>
+<p><strong>Veículo:</strong> <span id="veiculo"></span></p>
+<p><strong>Cor:</strong> <span id="cor"></span></p>
+<p><strong>Placa:</strong> <span id="placa"></span></p>
+</div>
+
+<div class="dado">
+<p><strong>Origem:</strong> <span id="origem"></span></p>
+<p><strong>Valor:</strong> R$ 18,00</p>
+</div>
+
+<p id="mensagemAcompanhamento" class="small">
+Atualizando situação automaticamente...
+</p>
+
+<button id="btnNovaCorrida" class="hidden" onclick="novaCorrida()">
+SOLICITAR OUTRA CORRIDA
+</button>
 </section>
 
 </div>
@@ -69,68 +99,212 @@ const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 const form=document.getElementById("formCorrida");
 const botao=document.getElementById("btnSolicitar");
-const resultado=document.getElementById("resultado");
+const painel=document.getElementById("painelAcompanhamento");
+
+let corridaAtual=null;
+let timerAcompanhamento=null;
+let consultando=false;
+
+function exibir(id,mostrar){
+ document.getElementById(id).classList.toggle("hidden",!mostrar);
+}
+
+function guardarCorrida(corrida){
+ corridaAtual=corrida;
+ sessionStorage.setItem("nerocar_corrida",JSON.stringify(corrida));
+}
+
+function recuperarCorrida(){
+ try{
+  const salva=sessionStorage.getItem("nerocar_corrida");
+  if(!salva)return null;
+  return JSON.parse(salva);
+ }catch(e){
+  sessionStorage.removeItem("nerocar_corrida");
+  return null;
+ }
+}
+
+function mostrarDadosMotorista(data){
+ if(!data.driver_name)return;
+
+ exibir("dadosMotorista",true);
+ document.getElementById("motorista").textContent=data.driver_name||"";
+ document.getElementById("veiculo").textContent=data.vehicle_model||"";
+ document.getElementById("cor").textContent=data.vehicle_color||"";
+ document.getElementById("placa").textContent=data.vehicle_plate||"";
+}
+
+function atualizarVisual(data){
+ painel.classList.remove("hidden");
+ document.getElementById("origem").textContent=data.pickup_address||"";
+ mostrarDadosMotorista(data);
+
+ const status=document.getElementById("statusCorrida");
+ const mensagem=document.getElementById("mensagemAcompanhamento");
+
+ status.className="status";
+
+ if(data.status==="pending"){
+  status.classList.add("amarelo");
+  status.textContent="Aguardando confirmação do motorista";
+  mensagem.textContent="Seu pedido foi enviado. Estamos aguardando a resposta.";
+  exibir("btnNovaCorrida",false);
+  botao.disabled=true;
+  botao.textContent="CORRIDA SOLICITADA";
+
+ }else if(data.status==="accepted"){
+  status.classList.add("verde");
+  status.textContent="Motorista confirmou sua corrida!";
+  mensagem.textContent="Sua corrida foi aceita. O motorista está responsável pelo atendimento.";
+  exibir("btnNovaCorrida",false);
+  botao.disabled=true;
+  botao.textContent="CORRIDA CONFIRMADA";
+
+ }else if(data.status==="completed"){
+  status.classList.add("verde");
+  status.textContent="Corrida finalizada!";
+  mensagem.textContent="Obrigado por viajar com a Nerocar.";
+  exibir("btnNovaCorrida",true);
+  botao.disabled=true;
+
+  pararAcompanhamento();
+
+ }else if(data.status==="cancelled"){
+  status.classList.add("vermelho");
+  status.textContent="Corrida cancelada";
+  mensagem.textContent="Esta solicitação foi cancelada. Você pode solicitar outra corrida.";
+  exibir("btnNovaCorrida",true);
+  botao.disabled=true;
+
+  pararAcompanhamento();
+ }
+}
+
+async function acompanhar(){
+ if(!corridaAtual||consultando)return;
+ consultando=true;
+
+ try{
+  const {data,error}=await db.rpc("acompanhar_corrida",{
+   p_corrida_id:corridaAtual.ride_id,
+   p_token:corridaAtual.passenger_token
+  });
+
+  if(error)throw error;
+
+  if(!data||!data.success){
+   document.getElementById("mensagemAcompanhamento").textContent=
+    data?.message||"Não foi possível consultar a corrida.";
+   return;
+  }
+
+  atualizarVisual(data);
+
+ }catch(e){
+  document.getElementById("mensagemAcompanhamento").textContent=
+   "Erro ao atualizar: "+e.message;
+ }finally{
+  consultando=false;
+ }
+}
+
+function iniciarAcompanhamento(){
+ pararAcompanhamento();
+ painel.classList.remove("hidden");
+ acompanhar();
+ timerAcompanhamento=setInterval(acompanhar,5000);
+}
+
+function pararAcompanhamento(){
+ if(timerAcompanhamento){
+  clearInterval(timerAcompanhamento);
+  timerAcompanhamento=null;
+ }
+}
 
 form.addEventListener("submit",async function(event){
  event.preventDefault();
+
+ if(corridaAtual){
+  alert("Você já possui uma solicitação registrada.");
+  return;
+ }
 
  const nome=document.getElementById("nome").value.trim();
  const endereco=document.getElementById("endereco").value.trim();
  const referencia=document.getElementById("referencia").value.trim();
 
- if(!nome || !endereco){
+ if(!nome||!endereco){
   alert("Preencha seu nome e endereço.");
   return;
  }
 
  botao.disabled=true;
  botao.textContent="PROCURANDO MOTORISTA...";
- resultado.style.display="block";
- resultado.textContent="Aguarde enquanto procuramos um motorista disponível.";
 
  try{
   const {data,error}=await db.rpc("solicitar_corrida",{
    p_nome:nome,
    p_endereco:endereco,
-   p_referencia:referencia || null
+   p_referencia:referencia||null
   });
 
   if(error)throw error;
 
   if(!data.success){
-   resultado.className="dado erro";
-   resultado.textContent=data.message || "Nenhum motorista disponível.";
+   alert(data.message||"Nenhum motorista disponível.");
    return;
   }
 
-  resultado.className="dado";
-  resultado.innerHTML=`
-   <p class="sucesso">Motorista localizado!</p>
-   <h2>${escapar(data.driver_name)}</h2>
-   <p><strong>Veículo:</strong> ${escapar(data.vehicle_model)}</p>
-   <p><strong>Cor:</strong> ${escapar(data.vehicle_color)}</p>
-   <p><strong>Placa:</strong> ${escapar(data.vehicle_plate)}</p>
-   <p><strong>Valor:</strong> R$ ${Number(data.fare).toFixed(2).replace(".",",")}</p>
-   <p>Aguardando confirmação do motorista.</p>
-  `;
+  if(!data.passenger_token||!data.ride_id){
+   throw new Error("A solicitação não retornou o código de acompanhamento.");
+  }
+
+  guardarCorrida({
+   ride_id:data.ride_id,
+   passenger_token:data.passenger_token
+  });
 
   form.reset();
+  form.classList.add("hidden");
+
+  document.getElementById("origem").textContent=endereco;
+  document.getElementById("motorista").textContent=data.driver_name||"";
+  document.getElementById("veiculo").textContent=data.vehicle_model||"";
+  document.getElementById("cor").textContent=data.vehicle_color||"";
+  document.getElementById("placa").textContent=data.vehicle_plate||"";
+
+  iniciarAcompanhamento();
 
  }catch(error){
-  resultado.className="dado erro";
-  resultado.textContent="Não foi possível solicitar: "+error.message;
- }finally{
+  alert("Não foi possível solicitar: "+error.message);
   botao.disabled=false;
   botao.textContent="PROCURAR MOTORISTA";
  }
 });
 
-function escapar(valor){
- return String(valor??"").replace(/[&<>"']/g,c=>({
-  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
- })[c]);
+function novaCorrida(){
+ pararAcompanhamento();
+ sessionStorage.removeItem("nerocar_corrida");
+ corridaAtual=null;
+
+ painel.classList.add("hidden");
+ form.classList.remove("hidden");
+ form.reset();
+
+ botao.disabled=false;
+ botao.textContent="PROCURAR MOTORISTA";
+ exibir("btnNovaCorrida",false);
+}
+
+corridaAtual=recuperarCorrida();
+
+if(corridaAtual&&corridaAtual.ride_id&&corridaAtual.passenger_token){
+ form.classList.add("hidden");
+ painel.classList.remove("hidden");
+ iniciarAcompanhamento();
 }
 </script>
 </body>
 </html>
-
