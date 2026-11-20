@@ -15,15 +15,17 @@ header{text-align:center;margin:25px 0}
 .card{background:#1d1d1d;border:1px solid #333;border-radius:16px;padding:20px;margin-bottom:16px}
 input{width:100%;padding:14px;margin:8px 0;border-radius:9px;border:1px solid #444;background:#292929;color:white;font-size:16px}
 button{width:100%;padding:15px;border:0;border-radius:9px;font-weight:bold;font-size:16px;cursor:pointer;margin-top:10px}
+button:disabled{opacity:.5}
 .primary{background:#f5c400;color:#111}
 .secondary{background:#333;color:white}
 .danger{background:#a93232;color:white}
-.hidden{display:none}
+.hidden{display:none!important}
 .small{font-size:13px;color:#aaa}
 .status{font-size:19px;font-weight:bold;margin:15px 0}
 .yellow{color:#f5c400}
 .green{color:#43d17a}
 .red{color:#ff6969}
+.info{background:#292929;padding:12px;border-radius:9px;margin:10px 0;overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -68,6 +70,24 @@ button{width:100%;padding:15px;border:0;border-radius:9px;font-weight:bold;font-
 <button class="secondary" onclick="sairConta()">Sair da conta</button>
 <p id="mensagemFila" class="small"></p>
 </div>
+
+<div id="painelCorrida" class="card hidden">
+<h3 class="yellow">Atendimento de corrida</h3>
+<div id="avisoCorrida" class="status yellow">Verificando chamadas...</div>
+
+<div class="info">
+<p><strong>Passageiro:</strong> <span id="passageiro"></span></p>
+<p><strong>Origem:</strong> <span id="origem"></span></p>
+<p><strong>Referência:</strong> <span id="referencia"></span></p>
+<p><strong>Valor:</strong> <span id="valorCorrida"></span></p>
+</div>
+
+<button id="btnAceitar" class="primary hidden" onclick="aceitarCorrida()">ACEITAR CORRIDA</button>
+<button id="btnRecusar" class="danger hidden" onclick="recusarCorrida()">RECUSAR CORRIDA</button>
+<button id="btnFinalizar" class="primary hidden" onclick="finalizarCorrida()">FINALIZAR CORRIDA</button>
+
+<p id="mensagemCorrida" class="small"></p>
+</div>
 </section>
 
 </div>
@@ -76,6 +96,10 @@ button{width:100%;padding:15px;border:0;border-radius:9px;font-weight:bold;font-
 const SUPABASE_URL = "https://xfwkwcpnyvhvmreidqck.supabase.co";
 const SUPABASE_KEY = "sb_publishable_S9Ztcv3nh0EhzUl8VMeLmg_nQuBJ1hR";
 const db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+let corridaAtual = null;
+let verificacaoTimer = null;
+let consultando = false;
 
 function mensagem(texto){
  document.getElementById("mensagemAcesso").textContent=texto;
@@ -93,7 +117,6 @@ async function cadastrar(){
   mensagem("Preencha todos os campos.");
   return;
  }
-
  if(password.length<6){
   mensagem("A senha precisa ter pelo menos 6 caracteres.");
   return;
@@ -102,11 +125,8 @@ async function cadastrar(){
  mensagem("Criando sua conta...");
 
  const {data,error}=await db.auth.signUp({
-  email,
-  password,
-  options:{
-   data:{name,vehicle_model,vehicle_color,vehicle_plate}
-  }
+  email,password,
+  options:{data:{name,vehicle_model,vehicle_color,vehicle_plate}}
  });
 
  if(error){
@@ -132,7 +152,6 @@ async function entrar(){
  }
 
  mensagem("Entrando...");
-
  const {data,error}=await db.auth.signInWithPassword({email,password});
 
  if(error){
@@ -164,6 +183,7 @@ async function carregarConta(user){
   data.vehicle_model+" • "+data.vehicle_color+" • "+data.vehicle_plate;
 
  await atualizarStatus();
+ iniciarVerificacao();
 }
 
 async function atualizarStatus(){
@@ -219,7 +239,6 @@ async function entrarFila(){
  msg.textContent="Entrando na fila...";
 
  const {data,error}=await db.rpc("entrar_na_fila");
-
  btn.disabled=false;
 
  if(error){
@@ -238,7 +257,6 @@ async function sairFila(){
  msg.textContent="Saindo da fila...";
 
  const {data,error}=await db.rpc("sair_da_fila");
-
  btn.disabled=false;
 
  if(error){
@@ -250,7 +268,119 @@ async function sairFila(){
  await atualizarStatus();
 }
 
+function mostrarCorrida(c){
+ corridaAtual=c;
+ document.getElementById("painelCorrida").classList.remove("hidden");
+ document.getElementById("passageiro").textContent=c.passenger_name||"Não informado";
+ document.getElementById("origem").textContent=c.pickup_address||"Não informado";
+ document.getElementById("referencia").textContent=c.reference_point||"Não informada";
+ document.getElementById("valorCorrida").textContent=
+  Number(c.fare||18).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+
+ const aceita=c.status==="pending";
+ document.getElementById("avisoCorrida").textContent=
+  aceita?"Nova corrida aguardando sua resposta!":"Corrida aceita. Boa viagem!";
+ document.getElementById("btnAceitar").classList.toggle("hidden",!aceita);
+ document.getElementById("btnRecusar").classList.toggle("hidden",!aceita);
+ document.getElementById("btnFinalizar").classList.toggle("hidden",aceita);
+}
+
+function esconderCorrida(){
+ corridaAtual=null;
+ document.getElementById("painelCorrida").classList.add("hidden");
+}
+
+async function verificarCorrida(){
+ if(consultando)return;
+ consultando=true;
+
+ try{
+  const {data,error}=await db.rpc("minha_corrida_ativa");
+  if(error)throw error;
+
+  if(data && data.success && data.ride_id){
+   mostrarCorrida(data);
+  }else{
+   esconderCorrida();
+  }
+ }catch(e){
+  document.getElementById("mensagemCorrida").textContent=
+   "Erro ao verificar corrida: "+e.message;
+ }finally{
+  consultando=false;
+ }
+}
+
+function iniciarVerificacao(){
+ if(verificacaoTimer)clearInterval(verificacaoTimer);
+ verificarCorrida();
+ verificacaoTimer=setInterval(verificarCorrida,5000);
+}
+
+async function responderCorrida(funcao){
+ if(!corridaAtual)return;
+
+ const id=corridaAtual.ride_id;
+ const btnAceitar=document.getElementById("btnAceitar");
+ const btnRecusar=document.getElementById("btnRecusar");
+ btnAceitar.disabled=true;
+ btnRecusar.disabled=true;
+ document.getElementById("mensagemCorrida").textContent="Enviando resposta...";
+
+ try{
+  const {data,error}=await db.rpc(funcao,{p_corrida_id:id});
+  if(error)throw error;
+
+  if(!data || !data.success){
+   throw new Error(data?.message||"Não foi possível responder.");
+  }
+
+  document.getElementById("mensagemCorrida").textContent=data.message;
+  await verificarCorrida();
+  await atualizarStatus();
+ }catch(e){
+  document.getElementById("mensagemCorrida").textContent="Erro: "+e.message;
+ }finally{
+  btnAceitar.disabled=false;
+  btnRecusar.disabled=false;
+ }
+}
+
+async function aceitarCorrida(){
+ await responderCorrida("aceitar_corrida");
+}
+
+async function recusarCorrida(){
+ await responderCorrida("recusar_corrida");
+}
+
+async function finalizarCorrida(){
+ if(!corridaAtual)return;
+ const btn=document.getElementById("btnFinalizar");
+ btn.disabled=true;
+ document.getElementById("mensagemCorrida").textContent="Finalizando corrida...";
+
+ try{
+  const {data,error}=await db.rpc("finalizar_corrida",{
+   p_corrida_id:corridaAtual.ride_id
+  });
+  if(error)throw error;
+  if(!data || !data.success){
+   throw new Error(data?.message||"Não foi possível finalizar.");
+  }
+
+  document.getElementById("mensagemCorrida").textContent=data.message;
+  esconderCorrida();
+  await atualizarStatus();
+ }catch(e){
+  document.getElementById("mensagemCorrida").textContent="Erro: "+e.message;
+ }finally{
+  btn.disabled=false;
+ }
+}
+
 async function sairConta(){
+ if(verificacaoTimer)clearInterval(verificacaoTimer);
  await db.auth.signOut();
  location.reload();
 }
