@@ -30,6 +30,20 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .verde{color:#43d17a}
 .vermelho{color:#ff7777}
 .hidden{display:none}
+
+.chat{margin-top:20px;border-top:1px solid #444;padding-top:18px}
+.chat h3{margin-top:0}
+.mensagens{height:260px;overflow-y:auto;background:#121212;border:1px solid #333;border-radius:12px;padding:12px;margin:12px 0}
+.mensagem{max-width:85%;padding:11px 13px;border-radius:12px;margin:9px 0;overflow-wrap:anywhere;font-size:14px;line-height:1.4}
+.mensagem passageiro{background:#5b4800}
+.mensagem.minha{background:#5b4800;margin-left:auto}
+.mensagem.motorista{background:#303030;margin-right:auto}
+.autor{font-size:11px;color:#f5c400;font-weight:bold;margin-bottom:5px}
+.horario{font-size:10px;color:#aaa;margin-top:5px;text-align:right}
+.chat-linha{display:flex;gap:8px;align-items:stretch}
+.chat-linha input{flex:1;min-width:0;margin:0}
+.chat-linha button{width:95px;margin:0;padding:12px;font-size:14px}
+.chat-aviso{font-size:12px;color:#aaa;text-align:center;margin-top:10px}
 </style>
 </head>
 
@@ -89,6 +103,25 @@ Aguardando informações...
 Atualizando situação automaticamente...
 </p>
 
+<!-- CHAT PRIVADO -->
+<div id="painelChat" class="chat hidden">
+<h3>Conversa com o motorista</h3>
+<p class="small">Envie uma mensagem diretamente para o motorista da sua corrida.</p>
+
+<div id="listaMensagens" class="mensagens" aria-live="polite">
+<p class="chat-aviso">Carregando mensagens...</p>
+</div>
+
+<form id="formMensagem">
+<div class="chat-linha">
+<input id="textoMensagem" maxlength="1000" placeholder="Digite sua mensagem..." autocomplete="off" required>
+<button id="btnEnviarMensagem" type="submit">ENVIAR</button>
+</div>
+</form>
+
+<p class="chat-aviso">Esta conversa é privada e vinculada à sua corrida.</p>
+</div>
+
 <button id="btnNovaCorrida" class="hidden" type="button">
 SOLICITAR OUTRA CORRIDA
 </button>
@@ -98,7 +131,7 @@ SOLICITAR OUTRA CORRIDA
 
 <script>
 const SUPABASE_URL="https://xfwkwcpnyvhvmreidqck.supabase.co";
-const SUPABASE_KEY="sb_publishable_S9Ztcv3nh0EhzUl8VMeLmg_nQuBJ1hR";
+const SUPABASE_KEY="sb_publishable_S9Ztcv3nh0EhzUl8VMeLmg_nQuBJ1h";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 const form=document.getElementById("formCorrida");
@@ -109,6 +142,9 @@ const painel=document.getElementById("painelAcompanhamento");
 let corridaAtual=null;
 let timerAcompanhamento=null;
 let consultando=false;
+let carregandoMensagens=false;
+let enviandoMensagem=false;
+let ultimoConteudoMensagens="";
 
 function exibir(id,mostrar){
  document.getElementById(id).classList.toggle("hidden",!mostrar);
@@ -163,18 +199,21 @@ function atualizarVisual(data){
   status.textContent="Aguardando confirmação do motorista";
   mensagem.textContent="Seu pedido foi enviado. Estamos aguardando a resposta.";
   exibir("btnNovaCorrida",false);
+  exibir("painelChat",true);
 
  }else if(data.status==="accepted"){
   status.classList.add("verde");
   status.textContent="Motorista confirmou sua corrida!";
   mensagem.textContent="Sua corrida foi aceita. O motorista está responsável pelo atendimento.";
   exibir("btnNovaCorrida",false);
+  exibir("painelChat",true);
 
  }else if(data.status==="completed"){
   status.classList.add("verde");
   status.textContent="Corrida finalizada!";
   mensagem.textContent="Obrigado por viajar com a Nerocar.";
   exibir("btnNovaCorrida",true);
+  exibir("painelChat",false);
   pararAcompanhamento();
 
  }else if(data.status==="cancelled"){
@@ -182,9 +221,118 @@ function atualizarVisual(data){
   status.textContent="Corrida cancelada";
   mensagem.textContent="Esta solicitação foi cancelada. Você pode solicitar outra corrida.";
   exibir("btnNovaCorrida",true);
+  exibir("painelChat",false);
   pararAcompanhamento();
  }
 }
+
+function formatarHorario(data){
+ if(!data)return "";
+ const dataObj=new Date(data);
+ if(isNaN(dataObj.getTime()))return "";
+ return dataObj.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+}
+
+async function carregarMensagens(){
+ if(!corridaAtual||carregandoMensagens)return;
+
+ carregandoMensagens=true;
+
+ try{
+  const {data,error}=await db.rpc("listar_mensagens_corrida",{
+   p_corrida_id:corridaAtual.ride_id,
+   p_token:corridaAtual.passenger_token
+  });
+
+  if(error)throw error;
+
+  const mensagens=Array.isArray(data)?data:[];
+  const lista=document.getElementById("listaMensagens");
+
+  const assinatura=JSON.stringify(mensagens);
+
+  if(assinatura===ultimoConteudoMensagens)return;
+  ultimoConteudoMensagens=assinatura;
+
+  lista.replaceChildren();
+
+  if(mensagens.length===0){
+   const aviso=document.createElement("p");
+   aviso.className="chat-aviso";
+   aviso.textContent="Nenhuma mensagem ainda. Você pode iniciar a conversa.";
+   lista.appendChild(aviso);
+   return;
+  }
+
+  mensagens.forEach(item=>{
+   const caixa=document.createElement("div");
+   caixa.className="mensagem "+(item.sender_role==="passenger"?"minha":"motorista");
+
+   const autor=document.createElement("div");
+   autor.className="autor";
+   autor.textContent=item.sender_role==="passenger"?"Você":(item.sender_name||"Motorista");
+
+   const texto=document.createElement("div");
+   texto.textContent=item.message||"";
+
+   const horario=document.createElement("div");
+   horario.className="horario";
+   horario.textContent=formatarHorario(item.created_at);
+
+   caixa.appendChild(autor);
+   caixa.appendChild(texto);
+   caixa.appendChild(horario);
+   lista.appendChild(caixa);
+  });
+
+  lista.scrollTop=lista.scrollHeight;
+
+ }catch(e){
+  console.error("Erro ao carregar mensagens:",e);
+ }finally{
+  carregandoMensagens=false;
+ }
+}
+
+document.getElementById("formMensagem").addEventListener("submit",async function(event){
+ event.preventDefault();
+
+ if(!corridaAtual||enviandoMensagem)return;
+
+ const campo=document.getElementById("textoMensagem");
+ const botaoEnviar=document.getElementById("btnEnviarMensagem");
+ const mensagem=campo.value.trim();
+
+ if(!mensagem)return;
+
+ enviandoMensagem=true;
+ botaoEnviar.disabled=true;
+ botaoEnviar.textContent="ENVIANDO...";
+
+ try{
+  const {data,error}=await db.rpc("enviar_mensagem_corrida",{
+   p_corrida_id:corridaAtual.ride_id,
+   p_mensagem:mensagem,
+   p_token:corridaAtual.passenger_token
+  });
+
+  if(error)throw error;
+  if(!data||!data.success){
+   throw new Error(data?.message||"Não foi possível enviar a mensagem.");
+  }
+
+  campo.value="";
+  await carregarMensagens();
+
+ }catch(e){
+  alert("Não foi possível enviar a mensagem: "+e.message);
+ }finally{
+  enviandoMensagem=false;
+  botaoEnviar.disabled=false;
+  botaoEnviar.textContent="ENVIAR";
+  campo.focus();
+ }
+});
 
 async function acompanhar(){
  if(!corridaAtual||consultando)return;
@@ -206,6 +354,10 @@ async function acompanhar(){
   }
 
   atualizarVisual(data);
+
+  if(data.status==="pending"||data.status==="accepted"){
+   await carregarMensagens();
+  }
 
  }catch(e){
   document.getElementById("mensagemAcompanhamento").textContent=
@@ -317,6 +469,7 @@ document.getElementById("btnNovaCorrida").addEventListener("click",function(){
 
  sessionStorage.removeItem("nerocar_corrida");
  corridaAtual=null;
+ ultimoConteudoMensagens="";
 
  painel.classList.add("hidden");
  resultado.classList.add("hidden");
