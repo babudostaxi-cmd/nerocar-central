@@ -27,6 +27,33 @@ button:disabled{opacity:.5}
 .red{color:#ff6969}
 .info{background:#292929;padding:12px;border-radius:9px;margin:10px 0;overflow-wrap:anywhere}
 
+/* POSIÇÃO NA FILA */
+#posicaoFila{border:1px solid #6f5b00;background:#292400}
+.posicao-numero{font-size:30px;font-weight:900;color:#f5c400}
+
+/* NOTIFICAÇÕES FLUTUANTES */
+#toastContainer{
+ position:fixed;top:16px;left:50%;transform:translateX(-50%);
+ z-index:9999;width:min(92%,480px);pointer-events:none;
+}
+.toast{
+ background:#242424;color:#fff;border:1px solid #f5c400;
+ border-left:5px solid #f5c400;border-radius:12px;
+ padding:14px 16px;margin-bottom:9px;box-shadow:0 8px 28px #0009;
+ font-size:14px;line-height:1.45;animation:toastIn .25s ease-out;
+}
+.toast.sucesso{border-color:#43d17a}
+.toast.erro{border-color:#ff6969}
+.toast strong{display:block;color:#f5c400;margin-bottom:3px}
+@keyframes toastIn{
+ from{opacity:0;transform:translateY(-12px)}
+ to{opacity:1;transform:translateY(0)}
+}
+@media(max-width:480px){
+ body{padding:12px}
+ #toastContainer{top:8px}
+}
+
 /* CHAT */
 .chat-area{border-top:1px solid #444;margin-top:20px;padding-top:16px}
 .chat-area h3{color:#f5c400;margin-top:0}
@@ -50,6 +77,8 @@ button:disabled{opacity:.5}
 <h2>Central dos Motoristas</h2>
 <p class="small">Entre na sua conta para acessar a fila de corridas.</p>
 </header>
+
+<div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
 
 <section id="acesso" class="card">
 <h3>Entrar na minha conta</h3>
@@ -83,6 +112,11 @@ ATIVAR ALERTA SONORO
 
 <div id="status" class="status">Verificando situação...</div>
 <p id="explicacao" class="small"></p>
+<div id="posicaoFila" class="info hidden">
+ <div class="small">SUA POSIÇÃO NA FILA</div>
+ <div class="posicao-numero" id="numeroPosicao">—</div>
+ <div id="detalhePosicao" class="small"></div>
+</div>
 
 <button id="btnEntrarFila" class="primary hidden" onclick="entrarFila()">Entrar na fila</button>
 <button id="btnSairFila" class="danger hidden" onclick="sairFila()">Sair da fila</button>
@@ -136,6 +170,7 @@ const db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 let corridaAtual = null;
 let verificacaoTimer = null;
 let chatTimer = null;
+let filaTimer = null;
 let consultando = false;
 let carregandoChat = false;
 let enviandoChat = false;
@@ -148,6 +183,26 @@ let ultimaCorridaAlertada = null;
 
 function mensagem(texto){
  document.getElementById("mensagemAcesso").textContent=texto;
+}
+
+/* AVISOS FLUTUANTES */
+function mostrarNotificacao(titulo,texto,tipo=""){
+ const area=document.getElementById("toastContainer");
+ const aviso=document.createElement("div");
+ aviso.className="toast "+tipo;
+ const forte=document.createElement("strong");
+ forte.textContent=titulo;
+ const detalhe=document.createElement("div");
+ detalhe.textContent=texto;
+ aviso.appendChild(forte);
+ aviso.appendChild(detalhe);
+ area.appendChild(aviso);
+ setTimeout(()=>{
+  aviso.style.opacity="0";
+  aviso.style.transform="translateY(-8px)";
+  aviso.style.transition="opacity .25s, transform .25s";
+  setTimeout(()=>aviso.remove(),280);
+ },5500);
 }
 
 /* ATIVAR O SOM COM INTERAÇÃO DO MOTORISTA */
@@ -223,6 +278,7 @@ function alertarNovaCorrida(c){
  if(ultimaCorridaAlertada===c.ride_id)return;
 
  ultimaCorridaAlertada=c.ride_id;
+ mostrarNotificacao("NOVA CORRIDA","Chegou uma solicitação. Confira os dados e aceite ou recuse.");
 
  if(alertaAtivado){
   tocarBipes();
@@ -356,6 +412,35 @@ async function atualizarStatus(){
  }else{
   status.textContent="Cadastro não encontrado";
   explicacao.textContent="Entre em contato com a administração.";
+ }
+
+ await atualizarPosicaoFila();
+}
+
+async function atualizarPosicaoFila(){
+ const bloco=document.getElementById("posicaoFila");
+ const numero=document.getElementById("numeroPosicao");
+ const detalhe=document.getElementById("detalhePosicao");
+
+ try{
+  const {data,error}=await db.rpc("minha_posicao_fila");
+  if(error)throw error;
+
+  const item=Array.isArray(data)?data[0]:data;
+  if(!item || item.situacao!=="waiting" || item.posicao==null){
+   bloco.classList.add("hidden");
+   return;
+  }
+
+  bloco.classList.remove("hidden");
+  numero.textContent=item.posicao+"º";
+  detalhe.textContent="Você está na posição "+item.posicao+
+   " de "+item.total+" motorista(s) na fila.";
+ }catch(e){
+  bloco.classList.add("hidden");
+  console.error("Erro ao consultar posição na fila:",e);
+  document.getElementById("mensagemFila").textContent=
+   "Não foi possível atualizar sua posição na fila: "+e.message;
  }
 }
 
@@ -570,10 +655,13 @@ async function enviarMensagem(){
 function iniciarVerificacao(){
  if(verificacaoTimer)clearInterval(verificacaoTimer);
  if(chatTimer)clearInterval(chatTimer);
+ if(filaTimer)clearInterval(filaTimer);
 
  verificarCorrida();
+ atualizarPosicaoFila();
  verificacaoTimer=setInterval(verificarCorrida,5000);
  chatTimer=setInterval(carregarMensagens,4000);
+ filaTimer=setInterval(atualizarPosicaoFila,5000);
 }
 
 async function responderCorrida(funcao){
@@ -604,9 +692,11 @@ async function responderCorrida(funcao){
    if(data.reassigned){
     mensagemFila.textContent=
      "Corrida recusada. Chamada encaminhada ao próximo motorista da fila.";
+    mostrarNotificacao("CORRIDA RECUSADA","A chamada foi encaminhada ao próximo motorista da fila.","erro");
    }else{
     mensagemFila.textContent=
      "Corrida recusada. Não há outro motorista disponível no momento.";
+    mostrarNotificacao("CORRIDA RECUSADA","Não há outro motorista disponível no momento.","erro");
    }
 
    esconderCorrida();
@@ -614,12 +704,14 @@ async function responderCorrida(funcao){
 
   }else{
    mensagemCorrida.textContent=data.message||"Corrida aceita com sucesso.";
+   mostrarNotificacao("CORRIDA ACEITA","Você confirmou o atendimento. Boa viagem!","sucesso");
    await verificarCorrida();
    await atualizarStatus();
   }
 
  }catch(e){
   mensagemCorrida.textContent="Erro: "+e.message;
+  mostrarNotificacao("NÃO FOI POSSÍVEL RESPONDER",e.message,"erro");
  }finally{
   btnAceitar.disabled=false;
   btnRecusar.disabled=false;
@@ -650,6 +742,7 @@ async function finalizarCorrida(){
   }
 
   document.getElementById("mensagemCorrida").textContent=data.message;
+  mostrarNotificacao("CORRIDA FINALIZADA","Atendimento concluído com sucesso.","sucesso");
   esconderCorrida();
   await atualizarStatus();
  }catch(e){
@@ -662,6 +755,7 @@ async function finalizarCorrida(){
 async function sairConta(){
  if(verificacaoTimer)clearInterval(verificacaoTimer);
  if(chatTimer)clearInterval(chatTimer);
+ if(filaTimer)clearInterval(filaTimer);
  await db.auth.signOut();
  location.reload();
 }
