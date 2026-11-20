@@ -1,1 +1,213 @@
 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nerocar | Administração</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101010;color:#fff;font-family:Arial,sans-serif;padding:20px}
+.container{max-width:850px;margin:auto}
+header{text-align:center;margin:25px 0 30px}
+.logo{font-size:32px;font-weight:bold;color:#f5c400}
+h1{font-size:23px}
+.card{background:#1d1d1d;border:1px solid #333;border-radius:15px;padding:20px;margin-bottom:16px}
+input{width:100%;padding:14px;margin:8px 0;border-radius:9px;border:1px solid #444;background:#292929;color:white;font-size:16px}
+button{border:0;border-radius:9px;padding:13px 17px;font-weight:bold;cursor:pointer;margin:5px 4px 5px 0}
+.primary{background:#f5c400;color:#111}
+.reject{background:#a93232;color:white}
+.neutral{background:#444;color:white}
+.small{color:#aaa;font-size:13px}
+.status{font-weight:bold;margin:12px 0}
+.pendente{color:#f5c400}
+.aprovado{color:#43d17a}
+.reprovado{color:#ff6969}
+.hidden{display:none}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+<div class="logo">NERO<span style="color:white">CAR</span></div>
+<h1>Painel Administrativo</h1>
+<p class="small">Gerenciamento e aprovação de motoristas</p>
+</header>
+
+<section id="login" class="card">
+<h2>Entrar como administrador</h2>
+<input id="email" type="email" placeholder="E-mail do administrador">
+<input id="password" type="password" placeholder="Senha">
+<button class="primary" onclick="login()">Entrar no painel</button>
+<p id="loginMsg" class="small"></p>
+</section>
+
+<section id="painel" class="hidden">
+<div class="card top">
+<div>
+<h2>Motoristas cadastrados</h2>
+<p class="small">Aprove ou reprove os cadastros recebidos.</p>
+</div>
+<div>
+<button class="primary" onclick="carregar()">Atualizar lista</button>
+<button class="neutral" onclick="sair()">Sair</button>
+</div>
+</div>
+
+<div id="resumo" class="card"></div>
+<div id="lista"></div>
+</section>
+
+</div>
+
+<script>
+const SUPABASE_URL = "https://xfwkwcpnyvhvmreidqck.supabase.co";
+const SUPABASE_KEY = "sb_publishable_S9Ztcv3nh0EhzUl8VMeLmg_nQuBJ1hR";
+
+const db = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+function escapar(valor){
+ return String(valor ?? "").replace(/[&<>"']/g, c => ({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+ })[c]);
+}
+
+async function login(){
+ const email=document.getElementById("email").value.trim();
+ const password=document.getElementById("password").value;
+ const msg=document.getElementById("loginMsg");
+
+ msg.textContent="Verificando acesso...";
+
+ const {error}=await db.auth.signInWithPassword({email,password});
+
+ if(error){
+  msg.textContent="Erro ao entrar: "+error.message;
+  return;
+ }
+
+ await verificarAdmin();
+}
+
+async function verificarAdmin(){
+ const {data,error}=await db.rpc("is_admin");
+
+ if(error || data !== true){
+  await db.auth.signOut();
+  document.getElementById("loginMsg").textContent=
+   "Acesso permitido somente ao administrador.";
+  return;
+ }
+
+ document.getElementById("login").classList.add("hidden");
+ document.getElementById("painel").classList.remove("hidden");
+
+ await carregar();
+}
+
+async function carregar(){
+ const lista=document.getElementById("lista");
+ lista.innerHTML='<div class="card">Carregando motoristas...</div>';
+
+ const {data,error}=await db
+  .from("drivers")
+  .select("id,name,vehicle_model,vehicle_color,vehicle_plate,approved,rejected,created_at")
+  .order("created_at",{ascending:false});
+
+ if(error){
+  lista.innerHTML='<div class="card">Erro ao carregar: '+escapar(error.message)+'</div>';
+  return;
+ }
+
+ const pendentes=data.filter(d=>!d.approved && !d.rejected).length;
+ const aprovados=data.filter(d=>d.approved).length;
+ const reprovados=data.filter(d=>d.rejected).length;
+
+ document.getElementById("resumo").innerHTML=`
+  <strong>Total:</strong> ${data.length}
+  &nbsp; | &nbsp; <span class="pendente">Aguardando: ${pendentes}</span>
+  &nbsp; | &nbsp; <span class="aprovado">Aprovados: ${aprovados}</span>
+  &nbsp; | &nbsp; <span class="reprovado">Reprovados: ${reprovados}</span>
+ `;
+
+ if(data.length===0){
+  lista.innerHTML='<div class="card">Nenhum motorista cadastrado.</div>';
+  return;
+ }
+
+ lista.innerHTML=data.map(d=>{
+  let status="Aguardando aprovação";
+  let classe="pendente";
+
+  if(d.approved){status="Aprovado";classe="aprovado";}
+  if(d.rejected){status="Reprovado";classe="reprovado";}
+
+  let botoes="";
+
+  if(!d.approved && !d.rejected){
+   botoes=`
+    <button class="primary" onclick="alterar('${d.id}','aprovar')">Aprovar motorista</button>
+    <button class="reject" onclick="alterar('${d.id}','reprovar')">Reprovar</button>`;
+  }else if(d.approved){
+   botoes=`
+    <button class="reject" onclick="alterar('${d.id}','reprovar')">Retirar aprovação</button>`;
+  }else{
+   botoes=`
+    <button class="primary" onclick="alterar('${d.id}','aprovar')">Aprovar motorista</button>
+    <button class="neutral" onclick="alterar('${d.id}','pendente')">Voltar para pendente</button>`;
+  }
+
+  return `
+   <div class="card">
+    <div class="status ${classe}">${status}</div>
+    <h2>${escapar(d.name)}</h2>
+    <p><strong>Veículo:</strong> ${escapar(d.vehicle_model)}</p>
+    <p><strong>Cor:</strong> ${escapar(d.vehicle_color)}</p>
+    <p><strong>Placa:</strong> ${escapar(d.vehicle_plate)}</p>
+    ${botoes}
+   </div>`;
+ }).join("");
+}
+
+async function alterar(id,acao){
+ let dados={};
+
+ if(acao==="aprovar"){
+  dados={approved:true,rejected:false};
+ }else if(acao==="reprovar"){
+  dados={approved:false,rejected:true};
+ }else{
+  dados={approved:false,rejected:false};
+ }
+
+ const {error}=await db
+  .from("drivers")
+  .update(dados)
+  .eq("id",id);
+
+ if(error){
+  alert("Não foi possível atualizar: "+error.message);
+  return;
+ }
+
+ alert("Cadastro atualizado com sucesso!");
+ await carregar();
+}
+
+async function sair(){
+ await db.auth.signOut();
+ location.reload();
+}
+
+db.auth.getSession().then(async ({data})=>{
+ if(data.session){
+  await verificarAdmin();
+ }
+});
+</script>
+</body>
+</html>
+
