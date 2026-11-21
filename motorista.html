@@ -87,7 +87,7 @@ button:disabled{opacity:.5}
 <p>Olá, <strong id="nomeMotorista"></strong></p>
 <p id="veiculoMotorista" class="small"></p>
 
-<button id="btnAlerta" class="primary" onclick="ativarAlertaSonoro">ATIVAR ALERTA SONORO</button>
+<button id="btnAlerta" class="primary" onclick="ativarAlertaSonoro()">ATIVAR ALERTA SONORO</button>
 <p id="statusAlerta" class="small">Alerta sonoro ainda não ativado.</p>
 
 <div id="status" class="status">Verificando situação...</div>
@@ -455,9 +455,24 @@ return;
 }
 mostrarCorrida(data);
 }else{
-/* Se a corrida desapareceu, consulta o status da última corrida
-   para descobrir se o passageiro cancelou o atendimento. */
+/* Se a corrida desapareceu, verifica primeiro se ela foi encaminhada
+   para outro motorista por expiração do prazo ou cancelamento. */
 if(idAnterior){
+const {data:resultadoEncaminhamento,error:erroEncaminhamento}=await db.rpc(
+"verificar_encaminhamento_corrida_motorista",
+{p_corrida_id:idAnterior}
+);
+
+if(!erroEncaminhamento&&resultadoEncaminhamento&&resultadoEncaminhamento.success&&resultadoEncaminhamento.forwarded){
+mostrarNotificacao(
+"CORRIDA ENCAMINHADA",
+"Seu prazo para aceitar terminou. A corrida foi encaminhada ao próximo motorista da fila.",
+"erro"
+);
+document.getElementById("mensagemFila").textContent="O prazo para aceitar terminou. A corrida foi encaminhada ao próximo motorista.";
+await atualizarStatus();
+}else{
+/* Se não foi encaminhada, verifica se o passageiro cancelou. */
 const {data:resultado,error:erroStatus}=await db.rpc(
 "verificar_cancelamento_corrida_motorista",
 {p_corrida_id:idAnterior}
@@ -474,6 +489,7 @@ mostrarNotificacao(
 }
 document.getElementById("mensagemFila").textContent="O passageiro cancelou a corrida.";
 await atualizarStatus();
+}
 }
 }
 esconderCorrida();
