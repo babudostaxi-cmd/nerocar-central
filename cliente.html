@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -28,17 +29,19 @@ button:disabled{opacity:.5;cursor:not-allowed}
 #mensagens{height:230px;overflow-y:auto;background:#111;border:1px solid #444;border-radius:10px;padding:10px;margin-top:12px}
 .mensagem{padding:9px 11px;margin:7px 0;border-radius:9px;background:#303030;overflow-wrap:anywhere}
 .mensagem strong{color:#f5c400}
-.mensagem.minha{background:#514400;margin-left:12%;}
+.mensagem.minha{background:#514400;margin-left:12%}
 .mensagem.motorista-msg{margin-right:12%}
 .horario{font-size:11px;color:#999}
 .aviso{color:#bbb;font-size:13px;text-align:center;line-height:1.5;margin-top:18px}
-.erro{color:#ff7777}.sucesso{color:#7ee6a1}
-/* NOTIFICAÇÕES FLUTUANTES */
+.erro{color:#ff7777}
+.sucesso{color:#7ee6a1}
 #notificacao{position:fixed;z-index:9999;top:18px;left:50%;transform:translate(-50%,-18px);width:calc(100% - 32px);max-width:460px;padding:15px 17px;border-radius:13px;background:#252525;border:1px solid #f5c400;box-shadow:0 10px 35px #000b;opacity:0;visibility:hidden;transition:opacity .25s,transform .25s,visibility .25s;line-height:1.4}
 #notificacao.visivel{opacity:1;visibility:visible;transform:translate(-50%,0)}
 #notificacao .toast-titulo{display:block;color:#f5c400;font-weight:900;margin-bottom:4px}
-#notificacao.sucesso-toast{border-color:#43c879}#notificacao.sucesso-toast .toast-titulo{color:#72e6a0}
-#notificacao.erro-toast{border-color:#e45b5b}#notificacao.erro-toast .toast-titulo{color:#ff8585}
+#notificacao.sucesso-toast{border-color:#43c879}
+#notificacao.sucesso-toast .toast-titulo{color:#72e6a0}
+#notificacao.erro-toast{border-color:#e45b5b}
+#notificacao.erro-toast .toast-titulo{color:#ff8585}
 #notificacao .toast-fechar{float:right;width:auto;margin:0 0 0 10px;padding:0;background:transparent;color:#aaa;font-size:20px;line-height:1}
 .etapas{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:14px 0}
 .etapa{padding:9px 5px;border-radius:8px;background:#292929;color:#777;text-align:center;font-size:11px;line-height:1.35;border:1px solid #383838}
@@ -48,6 +51,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 </style>
 </head>
 <body>
+
 <div id="notificacao" role="status" aria-live="polite">
   <button class="toast-fechar" onclick="fecharNotificacao()" aria-label="Fechar">×</button>
   <span class="toast-titulo" id="toastTitulo">Nerocar</span>
@@ -60,36 +64,52 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
   <section id="telaSolicitacao">
     <h2>Solicitar uma corrida</h2>
+
     <label for="nome">Seu nome</label>
     <input id="nome" type="text" placeholder="Digite seu nome" maxlength="100" required>
+
     <label for="endereco">Endereço de origem</label>
     <textarea id="endereco" placeholder="Digite o endereço onde deseja ser buscado" maxlength="500" required></textarea>
+
     <label for="referencia">Ponto de referência (opcional)</label>
     <input id="referencia" type="text" placeholder="Ex.: próximo à praça" maxlength="300">
-    <div class="preco">Valor da corrida dentro de Nerópolis<strong>R$ 18,00</strong></div>
+
+    <div class="preco">
+      Valor da corrida dentro de Nerópolis
+      <strong>R$ 18,00</strong>
+    </div>
+
     <button id="btnSolicitar" onclick="solicitarCorrida()">SOLICITAR CORRIDA</button>
     <div id="mensagemInicial" class="aviso">Informe seus dados e solicite sua viagem.</div>
   </section>
 
   <section id="telaCorrida" class="escondido">
     <h2>Acompanhar minha corrida</h2>
+
     <div class="etapas" id="etapasCorrida">
       <div class="etapa ativa" id="etapaPedido"><span>1. Pedido</span>Solicitado</div>
       <div class="etapa" id="etapaMotorista"><span>2. Motorista</span>Aguardando</div>
       <div class="etapa" id="etapaFinal"><span>3. Viagem</span>Em andamento</div>
     </div>
+
     <div class="status" id="statusCorrida">Procurando motorista...</div>
+
     <button id="btnCancelarCorrida" class="secundario" style="background:#9d2929;color:white" onclick="cancelarCorridaPassageiro()">CANCELAR CORRIDA</button>
+
     <div id="dadosMotorista" class="motorista escondido"></div>
+
     <div id="areaChat" class="escondido">
       <h2 style="margin-top:25px">Chat com o motorista</h2>
       <div id="mensagens"><div class="aviso">Carregando mensagens...</div></div>
+
       <label for="textoMensagem">Sua mensagem</label>
       <input id="textoMensagem" type="text" maxlength="1000" placeholder="Digite uma mensagem">
       <button id="btnEnviar" onclick="enviarMensagem()">ENVIAR MENSAGEM</button>
       <div id="statusChat" class="aviso"></div>
     </div>
+
     <button id="btnNovaCorrida" class="secundario escondido" onclick="novaCorrida()">SOLICITAR OUTRA CORRIDA</button>
+
     <div class="aviso">Esta página atualiza automaticamente o andamento da sua corrida.</div>
   </section>
 </div>
@@ -129,9 +149,11 @@ const btnNovaCorrida=document.getElementById("btnNovaCorrida");
 function escaparHTML(valor){
  return String(valor??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"})[c]);
 }
-function primeiroRegistro(dados){return Array.isArray(dados)?dados[0]||null:dados||null;}
 
-/* Som e vibração: o áudio é liberado pela primeira interação do passageiro. */
+function primeiroRegistro(dados){
+ return Array.isArray(dados)?dados[0]||null:dados||null;
+}
+
 async function liberarAudio(){
  try{
   const AudioClass=window.AudioContext||window.webkitAudioContext;
@@ -139,48 +161,86 @@ async function liberarAudio(){
   if(!audioContext)audioContext=new AudioClass();
   if(audioContext.state==="suspended")await audioContext.resume();
   audioLiberado=audioContext.state==="running";
- }catch(e){audioLiberado=false;}
+ }catch(e){
+  audioLiberado=false;
+ }
 }
+
 function tocarAviso(tipo="normal"){
- if(navigator.vibrate){try{navigator.vibrate(tipo==="urgente"?[180,80,180]:[120]);}catch(e){}}
+ if(navigator.vibrate){
+  try{
+   navigator.vibrate(tipo==="urgente"?[180,80,180]:[120]);
+  }catch(e){}
+ }
+
  if(!audioLiberado||!audioContext||audioContext.state!=="running")return;
+
  const frequencias=tipo==="sucesso"?[880,1175]:tipo==="erro"?[420,320]:[740,980,740];
  const inicio=audioContext.currentTime;
+
  frequencias.forEach((freq,i)=>{
   const osc=audioContext.createOscillator();
   const ganho=audioContext.createGain();
   const t=inicio+i*.17;
-  osc.type="sine";osc.frequency.value=freq;
+
+  osc.type="sine";
+  osc.frequency.value=freq;
+
   ganho.gain.setValueAtTime(.0001,t);
   ganho.gain.exponentialRampToValueAtTime(.16,t+.025);
   ganho.gain.exponentialRampToValueAtTime(.0001,t+.14);
-  osc.connect(ganho);ganho.connect(audioContext.destination);
-  osc.start(t);osc.stop(t+.15);
+
+  osc.connect(ganho);
+  ganho.connect(audioContext.destination);
+
+  osc.start(t);
+  osc.stop(t+.15);
  });
 }
+
 function notificar(titulo,texto,tipo="normal",som=true){
  const caixa=document.getElementById("notificacao");
+
  document.getElementById("toastTitulo").textContent=titulo;
  document.getElementById("toastTexto").textContent=texto;
+
  caixa.className="visivel"+(tipo==="sucesso"?" sucesso-toast":tipo==="erro"?" erro-toast":"");
+
  if(toastTimer)clearTimeout(toastTimer);
+
  toastTimer=setTimeout(fecharNotificacao,6500);
+
  if(som)tocarAviso(tipo);
 }
+
 function fecharNotificacao(){
  const caixa=document.getElementById("notificacao");
  caixa.classList.remove("visivel");
+
  if(toastTimer)clearTimeout(toastTimer);
 }
+
 function atualizarEtapas(status){
  const pedido=document.getElementById("etapaPedido");
  const motorista=document.getElementById("etapaMotorista");
  const final=document.getElementById("etapaFinal");
+
  [pedido,motorista,final].forEach(e=>e.classList.remove("ativa","concluida"));
+
  pedido.classList.add("concluida");
+
  if(status==="pending")motorista.classList.add("ativa");
- if(status==="accepted"){motorista.classList.add("concluida");final.classList.add("ativa");}
- if(status==="completed"){motorista.classList.add("concluida");final.classList.add("concluida");}
+
+ if(status==="accepted"){
+  motorista.classList.add("concluida");
+  final.classList.add("ativa");
+ }
+
+ if(status==="completed"){
+  motorista.classList.add("concluida");
+  final.classList.add("concluida");
+ }
+
  if(status==="cancelled")motorista.classList.add("ativa");
 }
 
@@ -188,193 +248,445 @@ async function solicitarCorrida(){
  const nome=document.getElementById("nome").value.trim();
  const endereco=document.getElementById("endereco").value.trim();
  const referencia=document.getElementById("referencia").value.trim();
- if(!nome||!endereco){notificar("Dados incompletos","Preencha seu nome e o endereço de origem.","erro",false);return;}
- btnSolicitar.disabled=true;btnSolicitar.textContent="SOLICITANDO...";
+
+ if(!nome||!endereco){
+  notificar("Dados incompletos","Preencha seu nome e o endereço de origem.","erro",false);
+  return;
+ }
+
+ btnSolicitar.disabled=true;
+ btnSolicitar.textContent="SOLICITANDO...";
+
  document.getElementById("mensagemInicial").textContent="Estamos procurando um motorista disponível...";
+
  try{
   await liberarAudio();
-  const {data,error}=await db.rpc("solicitar_corrida",{p_nome:nome,p_endereco:endereco,p_referencia:referencia||null});
+
+  const {data,error}=await db.rpc("solicitar_corrida",{
+   p_nome:nome,
+   p_endereco:endereco,
+   p_referencia:referencia||null
+  });
+
   if(error)throw error;
+
   const resultado=primeiroRegistro(data);
-  if(!resultado||resultado.success===false)throw new Error(resultado?.message||"Não foi possível solicitar a corrida.");
+
+  if(!resultado||resultado.success===false){
+   throw new Error(resultado?.message||"Não foi possível solicitar a corrida.");
+  }
+
   const id=resultado.ride_id||resultado.id;
   const token=resultado.passenger_token;
-  if(!id||!token)throw new Error("A corrida foi criada, mas não recebemos os dados de acompanhamento. Entre em contato com a Nerocar.");
-  corridaId=id;passageiroToken=token;
+
+  if(!id||!token){
+   throw new Error("A corrida foi criada, mas não recebemos os dados de acompanhamento. Entre em contato com a Nerocar.");
+  }
+
+  corridaId=id;
+  passageiroToken=token;
+
   sessionStorage.setItem("nerocar_corrida_id",String(corridaId));
   sessionStorage.setItem("nerocar_passageiro_token",String(passageiroToken));
+
   ultimoStatus="pending";
   ultimoMotorista=identificadorMotorista(resultado);
-  telaSolicitacao.classList.add("escondido");telaCorrida.classList.remove("escondido");
+
+  telaSolicitacao.classList.add("escondido");
+  telaCorrida.classList.remove("escondido");
+
   statusCorrida.innerHTML='<span class="destaque">Corrida solicitada!</span><br>Estamos aguardando a confirmação do motorista.';
+
   atualizarEtapas("pending");
+
   if(resultado.driver_name)mostrarMotorista(resultado);
+
   notificar("Corrida solicitada!","Seu pedido foi enviado. Aguarde a resposta do motorista.","sucesso");
+
   iniciarAcompanhamento();
+
  }catch(error){
   console.error("Erro ao solicitar corrida:",error);
+
   document.getElementById("mensagemInicial").innerHTML='<span class="erro">Não foi possível solicitar: '+escaparHTML(error.message||"Erro desconhecido")+'</span>';
+
   notificar("Não foi possível solicitar",error.message||"Tente novamente.","erro",false);
- }finally{btnSolicitar.disabled=false;btnSolicitar.textContent="SOLICITAR CORRIDA";}
+
+ }finally{
+  btnSolicitar.disabled=false;
+  btnSolicitar.textContent="SOLICITAR CORRIDA";
+ }
 }
 
 function identificadorMotorista(dados){
  return String(dados.driver_id||dados.driver_user_id||dados.vehicle_plate||dados.driver_name||"");
 }
+
 function mostrarMotorista(dados){
  dadosMotorista.classList.remove("escondido");
- dadosMotorista.innerHTML=`<strong class="destaque">Motorista da sua corrida</strong><br><strong>Nome:</strong> ${escaparHTML(dados.driver_name||"Aguardando")}<br><strong>Veículo:</strong> ${escaparHTML(dados.vehicle_model||"-")}<br><strong>Cor:</strong> ${escaparHTML(dados.vehicle_color||"-")}<br><strong>Placa:</strong> ${escaparHTML(dados.vehicle_plate||"-")}`;
+
+ dadosMotorista.innerHTML=`
+  <strong class="destaque">Motorista da sua corrida</strong><br>
+  <strong>Nome:</strong> ${escaparHTML(dados.driver_name||"Aguardando")}<br>
+  <strong>Veículo:</strong> ${escaparHTML(dados.vehicle_model||"-")}<br>
+  <strong>Cor:</strong> ${escaparHTML(dados.vehicle_color||"-")}<br>
+  <strong>Placa:</strong> ${escaparHTML(dados.vehicle_plate||"-")}
+ `;
 }
 
 function iniciarAcompanhamento(){
  if(intervaloAcompanhamento)clearInterval(intervaloAcompanhamento);
  if(intervaloMensagens)clearInterval(intervaloMensagens);
- acompanharCorrida();carregarMensagens();
+
+ acompanharCorrida();
+ carregarMensagens();
+
  intervaloAcompanhamento=setInterval(acompanharCorrida,4000);
  intervaloMensagens=setInterval(carregarMensagens,3000);
 }
+
 async function cancelarCorridaPassageiro(){
  if(!corridaId||!passageiroToken||cancelandoCorrida)return;
+
  const confirmar=confirm("Deseja realmente cancelar esta corrida?");
  if(!confirmar)return;
+
  const botao=document.getElementById("btnCancelarCorrida");
- cancelandoCorrida=true;botao.disabled=true;botao.textContent="CANCELANDO...";
+
+ cancelandoCorrida=true;
+ botao.disabled=true;
+ botao.textContent="CANCELANDO...";
+
  try{
   const {data,error}=await db.rpc("cancelar_corrida_passageiro",{
    p_corrida_id:corridaId,
    p_token:passageiroToken
   });
+
   if(error)throw error;
+
   const resultado=primeiroRegistro(data);
-  if(!resultado||resultado.success===false)throw new Error(resultado?.message||"Não foi possível cancelar a corrida.");
+
+  if(!resultado||resultado.success===false){
+   throw new Error(resultado?.message||"Não foi possível cancelar a corrida.");
+  }
+
   canceladaPeloPassageiro=true;
+
   statusCorrida.innerHTML='<span class="erro">Você cancelou esta corrida.</span><br>Se desejar, poderá solicitar outra viagem.';
+
   areaChat.classList.add("escondido");
   botao.classList.add("escondido");
   btnNovaCorrida.classList.remove("escondido");
+
   notificar("Corrida cancelada","O motorista foi avisado sobre o cancelamento.","erro");
+
   pararAtualizacoes();
+
  }catch(error){
   console.error("Erro ao cancelar corrida:",error);
+
   notificar("Não foi possível cancelar",error.message||"Tente novamente.","erro",false);
+
  }finally{
-  cancelandoCorrida=false;botao.disabled=false;botao.textContent="CANCELAR CORRIDA";
+  cancelandoCorrida=false;
+  botao.disabled=false;
+  botao.textContent="CANCELAR CORRIDA";
  }
 }
 
 async function acompanharCorrida(){
  if(!corridaId||!passageiroToken||consultandoCorrida)return;
+
  consultandoCorrida=true;
+
  try{
-  const {data,error}=await db.rpc("acompanhar_corrida",{p_corrida_id:corridaId,p_token:passageiroToken});
+  const {data,error}=await db.rpc("acompanhar_corrida",{
+   p_corrida_id:corridaId,
+   p_token:passageiroToken
+  });
+
   if(error)throw error;
+
   const corrida=primeiroRegistro(data);
-  if(!corrida){statusCorrida.textContent="Não foi possível localizar sua corrida.";return;}
+
+  if(!corrida){
+   statusCorrida.textContent="Não foi possível localizar sua corrida.";
+   return;
+  }
+
   const status=String(corrida.status||"").toLowerCase();
   const motoristaAtual=identificadorMotorista(corrida);
-  const mudouMotorista=!!motoristaAtual&&!!ultimoMotorista&&motoristaAtual!==ultimoMotorista;
+
+  const mudouMotorista=
+   !!motoristaAtual&&
+   !!ultimoMotorista&&
+   motoristaAtual!==ultimoMotorista;
+
+  // NOVA CORREÇÃO:
+  // Detecta quando o motorista aceitou e depois cancelou.
+  // Nesse caso, a corrida volta para pending e será encaminhada
+  // ao próximo motorista da fila.
+  const motoristaCancelou=
+   ultimoStatus==="accepted"&&status==="pending";
+
   if(corrida.driver_name)mostrarMotorista(corrida);
 
   if(status==="pending"){
+
    statusCorrida.innerHTML='<span class="destaque">Motorista acionado!</span><br>Aguardando o motorista aceitar sua corrida.';
+
    areaChat.classList.remove("escondido");
-   if(mudouMotorista){
-    notificar("Nova tentativa de atendimento","O motorista anterior não aceitou. Sua corrida foi encaminhada para outro motorista da fila.","normal");
+
+   if(motoristaCancelou){
+
+    notificar(
+     "Motorista cancelou o atendimento",
+     "Não se preocupe! Estamos encaminhando sua corrida para o próximo motorista da fila.",
+     "normal"
+    );
+
+   }else if(mudouMotorista){
+
+    notificar(
+     "Nova tentativa de atendimento",
+     "Sua corrida foi encaminhada para outro motorista da fila.",
+     "normal"
+    );
+
    }
+
   }else if(status==="accepted"){
+
    statusCorrida.innerHTML='<span class="sucesso">Motorista confirmou sua corrida!</span><br>Seu motorista está a caminho.';
+
    areaChat.classList.remove("escondido");
-   if(ultimoStatus!=="accepted")notificar("Corrida aceita!","O motorista confirmou sua viagem e está a caminho.","sucesso");
+
+   if(ultimoStatus!=="accepted"){
+    notificar("Corrida aceita!","O motorista confirmou sua viagem e está a caminho.","sucesso");
+   }
+
   }else if(status==="completed"){
+
    statusCorrida.innerHTML='<span class="sucesso">Corrida finalizada!</span><br>Obrigado por viajar com a Nerocar.';
-   areaChat.classList.add("escondido");btnNovaCorrida.classList.remove("escondido");document.getElementById("btnCancelarCorrida").classList.add("escondido");
-   if(ultimoStatus!=="completed")notificar("Viagem finalizada","Obrigado por viajar com a Nerocar!","sucesso");
-   atualizarEtapas(status);pararAtualizacoes();
+
+   areaChat.classList.add("escondido");
+   btnNovaCorrida.classList.remove("escondido");
+   document.getElementById("btnCancelarCorrida").classList.add("escondido");
+
+   if(ultimoStatus!=="completed"){
+    notificar("Viagem finalizada","Obrigado por viajar com a Nerocar!","sucesso");
+   }
+
+   atualizarEtapas(status);
+   pararAtualizacoes();
+
   }else if(status==="cancelled"){
+
    statusCorrida.innerHTML='<span class="erro">Não foi possível concluir o atendimento desta corrida.</span><br>Você pode solicitar outra corrida.';
-   areaChat.classList.add("escondido");btnNovaCorrida.classList.remove("escondido");document.getElementById("btnCancelarCorrida").classList.add("escondido");
-   if(ultimoStatus!=="cancelled"&&!canceladaPeloPassageiro)notificar("Corrida cancelada","O atendimento foi encerrado. Você pode solicitar novamente.","erro");
-   atualizarEtapas(status);pararAtualizacoes();
+
+   areaChat.classList.add("escondido");
+   btnNovaCorrida.classList.remove("escondido");
+   document.getElementById("btnCancelarCorrida").classList.add("escondido");
+
+   if(ultimoStatus!=="cancelled"&&!canceladaPeloPassageiro){
+    notificar("Corrida cancelada","O atendimento foi encerrado. Você pode solicitar novamente.","erro");
+   }
+
+   atualizarEtapas(status);
+   pararAtualizacoes();
+
   }else{
+
    statusCorrida.textContent="Atualizando informações da corrida...";
+
   }
+
   if(motoristaAtual)ultimoMotorista=motoristaAtual;
+
   atualizarEtapas(status);
   ultimoStatus=status;
- }catch(error){console.error("Erro ao acompanhar corrida:",error);}
- finally{consultandoCorrida=false;}
+
+ }catch(error){
+  console.error("Erro ao acompanhar corrida:",error);
+
+ }finally{
+  consultandoCorrida=false;
+ }
 }
 
 async function carregarMensagens(){
  if(!corridaId||!passageiroToken||areaChat.classList.contains("escondido")||consultandoMensagens)return;
+
  consultandoMensagens=true;
+
  try{
-  const {data,error}=await db.rpc("listar_mensagens_corrida",{p_corrida_id:corridaId,p_token:passageiroToken});
+  const {data,error}=await db.rpc("listar_mensagens_corrida",{
+   p_corrida_id:corridaId,
+   p_token:passageiroToken
+  });
+
   if(error)throw error;
+
   const lista=Array.isArray(data)?data:[];
+
   let indiceUltimaVista=-1;
-  if(ultimaMensagemId)indiceUltimaVista=lista.findIndex(m=>String(m.id)===ultimaMensagemId);
-  const mensagensNovas=primeiraLeituraChat?[]:lista.slice(indiceUltimaVista>=0?indiceUltimaVista+1:lista.length);
+
+  if(ultimaMensagemId){
+   indiceUltimaVista=lista.findIndex(m=>String(m.id)===ultimaMensagemId);
+  }
+
+  const mensagensNovas=primeiraLeituraChat?
+   []:
+   lista.slice(indiceUltimaVista>=0?indiceUltimaVista+1:lista.length);
+
   const novasDoMotorista=mensagensNovas.filter(m=>m.sender_role==="driver");
+
   const ultimaId=lista.length?String(lista[lista.length-1].id):"";
+
   if(novasDoMotorista.length){
    const ultimaNova=novasDoMotorista[novasDoMotorista.length-1];
-   notificar("Nova mensagem do motorista",String(ultimaNova.message||"Você recebeu uma mensagem."),"normal");
+
+   notificar(
+    "Nova mensagem do motorista",
+    String(ultimaNova.message||"Você recebeu uma mensagem."),
+    "normal"
+   );
   }
+
   if(ultimaId)ultimaMensagemId=ultimaId;
+
   primeiraLeituraChat=false;
-  const estavaNoFinal=mensagens.scrollHeight-mensagens.scrollTop-mensagens.clientHeight<50;
+
+  const estavaNoFinal=
+   mensagens.scrollHeight-mensagens.scrollTop-mensagens.clientHeight<50;
+
   mensagens.innerHTML=lista.map(item=>{
-   const hora=item.created_at?new Date(item.created_at).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}):"";
+   const hora=item.created_at?
+    new Date(item.created_at).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}):
+    "";
+
    const minha=item.sender_role==="passenger";
-   return `<div class="mensagem ${minha?"minha":"motorista-msg"}"><strong>${escaparHTML(minha?"Você":item.sender_name||"Motorista")}</strong><br>${escaparHTML(item.message)}<div class="horario">${escaparHTML(hora)}</div></div>`;
+
+   return `<div class="mensagem ${minha?"minha":"motorista-msg"}">
+    <strong>${escaparHTML(minha?"Você":item.sender_name||"Motorista")}</strong><br>
+    ${escaparHTML(item.message)}
+    <div class="horario">${escaparHTML(hora)}</div>
+   </div>`;
   }).join("")||'<div class="aviso">Nenhuma mensagem ainda.</div>';
+
   if(estavaNoFinal)mensagens.scrollTop=mensagens.scrollHeight;
- }catch(error){console.error("Erro ao carregar mensagens:",error);}
- finally{consultandoMensagens=false;}
+
+ }catch(error){
+  console.error("Erro ao carregar mensagens:",error);
+
+ }finally{
+  consultandoMensagens=false;
+ }
 }
 
 async function enviarMensagem(){
  const campo=document.getElementById("textoMensagem");
  const texto=campo.value.trim();
  const botao=document.getElementById("btnEnviar");
+
  if(!texto||!corridaId||enviandoMensagem)return;
- enviandoMensagem=true;botao.disabled=true;
+
+ enviandoMensagem=true;
+ botao.disabled=true;
+
  try{
-  const {data,error}=await db.rpc("enviar_mensagem_corrida",{p_corrida_id:corridaId,p_mensagem:texto,p_token:passageiroToken});
+  const {data,error}=await db.rpc("enviar_mensagem_corrida",{
+   p_corrida_id:corridaId,
+   p_mensagem:texto,
+   p_token:passageiroToken
+  });
+
   if(error)throw error;
+
   const resultado=primeiroRegistro(data);
-  if(resultado&&resultado.success===false)throw new Error(resultado.message||"Não foi possível enviar a mensagem.");
+
+  if(resultado&&resultado.success===false){
+   throw new Error(resultado.message||"Não foi possível enviar a mensagem.");
+  }
+
   campo.value="";
   document.getElementById("statusChat").textContent="Mensagem enviada.";
+
   await carregarMensagens();
+
  }catch(error){
   console.error("Erro ao enviar mensagem:",error);
+
   document.getElementById("statusChat").textContent="Não foi possível enviar: "+error.message;
+
   notificar("Falha ao enviar mensagem",error.message,"erro",false);
- }finally{enviandoMensagem=false;botao.disabled=false;campo.focus();}
+
+ }finally{
+  enviandoMensagem=false;
+  botao.disabled=false;
+  campo.focus();
+ }
 }
 
-document.getElementById("textoMensagem").addEventListener("keydown",function(event){if(event.key==="Enter"){event.preventDefault();enviarMensagem();}});
+document.getElementById("textoMensagem").addEventListener("keydown",function(event){
+ if(event.key==="Enter"){
+  event.preventDefault();
+  enviarMensagem();
+ }
+});
+
 function pararAtualizacoes(){
  if(intervaloAcompanhamento)clearInterval(intervaloAcompanhamento);
  if(intervaloMensagens)clearInterval(intervaloMensagens);
- intervaloAcompanhamento=null;intervaloMensagens=null;acompanhando=false;
+
+ intervaloAcompanhamento=null;
+ intervaloMensagens=null;
+ acompanhando=false;
 }
+
 function novaCorrida(){
  pararAtualizacoes();
- sessionStorage.removeItem("nerocar_corrida_id");sessionStorage.removeItem("nerocar_passageiro_token");
- corridaId=null;passageiroToken=null;ultimoStatus="";ultimoMotorista="";ultimaMensagemId="";primeiraLeituraChat=true;
- document.getElementById("nome").value="";document.getElementById("endereco").value="";document.getElementById("referencia").value="";
- dadosMotorista.innerHTML="";dadosMotorista.classList.add("escondido");areaChat.classList.add("escondido");btnNovaCorrida.classList.add("escondido");document.getElementById("btnCancelarCorrida").classList.remove("escondido");document.getElementById("btnCancelarCorrida").disabled=false;document.getElementById("btnCancelarCorrida").textContent="CANCELAR CORRIDA";canceladaPeloPassageiro=false;mensagens.innerHTML="";
+
+ sessionStorage.removeItem("nerocar_corrida_id");
+ sessionStorage.removeItem("nerocar_passageiro_token");
+
+ corridaId=null;
+ passageiroToken=null;
+ ultimoStatus="";
+ ultimoMotorista="";
+ ultimaMensagemId="";
+ primeiraLeituraChat=true;
+
+ document.getElementById("nome").value="";
+ document.getElementById("endereco").value="";
+ document.getElementById("referencia").value="";
+
+ dadosMotorista.innerHTML="";
+ dadosMotorista.classList.add("escondido");
+
+ areaChat.classList.add("escondido");
+ btnNovaCorrida.classList.add("escondido");
+
+ document.getElementById("btnCancelarCorrida").classList.remove("escondido");
+ document.getElementById("btnCancelarCorrida").disabled=false;
+ document.getElementById("btnCancelarCorrida").textContent="CANCELAR CORRIDA";
+
+ canceladaPeloPassageiro=false;
+ mensagens.innerHTML="";
  document.getElementById("statusChat").textContent="";
- telaCorrida.classList.add("escondido");telaSolicitacao.classList.remove("escondido");
+
+ telaCorrida.classList.add("escondido");
+ telaSolicitacao.classList.remove("escondido");
 }
 
 /* Recuperar a corrida caso o passageiro feche e reabra a página. */
 if(corridaId&&passageiroToken){
- telaSolicitacao.classList.add("escondido");telaCorrida.classList.remove("escondido");
+ telaSolicitacao.classList.add("escondido");
+ telaCorrida.classList.remove("escondido");
+
  statusCorrida.textContent="Recuperando informações da sua corrida...";
+
  primeiraLeituraChat=true;
  iniciarAcompanhamento();
 }
