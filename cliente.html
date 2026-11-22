@@ -174,15 +174,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 <script>
 const SUPABASE_URL="https://xfwkwcpnyvhvmreidqck.supabase.co";
 const SUPABASE_KEY="sb_publishable_S9Ztcv3nh0EhzUl8VMeLmg_nQuBJ1hR";
-if(!window.supabase || !window.supabase.createClient){
- alert("Erro: biblioteca do Supabase não carregou. Atualize a página.");
- throw new Error("Biblioteca Supabase indisponível.");
-}
-
-const db=window.supabase.createClient(
- SUPABASE_URL,
- SUPABASE_KEY
-);
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 let corridaId=sessionStorage.getItem("nerocar_corrida_id");
 let passageiroToken=sessionStorage.getItem("nerocar_passageiro_token");
@@ -384,22 +376,7 @@ async function solicitarCorrida(){
    p_referencia:referencia||null
   });
 
- if(error){
- console.error("ERRO DETALHADO DO SUPABASE:",{
-  message:error.message,
-  code:error.code,
-  details:error.details,
-  hint:error.hint,
-  status:error.status
- });
-
- throw new Error(
-  "Mensagem: "+(error.message||"")+
-  " | Código: "+(error.code||"")+
-  " | Status: "+(error.status||"")+
-  " | Detalhes: "+(error.details||"")
- );
-}
+  if(error)throw error;
 
   const resultado=primeiroRegistro(data);
   if(!resultado||resultado.success===false){
