@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -19,6 +19,7 @@ button{border:0;border-radius:9px;padding:13px 17px;font-weight:bold;cursor:poin
 .reject{background:#a93232;color:white}
 .neutral{background:#444;color:white}
 .delete{background:#e00000;color:white}
+.success{background:#16834a;color:white}
 button:disabled{opacity:.5;cursor:not-allowed}
 .hidden{display:none}
 .small{color:#aaa;font-size:13px}
@@ -28,6 +29,9 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .reprovado{color:#ff6969}
 .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .numero{font-size:25px;color:#f5c400;font-weight:bold}
+.id-text{font-size:12px;color:#aaa;word-break:break-all}
+.valor{font-size:27px;font-weight:bold;color:#f5c400}
+.secao-titulo{color:#f5c400}
 </style>
 </head>
 <body>
@@ -36,7 +40,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 <header>
 <div class="logo">NERO<span style="color:white">CAR</span></div>
 <h1>Painel Administrativo</h1>
-<p class="small">Gerenciamento de motoristas e fila de corridas</p>
+<p class="small">Gerenciamento de motoristas, corridas e pagamentos</p>
 </header>
 
 <section id="login" class="card">
@@ -68,6 +72,19 @@ button:disabled{opacity:.5;cursor:not-allowed}
 <p class="small">Motoristas organizados por ordem de entrada.</p>
 <div id="resumoFila" class="numero">0 motoristas</div>
 <div id="fila"></div>
+</div>
+
+<!-- COBRANÇAS DE PASSAGEIROS -->
+<div class="card">
+<div class="top">
+<h2 class="secao-titulo">Cobranças de Passageiros</h2>
+<button class="primary" onclick="carregarCobrancas()">Atualizar cobranças</button>
+</div>
+<p class="small">
+Taxas de cancelamento de R$ 8,00. Confira o recebimento do Pix no banco antes de confirmar.
+</p>
+<div id="resumoCobrancas" class="numero">Carregando...</div>
+<div id="listaCobrancas"></div>
 </div>
 
 </section>
@@ -106,6 +123,7 @@ async function verificarAdmin(){
  document.getElementById("painel").classList.remove("hidden");
  await carregar();
  await carregarFila();
+ await carregarCobrancas();
 }
 
 async function carregar(){
@@ -254,6 +272,89 @@ async function carregarFila(){
  </div>`).join("");
 }
 
+/* CARREGAR COBRANÇAS PENDENTES */
+async function carregarCobrancas(){
+ const lista=document.getElementById("listaCobrancas");
+ const resumo=document.getElementById("resumoCobrancas");
+
+ lista.innerHTML='<p class="small">Carregando cobranças...</p>';
+ resumo.textContent="Carregando...";
+
+ const {data,error}=await db.from("passenger_fees")
+ .select("id,passenger_user_id,ride_id,amount,status,created_at")
+ .eq("status","pending")
+ .order("created_at",{ascending:true});
+
+ if(error){
+  resumo.textContent="Erro";
+  lista.innerHTML='<div class="card">Erro ao carregar cobranças: '+escapar(error.message)+'</div>';
+  return;
+ }
+
+ resumo.textContent=data.length+" cobrança(s) pendente(s)";
+
+ if(!data.length){
+  lista.innerHTML='<div class="card"><p class="aprovado"><strong>Nenhuma cobrança pendente.</strong></p></div>';
+  return;
+ }
+
+ lista.innerHTML=data.map(c=>`
+ <div class="card">
+  <div class="status pendente">AGUARDANDO PAGAMENTO</div>
+  <div class="valor">R$ ${Number(c.amount).toFixed(2).replace(".",",")}</div>
+  <p><strong>Data da cobrança:</strong> ${new Date(c.created_at).toLocaleString("pt-BR")}</p>
+  <p><strong>Passageiro (ID):</strong></p>
+  <div class="id-text">${escapar(c.passenger_user_id)}</div>
+  <p><strong>Corrida (ID):</strong></p>
+  <div class="id-text">${escapar(c.ride_id)}</div>
+  <p class="small">Confira no extrato bancário se o Pix foi recebido antes de confirmar.</p>
+  <button class="success" id="confirmar-${c.id}" onclick="confirmarPagamento('${c.id}')">
+   CONFIRMAR PAGAMENTO
+  </button>
+ </div>
+ `).join("");
+}
+
+/* CONFIRMAR PAGAMENTO PIX */
+async function confirmarPagamento(id){
+ const confirmar=confirm(
+  "ATENÇÃO!\n\n"+
+  "Você conferiu no extrato bancário que recebeu o Pix de R$ 8,00?\n\n"+
+  "Ao confirmar, o passageiro será liberado para solicitar novas corridas."
+ );
+
+ if(!confirmar)return;
+
+ const botao=document.getElementById("confirmar-"+id);
+ if(botao)botao.disabled=true;
+
+ try{
+  const {data,error}=await db.rpc("confirmar_pagamento_passageiro",{
+   p_cobranca_id:id
+  });
+
+  if(error){
+   alert("Erro ao confirmar pagamento: "+error.message);
+   if(botao)botao.disabled=false;
+   return;
+  }
+
+  if(!data||data.success!==true){
+   alert(data?.message||"Não foi possível confirmar o pagamento.");
+   if(botao)botao.disabled=false;
+   await carregarCobrancas();
+   return;
+  }
+
+  alert("Pagamento confirmado!\n\nO passageiro está liberado para solicitar novas corridas.");
+  await carregarCobrancas();
+
+ }catch(e){
+  alert("Erro: "+e.message);
+  if(botao)botao.disabled=false;
+ }
+}
+
 async function sair(){
  await db.auth.signOut();
  location.reload();
@@ -265,3 +366,4 @@ db.auth.getSession().then(async({data})=>{
 </script>
 </body>
 </html>
+```
