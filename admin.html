@@ -194,7 +194,7 @@ async function excluirMotorista(id,nome){
  botoes.forEach(b=>b.disabled=true);
 
  try{
-  const {data,error}=await db.functions.invoke("bright-responder",{
+  const {data,error}=await db.functions.invoke("excluir-motorista",{
    body:{driver_id:id}
   });
 
