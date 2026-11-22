@@ -578,7 +578,45 @@ lista.appendChild(item);
 lista.scrollTop=lista.scrollHeight;
 
 }catch(e){
-document.getElementById("statusChat").textContent="Erro ao carregar mensagens: "+e.message;
+const erroMensagem=String(e?.message||e);
+
+/* Depois que a corrida é transferida, o motorista anterior perde
+   autorização para consultar o chat. Usa esse retorno para confirmar
+   o encaminhamento e avisá-lo, em vez de deixar apenas o erro do chat. */
+if(erroMensagem.toLowerCase().includes("motorista não autorizado")){
+try{
+const {data:resultadoEncaminhamento,error:erroEncaminhamento}=await db.rpc(
+"verificar_encaminhamento_corrida_motorista",
+{p_corrida_id:id}
+);
+
+if(!erroEncaminhamento&&resultadoEncaminhamento&&resultadoEncaminhamento.success&&resultadoEncaminhamento.forwarded){
+if(ultimaCorridaEncaminhadaNotificada!==String(id)){
+mostrarNotificacao(
+"PRAZO ENCERRADO",
+"O tempo para aceitar terminou. A corrida foi encaminhada ao próximo motorista da fila.",
+"erro"
+);
+ultimaCorridaEncaminhadaNotificada=String(id);
+sessionStorage.setItem("nerocar_ultima_corrida_encaminhada_notificada",String(id));
+}
+document.getElementById("mensagemFila").textContent=
+"O prazo para aceitar terminou. A corrida foi encaminhada ao próximo motorista.";
+ultimaCorridaMonitorada=null;
+sessionStorage.removeItem("nerocar_ultima_corrida_monitorada");
+esconderCorrida();
+await atualizarStatus();
+}else{
+document.getElementById("statusChat").textContent=
+"Esta corrida não está mais atribuída à sua conta.";
+}
+}catch(erroVerificacao){
+document.getElementById("statusChat").textContent=
+"Não foi possível confirmar o encaminhamento: "+erroVerificacao.message;
+}
+}else{
+document.getElementById("statusChat").textContent="Erro ao carregar mensagens: "+erroMensagem;
+}
 }finally{
 carregandoChat=false;
 }
