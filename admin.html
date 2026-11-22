@@ -18,6 +18,8 @@ button{border:0;border-radius:9px;padding:13px 17px;font-weight:bold;cursor:poin
 .primary{background:#f5c400;color:#111}
 .reject{background:#a93232;color:white}
 .neutral{background:#444;color:white}
+.delete{background:#e00000;color:white}
+button:disabled{opacity:.5;cursor:not-allowed}
 .hidden{display:none}
 .small{color:#aaa;font-size:13px}
 .status{font-weight:bold;margin:12px 0}
@@ -145,6 +147,8 @@ async function carregar(){
   <button class="neutral" onclick="alterar('${d.id}','pendente')">Voltar para pendente</button>`;
  }
 
+ botoes+=`<button class="delete" onclick="excluirMotorista('${d.id}','${escapar(d.name)}')">EXCLUIR CADASTRO</button>`;
+
  return `<div class="card">
  <div class="status ${classe}">${status}</div>
  <h2>${escapar(d.name)}</h2>
@@ -166,6 +170,58 @@ async function alterar(id,acao){
  alert("Cadastro atualizado!");
  await carregar();
  await carregarFila();
+}
+
+async function excluirMotorista(id,nome){
+ const confirmar=confirm(
+  "ATENÇÃO! EXCLUSÃO DEFINITIVA\n\n"+
+  "Motorista: "+nome+"\n\n"+
+  "Serão apagados o cadastro, a conta de acesso, a fila, "+
+  "as corridas e as mensagens relacionadas.\n\n"+
+  "Essa operação não pode ser desfeita.\n\n"+
+  "Deseja continuar?"
+ );
+
+ if(!confirmar)return;
+
+ const palavra=prompt('Para confirmar, digite EXCLUIR:');
+ if(palavra!=="EXCLUIR"){
+  alert("Exclusão cancelada.");
+  return;
+ }
+
+ const botoes=document.querySelectorAll(".delete");
+ botoes.forEach(b=>b.disabled=true);
+
+ try{
+  const {data,error}=await db.functions.invoke("excluir-motorista",{
+   body:{driver_id:id}
+  });
+
+  if(error){
+   let detalhe=error.message;
+   try{
+    const resposta=await error.context.json();
+    if(resposta.message)detalhe=resposta.message;
+   }catch(e){}
+   alert("Não foi possível concluir a exclusão:\n"+detalhe);
+   return;
+  }
+
+  if(!data||data.success!==true){
+   alert(data?.message||"A exclusão não foi confirmada.");
+   return;
+  }
+
+  alert("Motorista excluído com sucesso!");
+  await carregar();
+  await carregarFila();
+
+ }catch(e){
+  alert("Erro ao excluir: "+e.message);
+ }finally{
+  botoes.forEach(b=>b.disabled=false);
+ }
 }
 
 async function carregarFila(){
