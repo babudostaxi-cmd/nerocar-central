@@ -70,12 +70,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
  box-shadow:0 5px 15px #0005;
 }
 .passageiro-fixo strong{color:#f5c400}
-.botao-localizacao{
- background:#267344;
- color:white;
- margin-top:12px;
-}
-/* LINK CLICÁVEL DA LOCALIZAÇÃO */
+.botao-localizacao{background:#267344;color:white;margin-top:12px}
 .link-localizacao{
  display:inline-block;
  margin-top:6px;
@@ -86,9 +81,42 @@ button:disabled{opacity:.5;cursor:not-allowed}
  font-weight:bold;
  text-decoration:none;
 }
-.link-localizacao:hover{
- background:#21894b;
+.link-localizacao:hover{background:#21894b}
+
+/* HISTÓRICO DE ENDEREÇOS */
+.historico-enderecos{
+ margin-top:12px;
+ padding:13px;
+ background:#242424;
+ border:1px solid #414141;
+ border-radius:10px;
 }
+.historico-titulo{
+ color:#f5c400;
+ font-size:14px;
+ font-weight:900;
+ margin-bottom:9px;
+}
+.endereco-recente{
+ display:flex;
+ align-items:center;
+ gap:9px;
+ width:100%;
+ margin:7px 0 0;
+ padding:11px;
+ background:#303030;
+ color:#fff;
+ border:1px solid #484848;
+ border-radius:8px;
+ text-align:left;
+ font-size:14px;
+ font-weight:normal;
+}
+.endereco-recente:hover{border-color:#f5c400;background:#383838}
+.endereco-recente .icone-endereco{font-size:18px;flex:0 0 auto}
+.endereco-recente .texto-endereco{flex:1;min-width:0;overflow-wrap:anywhere}
+.endereco-recente .usar-endereco{color:#f5c400;font-size:11px;font-weight:bold;white-space:nowrap}
+.historico-vazio{font-size:12px;color:#999;line-height:1.5}
 </style>
 </head>
 
@@ -113,6 +141,11 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
   <label for="endereco">Endereço de origem</label>
   <textarea id="endereco" placeholder="Digite o endereço onde deseja ser buscado" maxlength="500" required></textarea>
+
+  <div id="historicoEnderecos" class="historico-enderecos">
+   <div class="historico-titulo">📍 Endereços recentes</div>
+   <div id="listaEnderecosRecentes" class="historico-vazio">Seus endereços utilizados aparecerão aqui.</div>
+  </div>
 
   <label for="referencia">Ponto de referência (opcional)</label>
   <input id="referencia" type="text" placeholder="Ex.: próximo à praça" maxlength="300">
@@ -174,8 +207,11 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
 <script>
 const SUPABASE_URL="https://xfwkwcpnyvhvmreidqck.supabase.co";
-const SUPABASE_KEY="sb_publishable_S9Ztcv3nh0EhzUl8VMeLmg_nQuBJ1hR";
+const SUPABASE_KEY="sb_publishable_S9Ztcv3nh0EhzUl8VMeLmg_nQuBJ1h";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+const CHAVE_HISTORICO_ENDERECOS="nerocar_historico_enderecos";
+const LIMITE_HISTORICO_ENDERECOS=5;
 
 let corridaId=sessionStorage.getItem("nerocar_corrida_id");
 let passageiroToken=sessionStorage.getItem("nerocar_passageiro_token");
@@ -207,11 +243,95 @@ const mensagens=document.getElementById("mensagens");
 const btnSolicitar=document.getElementById("btnSolicitar");
 const btnNovaCorrida=document.getElementById("btnNovaCorrida");
 
-// Recupera o nome salvo no navegador
 const nomeSalvo=localStorage.getItem("nerocar_nome_passageiro");
 if(nomeSalvo){
  document.getElementById("nome").value=nomeSalvo;
 }
+
+/* HISTÓRICO LOCAL DOS ÚLTIMOS 5 ENDEREÇOS */
+function obterHistoricoEnderecos(){
+ try{
+  const dados=JSON.parse(localStorage.getItem(CHAVE_HISTORICO_ENDERECOS)||"[]");
+  return Array.isArray(dados)?dados.filter(item=>item&&typeof item.endereco==="string"):[];
+ }catch(e){
+  console.warn("Não foi possível ler o histórico de endereços:",e);
+  return [];
+ }
+}
+
+function renderizarHistoricoEnderecos(){
+ const lista=document.getElementById("listaEnderecosRecentes");
+ if(!lista)return;
+
+ const historico=obterHistoricoEnderecos();
+ lista.textContent="";
+
+ if(!historico.length){
+  lista.className="historico-vazio";
+  lista.textContent="Seus endereços utilizados aparecerão aqui.";
+  return;
+ }
+
+ lista.className="";
+
+ historico.forEach(item=>{
+  const botao=document.createElement("button");
+  botao.type="button";
+  botao.className="endereco-recente";
+
+  const icone=document.createElement("span");
+  icone.className="icone-endereco";
+  icone.textContent="📍";
+
+  const texto=document.createElement("span");
+  texto.className="texto-endereco";
+  texto.textContent=item.endereco;
+
+  const usar=document.createElement("span");
+  usar.className="usar-endereco";
+  usar.textContent="USAR";
+
+  botao.append(icone,texto,usar);
+  botao.addEventListener("click",()=>usarEnderecoRecente(item));
+  lista.appendChild(botao);
+ });
+}
+
+function salvarEnderecoNoHistorico(endereco,referencia){
+ const enderecoLimpo=String(endereco||"").trim();
+ const referenciaLimpa=String(referencia||"").trim();
+ if(!enderecoLimpo)return;
+
+ const normalizar=valor=>String(valor||"").trim().toLocaleLowerCase("pt-BR");
+ const chave=normalizar(enderecoLimpo);
+
+ let historico=obterHistoricoEnderecos();
+ historico=historico.filter(item=>normalizar(item.endereco)!==chave);
+
+ historico.unshift({
+  endereco:enderecoLimpo,
+  referencia:referenciaLimpa,
+  usadoEm:new Date().toISOString()
+ });
+
+ historico=historico.slice(0,LIMITE_HISTORICO_ENDERECOS);
+
+ try{
+  localStorage.setItem(CHAVE_HISTORICO_ENDERECOS,JSON.stringify(historico));
+  renderizarHistoricoEnderecos();
+ }catch(e){
+  console.warn("Não foi possível salvar o histórico de endereços:",e);
+ }
+}
+
+function usarEnderecoRecente(item){
+ document.getElementById("endereco").value=item.endereco||"";
+ document.getElementById("referencia").value=item.referencia||"";
+ document.getElementById("endereco").focus();
+ notificar("Endereço preenchido","O endereço recente foi colocado no formulário.","sucesso",false);
+}
+
+renderizarHistoricoEnderecos();
 
 function escaparHTML(valor){
  return String(valor??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"})[c]);
@@ -395,8 +515,8 @@ async function solicitarCorrida(){
   passageiroToken=token;
   nomePassageiro=nome;
 
-  // Salva o nome para as próximas visitas
   localStorage.setItem("nerocar_nome_passageiro",nome);
+  salvarEnderecoNoHistorico(endereco,referencia);
 
   sessionStorage.setItem("nerocar_corrida_id",String(corridaId));
   sessionStorage.setItem("nerocar_passageiro_token",String(passageiroToken));
@@ -794,7 +914,6 @@ function novaCorrida(){
  ultimaMensagemId="";
  primeiraLeituraChat=true;
 
- // Mantém o nome salvo e limpa somente os dados da viagem anterior
  document.getElementById("nome").value=localStorage.getItem("nerocar_nome_passageiro")||"";
  document.getElementById("endereco").value="";
  document.getElementById("referencia").value="";
@@ -818,6 +937,7 @@ function novaCorrida(){
 
  telaCorrida.classList.add("escondido");
  telaSolicitacao.classList.remove("escondido");
+ renderizarHistoricoEnderecos();
 }
 
 /* RECUPERAR A CORRIDA CASO O PASSAGEIRO FECHE E REABRA A PÁGINA */
