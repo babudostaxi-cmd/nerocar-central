@@ -26,6 +26,14 @@ button:disabled{opacity:.5}
 .green{color:#43d17a}
 .red{color:#ff6969}
 .info{background:#292929;padding:12px;border-radius:9px;margin:10px 0;overflow-wrap:anywhere}
+.contador-prazo{background:#332d12;border:1px solid #9b7c00;border-radius:14px;padding:15px;text-align:center;margin:14px 0}
+.contador-legenda{font-size:12px;color:#f5d95d;font-weight:bold;letter-spacing:.5px}
+.contador-tempo{font-size:44px;font-weight:900;color:#f5c400;line-height:1.2;margin:5px 0;font-variant-numeric:tabular-nums}
+.contador-detalhe{font-size:13px;color:#ddd}
+.contador-prazo.aceita{background:#123321;border-color:#287447}
+.contador-prazo.aceita .contador-legenda,.contador-prazo.aceita .contador-tempo{color:#79dfa0}
+.contador-prazo.encerrado{background:#351d1d;border-color:#8e3333}
+.contador-prazo.encerrado .contador-legenda,.contador-prazo.encerrado .contador-tempo{color:#ff8585}
 #posicaoFila{border:1px solid #6f5b00;background:#292400}
 .posicao-numero{font-size:30px;font-weight:900;color:#f5c400}
 #toastContainer{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;width:min(92%,480px);pointer-events:none}
@@ -134,6 +142,11 @@ body.modo-corrida #toastContainer{z-index:10000}
 <div id="painelCorrida" class="card hidden">
 <h3 class="yellow">Atendimento de corrida</h3>
 <div id="avisoCorrida" class="status yellow">Verificando chamadas...</div>
+<div id="contadorPrazoMotorista" class="contador-prazo hidden" aria-live="polite">
+<div class="contador-legenda" id="legendaPrazoMotorista">TEMPO PARA ACEITAR A CORRIDA</div>
+<div class="contador-tempo" id="tempoRestanteMotorista">00:30</div>
+<div class="contador-detalhe" id="textoPrazoMotorista">Aguardando sua resposta</div>
+</div>
 
 <div class="info">
 <p><strong>Passageiro:</strong> <span id="passageiro"></span></p>
@@ -176,6 +189,7 @@ let verificacaoTimer=null;
 let chatTimer=null;
 let filaTimer=null;
 let consultando=false;
+let intervaloContadorMotorista=null;
 let carregandoChat=false;
 let enviandoChat=false;
 let ultimoConteudoChat="";
@@ -424,10 +438,54 @@ m.textContent=data;
 await atualizarStatus();
 }
 
+function atualizarContadorMotorista(){
+const caixa=document.getElementById("contadorPrazoMotorista");
+if(!corridaAtual){caixa.classList.add("hidden");return;}
+const legenda=document.getElementById("legendaPrazoMotorista");
+const tempo=document.getElementById("tempoRestanteMotorista");
+const detalhe=document.getElementById("textoPrazoMotorista");
+if(corridaAtual.status==="accepted"){
+caixa.classList.remove("hidden","encerrado");
+caixa.classList.add("aceita");
+legenda.textContent="ATENDIMENTO CONFIRMADO";
+tempo.textContent="ACEITA";
+detalhe.textContent="Você aceitou esta corrida.";
+return;
+}
+caixa.classList.remove("aceita");
+if(corridaAtual.status!=="pending"){
+caixa.classList.add("hidden");
+return;
+}
+caixa.classList.remove("hidden");
+legenda.textContent="TEMPO PARA ACEITAR A CORRIDA";
+const atribuidoEm=corridaAtual.assigned_at;
+if(!atribuidoEm){tempo.textContent="--:--";detalhe.textContent="Aguardando atualização do prazo.";return;}
+const inicio=new Date(atribuidoEm).getTime();
+if(!Number.isFinite(inicio)){tempo.textContent="--:--";detalhe.textContent="Aguardando atualização do prazo.";return;}
+const restante=Math.max(0,30-Math.floor((Date.now()-inicio)/1000));
+tempo.textContent="00:"+String(restante).padStart(2,"0");
+if(restante>0){
+caixa.classList.remove("encerrado");
+detalhe.textContent="Aceite a corrida antes que o prazo termine.";
+}else{
+caixa.classList.add("encerrado");
+legenda.textContent="PRAZO ENCERRADO";
+detalhe.textContent="Aguarde o encaminhamento automático ao próximo motorista.";
+}
+}
+
+function iniciarContadorMotorista(){
+if(intervaloContadorMotorista)clearInterval(intervaloContadorMotorista);
+atualizarContadorMotorista();
+intervaloContadorMotorista=setInterval(atualizarContadorMotorista,250);
+}
+
 function mostrarCorrida(c){
 const mudou=!corridaAtual||corridaAtual.ride_id!==c.ride_id;
 if(mudou)alertarNovaCorrida(c);
 corridaAtual=c;
+atualizarContadorMotorista();
 
 if(c.ride_id){
 ultimaCorridaMonitorada=String(c.ride_id);
@@ -436,6 +494,7 @@ sessionStorage.setItem("nerocar_ultima_corrida_monitorada",String(c.ride_id));
 
 document.getElementById("painelCorrida").classList.remove("hidden");
 document.body.classList.add("modo-corrida");
+if(!intervaloContadorMotorista)iniciarContadorMotorista();
 document.getElementById("passageiro").textContent=c.passenger_name||"Não informado";
 document.getElementById("origem").textContent=c.pickup_address||"Não informado";
 document.getElementById("referencia").textContent=c.reference_point||"Não informada";
@@ -462,6 +521,8 @@ function esconderCorrida(){
 corridaAtual=null;
 document.body.classList.remove("modo-corrida");
 document.getElementById("painelCorrida").classList.add("hidden");
+document.getElementById("contadorPrazoMotorista").classList.add("hidden");
+if(intervaloContadorMotorista){clearInterval(intervaloContadorMotorista);intervaloContadorMotorista=null;}
 document.getElementById("chatArea").classList.add("hidden");
 document.getElementById("btnCancelarCorrida").classList.add("hidden");
 ultimoConteudoChat="";
