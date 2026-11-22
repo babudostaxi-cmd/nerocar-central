@@ -57,7 +57,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .etapa.ativa{color:#f5c400;border-color:#9b7c00;background:#332d12}
 .etapa.concluida{color:#79dfa0;border-color:#286b43}
 
-/* NOVO: nome fixo do passageiro */
 .passageiro-fixo{
  position:sticky;
  top:0;
@@ -73,11 +72,25 @@ button:disabled{opacity:.5;cursor:not-allowed}
 }
 .passageiro-fixo strong{color:#f5c400}
 
-/* NOVO: botão de localização */
 .botao-localizacao{
  background:#267344;
  color:white;
  margin-top:12px;
+}
+
+/* LINK CLICÁVEL DA LOCALIZAÇÃO */
+.link-localizacao{
+ display:inline-block;
+ margin-top:6px;
+ padding:9px 12px;
+ background:#176b3a;
+ color:#fff!important;
+ border-radius:7px;
+ font-weight:bold;
+ text-decoration:none;
+}
+.link-localizacao:hover{
+ background:#21894b;
 }
 </style>
 </head>
@@ -120,7 +133,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
   <h2>Acompanhar minha corrida</h2>
 
-  <!-- NOVO: nome sempre visível -->
   <div class="passageiro-fixo">
    PASSAGEIRO: <strong id="nomePassageiroFixo">Aguardando...</strong>
   </div>
@@ -147,7 +159,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
    <h2 style="margin-top:25px">Chat com o motorista</h2>
    <div id="mensagens"><div class="aviso">Carregando mensagens...</div></div>
 
-   <!-- NOVO: botão de localização GPS -->
    <button id="btnLocalizacao" class="botao-localizacao" onclick="enviarMinhaLocalizacao()">
     ENVIAR MINHA LOCALIZAÇÃO ATUAL
    </button>
@@ -565,6 +576,35 @@ async function acompanharCorrida(){
  }
 }
 
+/* TRANSFORMA O LINK DO GOOGLE MAPS EM BOTÃO CLICÁVEL */
+function formatarMensagem(texto){
+ const regex=/https:\/\/www\.google\.com\/maps\?q=-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?/g;
+
+ let resultado="";
+ let inicio=0;
+ let encontrado;
+ const conteudo=String(texto??"");
+
+ while((encontrado=regex.exec(conteudo))!==null){
+  resultado+=escaparHTML(conteudo.slice(inicio,encontrado.index));
+
+  const link=encontrado[0];
+
+  resultado+=`<a class="link-localizacao"
+    href="${escaparHTML(link)}"
+    target="_blank"
+    rel="noopener noreferrer">
+    📍 ABRIR LOCALIZAÇÃO NO GOOGLE MAPS
+  </a>`;
+
+  inicio=regex.lastIndex;
+ }
+
+ resultado+=escaparHTML(conteudo.slice(inicio));
+
+ return resultado.replace(/\n/g,"<br>");
+}
+
 async function carregarMensagens(){
  if(!corridaId||!passageiroToken||areaChat.classList.contains("escondido")||consultandoMensagens)return;
  consultandoMensagens=true;
@@ -603,7 +643,7 @@ async function carregarMensagens(){
 
    return `<div class="mensagem ${minha?"minha":"motorista-msg"}">
     <strong>${escaparHTML(minha?"Você":item.sender_name||"Motorista")}</strong><br>
-    ${escaparHTML(item.message)}
+    ${formatarMensagem(item.message)}
     <div class="horario">${escaparHTML(hora)}</div>
    </div>`;
   }).join("")||'<div class="aviso">Nenhuma mensagem ainda.</div>';
@@ -656,7 +696,7 @@ async function enviarMensagem(){
  }
 }
 
-/* NOVO: captura e envia a localização GPS pelo chat */
+/* CAPTURA E ENVIA A LOCALIZAÇÃO GPS PELO CHAT */
 function enviarMinhaLocalizacao(){
  const botao=document.getElementById("btnLocalizacao");
 
@@ -773,7 +813,7 @@ function novaCorrida(){
  telaSolicitacao.classList.remove("escondido");
 }
 
-/* Recuperar a corrida caso o passageiro feche e reabra a página */
+/* RECUPERAR A CORRIDA CASO O PASSAGEIRO FECHE E REABRA A PÁGINA */
 if(corridaId&&passageiroToken){
  telaSolicitacao.classList.add("escondido");
  telaCorrida.classList.remove("escondido");
