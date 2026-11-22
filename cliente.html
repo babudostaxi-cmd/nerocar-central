@@ -238,7 +238,14 @@ button:disabled{opacity:.5;cursor:not-allowed}
 <script>
 const SUPABASE_URL="https://xfwkwcpnyvhvmreidqck.supabase.co";
 const SUPABASE_KEY="sb_publishable_S9Ztcv3nh0EhzUl8VMeLmg_nQuBJ1hR";
-const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
+  auth:{
+    storageKey:"nerocar-passageiro-auth",
+    persistSession:true,
+    autoRefreshToken:true,
+    detectSessionInUrl:true
+  }
+});
 
 let usuarioAtual=null;
 let perfilPassageiro=null;
