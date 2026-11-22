@@ -1,4 +1,4 @@
-```html
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -67,6 +67,12 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .auth-tabs button.ativo{background:#f5c400;color:#111}
 .usuario-barra{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#292929;padding:11px;border-radius:10px;margin-bottom:18px;font-size:13px}
 .usuario-barra button{width:auto;margin:0;padding:9px 12px;font-size:12px;background:#444;color:#fff}
+
+/* TELA DE PAGAMENTO */
+.tela-pagamento{background:#292400;border:1px solid #f5c400;border-radius:13px;padding:18px;margin:15px 0;line-height:1.6}
+.pix-codigo{width:100%;min-height:115px;background:#111;color:#fff;border:1px solid #665500;border-radius:9px;padding:12px;font-size:12px;overflow-wrap:anywhere;resize:none}
+.pagamento-valor{text-align:center;font-size:34px;font-weight:900;color:#f5c400;margin:15px 0}
+.pagamento-pago{color:#79dfa0;font-weight:bold;text-align:center;padding:15px}
 </style>
 </head>
 
@@ -82,7 +88,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
  <div class="logo">Nerocar</div>
  <div class="subtitulo">Sua viagem começa aqui</div>
 
- <!-- LOGIN E CADASTRO -->
  <section id="telaAuth">
   <h2 id="tituloAuth">Acesse sua conta</h2>
 
@@ -126,12 +131,44 @@ button:disabled{opacity:.5;cursor:not-allowed}
   </div>
  </section>
 
- <!-- ÁREA DO PASSAGEIRO -->
  <section id="areaPassageiro" class="escondido">
   <div class="usuario-barra">
    <span>Olá, <strong id="nomeUsuarioBarra" class="destaque">Passageiro</strong></span>
    <button onclick="sairConta()">SAIR DA CONTA</button>
   </div>
+
+  <!-- TELA PIX -->
+  <section id="telaPagamento" class="escondido">
+   <h2>Pagamento pendente</h2>
+
+   <div class="tela-pagamento">
+    <div style="text-align:center;font-weight:bold">TAXA DE CANCELAMENTO</div>
+    <div class="pagamento-valor" id="valorCobranca">R$ 8,00</div>
+
+    <p>Para liberar novas solicitações de corrida, realize o pagamento via Pix.</p>
+
+    <label for="codigoPix">Pix Copia e Cola</label>
+    <textarea id="codigoPix" class="pix-codigo" readonly>00020101021126360014br.gov.bcb.pix0114+556299238644952040000530398654048.005802BR5920ADRIANO T P DA SILVA6009NEROPOLIS62070503***630451B4</textarea>
+
+    <button type="button" onclick="copiarPix()">COPIAR CÓDIGO PIX</button>
+
+    <div id="statusPagamento" class="aviso">
+     Aguardando confirmação do pagamento pelo administrador.
+    </div>
+
+    <div id="pagamentoConfirmado" class="pagamento-pago escondido">
+     Pagamento confirmado! Você já pode solicitar outra corrida.
+    </div>
+
+    <button id="btnContinuarPagamento" class="escondido" onclick="continuarAposPagamento()">
+     SOLICITAR NOVA CORRIDA
+    </button>
+   </div>
+
+   <div class="aviso">
+    Após pagar, aguarde a confirmação da Nerocar. A liberação é feita pelo administrador.
+   </div>
+  </section>
 
   <section id="telaSolicitacao">
    <h2>Solicitar uma corrida</h2>
@@ -213,6 +250,8 @@ let nomePassageiro=localStorage.getItem("nerocar_nome_passageiro")||sessionStora
 let intervaloAcompanhamento=null;
 let intervaloMensagens=null;
 let intervaloContadorPassageiro=null;
+let intervaloCobranca=null;
+
 let ultimoAssignedAtPassageiro="";
 let ultimoStatus="";
 let ultimoMotorista="";
@@ -226,6 +265,9 @@ let consultandoMensagens=false;
 let enviandoMensagem=false;
 let cancelandoCorrida=false;
 let canceladaPeloPassageiro=false;
+
+let cobrancaPendente=null;
+let pagamentoJaConfirmado=false;
 
 const telaAuth=document.getElementById("telaAuth");
 const areaPassageiro=document.getElementById("areaPassageiro");
@@ -277,6 +319,8 @@ async function carregarPerfil(user){
  nomePassageiro=data.full_name;
  localStorage.setItem("nerocar_nome_passageiro",nomePassageiro);
  mostrarAreaAutenticada();
+
+ await carregarCobrancaPendente();
 }
 
 async function entrarConta(){
@@ -359,7 +403,6 @@ async function cadastrarConta(){
   });
 
   if(error)throw error;
-
   if(!data.user)throw new Error("Não foi possível criar o usuário.");
 
   if(!data.session){
@@ -418,18 +461,148 @@ function mensagemErroAuth(error){
 
 async function sairConta(){
  if(!confirm("Deseja realmente sair da sua conta?"))return;
+
  pararAtualizacoes();
+
+ if(intervaloCobranca)clearInterval(intervaloCobranca);
+ intervaloCobranca=null;
+
  const {error}=await db.auth.signOut();
  if(error){
   notificar("Erro ao sair",error.message,"erro",false);
   return;
  }
+
  usuarioAtual=null;
  perfilPassageiro=null;
+ cobrancaPendente=null;
+ pagamentoJaConfirmado=false;
+
  telaAuth.classList.remove("escondido");
  areaPassageiro.classList.add("escondido");
  mostrarFormularioAuth("login");
  notificar("Sessão encerrada","Você saiu da sua conta.","normal",false);
+}
+
+/* PAGAMENTO E COBRANÇA */
+
+async function carregarCobrancaPendente(){
+ if(!usuarioAtual)return false;
+
+ const {data,error}=await db.from("passenger_fees")
+  .select("id,ride_id,amount,status,created_at")
+  .eq("passenger_user_id",usuarioAtual.id)
+  .eq("status","pending")
+  .order("created_at",{ascending:false})
+  .limit(1)
+  .maybeSingle();
+
+ if(error)throw error;
+
+ cobrancaPendente=data;
+
+ if(data){
+  mostrarTelaPagamento(data);
+  return true;
+ }
+
+ if(intervaloCobranca)clearInterval(intervaloCobranca);
+ intervaloCobranca=null;
+
+ return false;
+}
+
+function mostrarTelaPagamento(cobranca){
+ cobrancaPendente=cobranca;
+ pagamentoJaConfirmado=false;
+
+ telaSolicitacao.classList.add("escondido");
+ telaCorrida.classList.add("escondido");
+ document.getElementById("telaPagamento").classList.remove("escondido");
+
+ document.getElementById("valorCobranca").textContent=
+  Number(cobranca.amount||8).toLocaleString("pt-BR",{
+   style:"currency",
+   currency:"BRL"
+  });
+
+ document.getElementById("statusPagamento").textContent=
+  "Aguardando confirmação do pagamento pelo administrador.";
+
+ document.getElementById("pagamentoConfirmado").classList.add("escondido");
+ document.getElementById("btnContinuarPagamento").classList.add("escondido");
+
+ if(intervaloCobranca)clearInterval(intervaloCobranca);
+
+ consultarStatusCobranca();
+ intervaloCobranca=setInterval(consultarStatusCobranca,5000);
+}
+
+async function consultarStatusCobranca(){
+ if(!cobrancaPendente||pagamentoJaConfirmado)return;
+
+ try{
+  const {data,error}=await db.from("passenger_fees")
+   .select("id,status,amount")
+   .eq("id",cobrancaPendente.id)
+   .maybeSingle();
+
+  if(error)throw error;
+
+  if(data&&data.status==="paid"){
+   pagamentoJaConfirmado=true;
+
+   if(intervaloCobranca)clearInterval(intervaloCobranca);
+   intervaloCobranca=null;
+
+   document.getElementById("statusPagamento").textContent=
+    "O administrador confirmou seu pagamento.";
+
+   document.getElementById("pagamentoConfirmado").classList.remove("escondido");
+   document.getElementById("btnContinuarPagamento").classList.remove("escondido");
+
+   notificar("Pagamento confirmado!","Você já pode solicitar uma nova corrida.","sucesso");
+  }
+
+ }catch(error){
+  console.error("Erro ao consultar pagamento:",error);
+ }
+}
+
+async function copiarPix(){
+ const codigo=document.getElementById("codigoPix").value;
+
+ try{
+  await navigator.clipboard.writeText(codigo);
+  notificar("Pix copiado!","Agora cole o código no aplicativo do seu banco.","sucesso");
+ }catch(error){
+  const campo=document.getElementById("codigoPix");
+  campo.select();
+  campo.setSelectionRange(0,99999);
+
+  const copiado=document.execCommand("copy");
+
+  if(copiado){
+   notificar("Pix copiado!","Agora cole o código no aplicativo do seu banco.","sucesso");
+  }else{
+   notificar("Não foi possível copiar","Selecione e copie o código manualmente.","erro",false);
+  }
+ }
+}
+
+function continuarAposPagamento(){
+ if(!pagamentoJaConfirmado){
+  notificar("Pagamento pendente","Aguarde a confirmação do administrador.","erro",false);
+  return;
+ }
+
+ if(intervaloCobranca)clearInterval(intervaloCobranca);
+ intervaloCobranca=null;
+ cobrancaPendente=null;
+
+ document.getElementById("telaPagamento").classList.add("escondido");
+
+ novaCorrida();
 }
 
 /* INICIALIZAÇÃO DA SESSÃO */
@@ -456,6 +629,11 @@ async function iniciarAplicacao(){
 }
 
 async function recuperarCorridaSalva(){
+ if(cobrancaPendente){
+  mostrarTelaPagamento(cobrancaPendente);
+  return;
+ }
+
  if(!corridaId||!passageiroToken){
   mostrarTelaSolicitacao();
   return;
@@ -639,6 +817,17 @@ async function solicitarCorrida(){
   if(error)throw error;
   const resultado=primeiroRegistro(data);
 
+  if(resultado?.payment_required){
+   await carregarCobrancaPendente();
+
+   if(!cobrancaPendente){
+    throw new Error(resultado.message||"Existe uma cobrança pendente. Entre em contato com a Nerocar.");
+   }
+
+   notificar("Pagamento necessário","Quite a cobrança pendente para solicitar outra corrida.","erro",false);
+   return;
+  }
+
   if(!resultado||resultado.success===false){
    throw new Error(resultado?.message||"Não foi possível solicitar a corrida.");
   }
@@ -715,6 +904,8 @@ function iniciarAcompanhamento(){
  intervaloMensagens=setInterval(carregarMensagens,3000);
 }
 
+/* CANCELAMENTO COM TAXA */
+
 async function cancelarCorridaPassageiro(){
  if(!corridaId||!passageiroToken||cancelandoCorrida)return;
  if(!confirm("Deseja realmente cancelar esta corrida?"))return;
@@ -727,23 +918,55 @@ async function cancelarCorridaPassageiro(){
  try{
   const {data,error}=await db.rpc("cancelar_corrida_passageiro",{
    p_corrida_id:corridaId,
-   p_token:passageiroToken
+   p_token:passageiroToken,
+   p_confirmar_taxa:false
   });
 
   if(error)throw error;
-  const resultado=primeiroRegistro(data);
+
+  let resultado=primeiroRegistro(data);
+
+  if(resultado?.requires_confirmation){
+   const confirmar=confirm(
+    "ATENÇÃO: já passaram 5 minutos desde a solicitação.\n\n"+
+    "O cancelamento terá uma taxa de R$ 8,00.\n\n"+
+    "Deseja confirmar o cancelamento e gerar a cobrança?"
+   );
+
+   if(!confirmar){
+    notificar("Cancelamento interrompido","Sua corrida continua ativa.","normal",false);
+    return;
+   }
+
+   const resposta=await db.rpc("cancelar_corrida_passageiro",{
+    p_corrida_id:corridaId,
+    p_token:passageiroToken,
+    p_confirmar_taxa:true
+   });
+
+   if(resposta.error)throw resposta.error;
+   resultado=primeiroRegistro(resposta.data);
+  }
 
   if(!resultado||resultado.success===false){
    throw new Error(resultado?.message||"Não foi possível cancelar a corrida.");
   }
 
   canceladaPeloPassageiro=true;
+  pararAtualizacoes();
+
+  const temCobranca=await carregarCobrancaPendente();
+
+  if(temCobranca){
+   notificar("Corrida cancelada","Agora realize o pagamento da taxa de R$ 8,00.","normal");
+   return;
+  }
+
   statusCorrida.innerHTML='<span class="erro">Você cancelou esta corrida.</span><br>Se desejar, poderá solicitar outra viagem.';
   areaChat.classList.add("escondido");
   botao.classList.add("escondido");
   btnNovaCorrida.classList.remove("escondido");
-  notificar("Corrida cancelada","O motorista foi avisado sobre o cancelamento.","erro");
-  pararAtualizacoes();
+  notificar("Corrida cancelada","O motorista foi avisado sobre o cancelamento.","normal");
 
  }catch(error){
   console.error("Erro ao cancelar corrida:",error);
@@ -1084,4 +1307,3 @@ iniciarAplicacao();
 </script>
 </body>
 </html>
-```
