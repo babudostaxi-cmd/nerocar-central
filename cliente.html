@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -55,7 +56,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .etapa{padding:9px 5px;border-radius:8px;background:#292929;color:#777;text-align:center;font-size:11px;line-height:1.35;border:1px solid #383838}
 .etapa.ativa{color:#f5c400;border-color:#9b7c00;background:#332d12}
 .etapa.concluida{color:#79dfa0;border-color:#286b43}
-
 .passageiro-fixo{
  position:sticky;
  top:0;
@@ -70,13 +70,11 @@ button:disabled{opacity:.5;cursor:not-allowed}
  box-shadow:0 5px 15px #0005;
 }
 .passageiro-fixo strong{color:#f5c400}
-
 .botao-localizacao{
  background:#267344;
  color:white;
  margin-top:12px;
 }
-
 /* LINK CLICÁVEL DA LOCALIZAÇÃO */
 .link-localizacao{
  display:inline-block;
@@ -181,7 +179,7 @@ const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 let corridaId=sessionStorage.getItem("nerocar_corrida_id");
 let passageiroToken=sessionStorage.getItem("nerocar_passageiro_token");
-let nomePassageiro=sessionStorage.getItem("nerocar_nome_passageiro")||"Passageiro";
+let nomePassageiro=sessionStorage.getItem("nerocar_nome_passageiro")||localStorage.getItem("nerocar_nome_passageiro")||"Passageiro";
 
 let intervaloAcompanhamento=null;
 let intervaloMensagens=null;
@@ -208,6 +206,12 @@ const areaChat=document.getElementById("areaChat");
 const mensagens=document.getElementById("mensagens");
 const btnSolicitar=document.getElementById("btnSolicitar");
 const btnNovaCorrida=document.getElementById("btnNovaCorrida");
+
+// Recupera o nome salvo no navegador
+const nomeSalvo=localStorage.getItem("nerocar_nome_passageiro");
+if(nomeSalvo){
+ document.getElementById("nome").value=nomeSalvo;
+}
 
 function escaparHTML(valor){
  return String(valor??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"})[c]);
@@ -390,6 +394,9 @@ async function solicitarCorrida(){
   corridaId=id;
   passageiroToken=token;
   nomePassageiro=nome;
+
+  // Salva o nome para as próximas visitas
+  localStorage.setItem("nerocar_nome_passageiro",nome);
 
   sessionStorage.setItem("nerocar_corrida_id",String(corridaId));
   sessionStorage.setItem("nerocar_passageiro_token",String(passageiroToken));
@@ -780,14 +787,15 @@ function novaCorrida(){
 
  corridaId=null;
  passageiroToken=null;
- nomePassageiro="Passageiro";
+ nomePassageiro=localStorage.getItem("nerocar_nome_passageiro")||"Passageiro";
  ultimoStatus="";
  ultimoMotorista="";
  ultimoAssignedAtPassageiro="";
  ultimaMensagemId="";
  primeiraLeituraChat=true;
 
- document.getElementById("nome").value="";
+ // Mantém o nome salvo e limpa somente os dados da viagem anterior
+ document.getElementById("nome").value=localStorage.getItem("nerocar_nome_passageiro")||"";
  document.getElementById("endereco").value="";
  document.getElementById("referencia").value="";
  document.getElementById("nomePassageiroFixo").textContent="Aguardando...";
