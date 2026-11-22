@@ -159,6 +159,11 @@ let alertaAtivado=false;
 let ultimaCorridaAlertada=null;
 let ultimaCorridaCanceladaNotificada=null;
 
+/* Guarda a última corrida recebida para identificar encaminhamentos
+   mesmo depois que ela desaparecer da tela do motorista. */
+let ultimaCorridaMonitorada=sessionStorage.getItem("nerocar_ultima_corrida_monitorada")||null;
+let ultimaCorridaEncaminhadaNotificada=sessionStorage.getItem("nerocar_ultima_corrida_encaminhada_notificada")||null;
+
 function mensagem(texto){
 document.getElementById("mensagemAcesso").textContent=texto;
 }
@@ -399,6 +404,11 @@ const mudou=!corridaAtual||corridaAtual.ride_id!==c.ride_id;
 if(mudou)alertarNovaCorrida(c);
 corridaAtual=c;
 
+if(c.ride_id){
+ultimaCorridaMonitorada=String(c.ride_id);
+sessionStorage.setItem("nerocar_ultima_corrida_monitorada",String(c.ride_id));
+}
+
 document.getElementById("painelCorrida").classList.remove("hidden");
 document.getElementById("passageiro").textContent=c.passenger_name||"Não informado";
 document.getElementById("origem").textContent=c.pickup_address||"Não informado";
@@ -430,14 +440,16 @@ document.getElementById("btnCancelarCorrida").classList.add("hidden");
 ultimoConteudoChat="";
 }
 
-/* VERIFICAÇÃO DA CORRIDA E CANCELAMENTO PELO PASSAGEIRO */
+/* VERIFICAÇÃO DA CORRIDA, PRAZO E ENCAMINHAMENTO */
 async function verificarCorrida(){
 if(consultando)return;
 consultando=true;
 
 try{
 const corridaAnterior=corridaAtual;
-const idAnterior=corridaAnterior?corridaAnterior.ride_id:null;
+const idAnterior=(corridaAnterior&&corridaAnterior.ride_id)
+  ?String(corridaAnterior.ride_id)
+  :(ultimaCorridaMonitorada||sessionStorage.getItem("nerocar_ultima_corrida_monitorada"));
 
 const {data,error}=await db.rpc("minha_corrida_ativa");
 if(error)throw error;
@@ -450,26 +462,39 @@ mostrarNotificacao("CORRIDA CANCELADA","O passageiro cancelou esta corrida.","er
 }
 document.getElementById("mensagemCorrida").textContent="O passageiro cancelou a corrida.";
 esconderCorrida();
+ultimaCorridaMonitorada=null;
+sessionStorage.removeItem("nerocar_ultima_corrida_monitorada");
 await atualizarStatus();
 return;
 }
+
 mostrarCorrida(data);
 }else{
-/* Se a corrida desapareceu, verifica primeiro se ela foi encaminhada
-   para outro motorista por expiração do prazo ou cancelamento. */
+/* A consulta da corrida ativa não encontrou mais a chamada.
+   Usa o ID salvo para confirmar se ela foi enviada a outro motorista. */
 if(idAnterior){
 const {data:resultadoEncaminhamento,error:erroEncaminhamento}=await db.rpc(
 "verificar_encaminhamento_corrida_motorista",
 {p_corrida_id:idAnterior}
 );
 
-if(!erroEncaminhamento&&resultadoEncaminhamento&&resultadoEncaminhamento.success&&resultadoEncaminhamento.forwarded){
+if(erroEncaminhamento){
+document.getElementById("mensagemFila").textContent=
+"Erro ao verificar o encaminhamento: "+erroEncaminhamento.message;
+}else if(resultadoEncaminhamento&&resultadoEncaminhamento.success&&resultadoEncaminhamento.forwarded){
+if(ultimaCorridaEncaminhadaNotificada!==idAnterior){
 mostrarNotificacao(
-"CORRIDA ENCAMINHADA",
-"Seu prazo para aceitar terminou. A corrida foi encaminhada ao próximo motorista da fila.",
+"PRAZO ENCERRADO",
+"O tempo para aceitar terminou. A corrida foi encaminhada ao próximo motorista da fila.",
 "erro"
 );
-document.getElementById("mensagemFila").textContent="O prazo para aceitar terminou. A corrida foi encaminhada ao próximo motorista.";
+ultimaCorridaEncaminhadaNotificada=idAnterior;
+sessionStorage.setItem("nerocar_ultima_corrida_encaminhada_notificada",idAnterior);
+}
+document.getElementById("mensagemFila").textContent=
+"O prazo para aceitar terminou. A corrida foi encaminhada ao próximo motorista.";
+ultimaCorridaMonitorada=null;
+sessionStorage.removeItem("nerocar_ultima_corrida_monitorada");
 await atualizarStatus();
 }else{
 /* Se não foi encaminhada, verifica se o passageiro cancelou. */
@@ -478,7 +503,10 @@ const {data:resultado,error:erroStatus}=await db.rpc(
 {p_corrida_id:idAnterior}
 );
 
-if(!erroStatus&&resultado&&resultado.success&&resultado.status==="cancelled"){
+if(erroStatus){
+document.getElementById("mensagemFila").textContent=
+"Erro ao verificar cancelamento: "+erroStatus.message;
+}else if(resultado&&resultado.success&&resultado.status==="cancelled"){
 if(ultimaCorridaCanceladaNotificada!==idAnterior){
 ultimaCorridaCanceladaNotificada=idAnterior;
 mostrarNotificacao(
@@ -488,6 +516,8 @@ mostrarNotificacao(
 );
 }
 document.getElementById("mensagemFila").textContent="O passageiro cancelou a corrida.";
+ultimaCorridaMonitorada=null;
+sessionStorage.removeItem("nerocar_ultima_corrida_monitorada");
 await atualizarStatus();
 }
 }
@@ -500,7 +530,6 @@ document.getElementById("mensagemCorrida").textContent="Erro ao verificar corrid
 consultando=false;
 }
 }
-
 async function carregarMensagens(){
 if(!corridaAtual||carregandoChat)return;
 const id=corridaAtual.ride_id;
