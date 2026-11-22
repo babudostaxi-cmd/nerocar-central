@@ -1,25 +1,27 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nerocar | Solicitar corrida</title>
+<title>Nerocar | Passageiro</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 *{box-sizing:border-box}
-body{margin:0;padding:20px;background:#101010;color:#fff;font-family:Arial,sans-serif}
-.container{max-width:500px;margin:25px auto;background:#1b1b1b;border:1px solid #333;border-radius:18px;padding:24px;box-shadow:0 10px 35px #0008}
-.logo{text-align:center;font-size:32px;font-weight:900;color:#f5c400;margin-bottom:5px}
+body{margin:0;padding:16px;background:#101010;color:#fff;font-family:Arial,sans-serif}
+.container{max-width:500px;margin:20px auto;background:#1b1b1b;border:1px solid #333;border-radius:18px;padding:24px;box-shadow:0 10px 35px #0008}
+.logo{text-align:center;font-size:34px;font-weight:900;color:#f5c400;margin-bottom:5px}
 .subtitulo{text-align:center;color:#aaa;margin-bottom:25px}
 h2{font-size:20px;margin-top:0}
 label{display:block;margin:15px 0 7px;font-weight:bold;font-size:14px}
 input,textarea{width:100%;padding:14px;border:1px solid #444;border-radius:9px;background:#292929;color:white;font-size:16px;outline:none}
 input:focus,textarea:focus{border-color:#f5c400}
 textarea{resize:vertical;min-height:75px}
-button{width:100%;padding:15px;border:0;border-radius:9px;background:#f5c400;color:#111;font-size:16px;font-weight:900;cursor:pointer;margin-top:18px}
+button{width:100%;padding:15px;border:0;border-radius:9px;background:#f5c400;color:#111;font-size:15px;font-weight:900;cursor:pointer;margin-top:18px}
 button:disabled{opacity:.5;cursor:not-allowed}
 .secundario{background:#333;color:white}
+.link-botao{background:none;border:0;color:#f5c400;text-decoration:underline;padding:8px;margin-top:10px}
 .preco{text-align:center;padding:15px;background:#292929;border-radius:10px;margin:20px 0}
 .preco strong{display:block;color:#f5c400;font-size:30px;margin-top:5px}
 .status{padding:15px;background:#292929;border-radius:10px;margin:15px 0;line-height:1.5}
@@ -43,51 +45,28 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .aviso{color:#bbb;font-size:13px;text-align:center;line-height:1.5;margin-top:18px}
 .erro{color:#ff7777}
 .sucesso{color:#7ee6a1}
-#notificacao{position:fixed;z-index:9999;top:18px;left:50%;transform:translate(-50%,-18px);width:calc(100% - 32px);max-width:460px;padding:15px 17px;border-radius:13px;background:#252525;border:1px solid #f5c400;box-shadow:0 10px 35px #000b;opacity:0;visibility:hidden;transition:opacity .25s,transform .25s,visibility .25s;line-height:1.4}
+#notificacao{position:fixed;z-index:9999;top:18px;left:50%;transform:translate(-50%,-18px);width:calc(100% - 32px);max-width:460px;padding:15px 17px;border-radius:13px;background:#252525;border:1px solid #f5c400;box-shadow:0 10px 35px #000b;opacity:0;visibility:hidden;transition:.25s;line-height:1.4}
 #notificacao.visivel{opacity:1;visibility:visible;transform:translate(-50%,0)}
-#notificacao .toast-titulo{display:block;color:#f5c400;font-weight:900;margin-bottom:4px}
 #notificacao.sucesso-toast{border-color:#43c879}
-#notificacao.sucesso-toast .toast-titulo{color:#72e6a0}
 #notificacao.erro-toast{border-color:#e45b5b}
+#notificacao .toast-titulo{display:block;color:#f5c400;font-weight:900;margin-bottom:4px}
+#notificacao.sucesso-toast .toast-titulo{color:#72e6a0}
 #notificacao.erro-toast .toast-titulo{color:#ff8585}
-#notificacao .toast-fechar{float:right;width:auto;margin:0 0 0 10px;padding:0;background:transparent;color:#aaa;font-size:20px;line-height:1}
+#notificacao .toast-fechar{float:right;width:auto;margin:0 0 0 10px;padding:0;background:transparent;color:#aaa;font-size:20px}
 .etapas{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:14px 0}
 .etapa{padding:9px 5px;border-radius:8px;background:#292929;color:#777;text-align:center;font-size:11px;line-height:1.35;border:1px solid #383838}
 .etapa.ativa{color:#f5c400;border-color:#9b7c00;background:#332d12}
 .etapa.concluida{color:#79dfa0;border-color:#286b43}
-.passageiro-fixo{
- position:sticky;
- top:0;
- z-index:100;
- background:#292400;
- border:1px solid #f5c400;
- border-radius:10px;
- padding:13px;
- margin-bottom:15px;
- font-weight:bold;
- color:#fff;
- box-shadow:0 5px 15px #0005;
-}
+.passageiro-fixo{position:sticky;top:0;z-index:100;background:#292400;border:1px solid #f5c400;border-radius:10px;padding:13px;margin-bottom:15px;font-weight:bold;color:#fff;box-shadow:0 5px 15px #0005}
 .passageiro-fixo strong{color:#f5c400}
-.botao-localizacao{
- background:#267344;
- color:white;
- margin-top:12px;
-}
-/* LINK CLICÁVEL DA LOCALIZAÇÃO */
-.link-localizacao{
- display:inline-block;
- margin-top:6px;
- padding:9px 12px;
- background:#176b3a;
- color:#fff!important;
- border-radius:7px;
- font-weight:bold;
- text-decoration:none;
-}
-.link-localizacao:hover{
- background:#21894b;
-}
+.botao-localizacao{background:#267344;color:white;margin-top:12px}
+.link-localizacao{display:inline-block;margin-top:6px;padding:9px 12px;background:#176b3a;color:#fff!important;border-radius:7px;font-weight:bold;text-decoration:none}
+.auth-info{background:#292929;border:1px solid #444;border-radius:10px;padding:13px;margin:15px 0;color:#bbb;font-size:13px;line-height:1.5}
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
+.auth-tabs button{margin:0;background:#333;color:#aaa}
+.auth-tabs button.ativo{background:#f5c400;color:#111}
+.usuario-barra{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#292929;padding:11px;border-radius:10px;margin-bottom:18px;font-size:13px}
+.usuario-barra button{width:auto;margin:0;padding:9px 12px;font-size:12px;background:#444;color:#fff}
 </style>
 </head>
 
@@ -100,74 +79,122 @@ button:disabled{opacity:.5;cursor:not-allowed}
 </div>
 
 <div class="container">
-
  <div class="logo">Nerocar</div>
  <div class="subtitulo">Sua viagem começa aqui</div>
 
- <section id="telaSolicitacao">
-  <h2>Solicitar uma corrida</h2>
+ <!-- LOGIN E CADASTRO -->
+ <section id="telaAuth">
+  <h2 id="tituloAuth">Acesse sua conta</h2>
 
-  <label for="nome">Seu nome</label>
-  <input id="nome" type="text" placeholder="Digite seu nome" maxlength="100" required>
-
-  <label for="endereco">Endereço de origem</label>
-  <textarea id="endereco" placeholder="Digite o endereço onde deseja ser buscado" maxlength="500" required></textarea>
-
-  <label for="referencia">Ponto de referência (opcional)</label>
-  <input id="referencia" type="text" placeholder="Ex.: próximo à praça" maxlength="300">
-
-  <div class="preco">
-   Valor da corrida dentro de Nerópolis
-   <strong>R$ 18,00</strong>
+  <div class="auth-tabs">
+   <button type="button" id="tabLogin" class="ativo" onclick="mostrarFormularioAuth('login')">ENTRAR</button>
+   <button type="button" id="tabCadastro" onclick="mostrarFormularioAuth('cadastro')">CADASTRAR</button>
   </div>
 
-  <button id="btnSolicitar" onclick="solicitarCorrida()">SOLICITAR CORRIDA</button>
-  <div id="mensagemInicial" class="aviso">Informe seus dados e solicite sua viagem.</div>
+  <div id="formLogin">
+   <label for="loginEmail">E-mail</label>
+   <input id="loginEmail" type="email" placeholder="seuemail@exemplo.com" autocomplete="email">
+
+   <label for="loginSenha">Senha</label>
+   <input id="loginSenha" type="password" placeholder="Digite sua senha" autocomplete="current-password">
+
+   <button id="btnLogin" onclick="entrarConta()">ENTRAR NA MINHA CONTA</button>
+   <div class="aviso">Entre para solicitar e acompanhar suas corridas.</div>
+  </div>
+
+  <div id="formCadastro" class="escondido">
+   <label for="cadNome">Nome completo</label>
+   <input id="cadNome" type="text" maxlength="100" placeholder="Seu nome completo" autocomplete="name">
+
+   <label for="cadTelefone">Telefone com DDD</label>
+   <input id="cadTelefone" type="tel" maxlength="20" placeholder="Ex.: (62) 99999-9999" autocomplete="tel">
+
+   <label for="cadCPF">CPF</label>
+   <input id="cadCPF" type="text" maxlength="14" placeholder="000.000.000-00" inputmode="numeric">
+
+   <label for="cadEmail">E-mail</label>
+   <input id="cadEmail" type="email" placeholder="seuemail@exemplo.com" autocomplete="email">
+
+   <label for="cadSenha">Criar senha</label>
+   <input id="cadSenha" type="password" minlength="6" placeholder="Mínimo de 6 caracteres" autocomplete="new-password">
+
+   <label for="cadConfirmarSenha">Confirmar senha</label>
+   <input id="cadConfirmarSenha" type="password" minlength="6" placeholder="Digite a senha novamente" autocomplete="new-password">
+
+   <button id="btnCadastro" onclick="cadastrarConta()">CRIAR MINHA CONTA</button>
+   <div class="auth-info">Seus dados serão usados para identificar sua conta e suas solicitações de corrida. O acesso é feito por e-mail e senha. Não utilizamos código por SMS nesta etapa.</div>
+  </div>
  </section>
 
- <section id="telaCorrida" class="escondido">
-
-  <h2>Acompanhar minha corrida</h2>
-
-  <div class="passageiro-fixo">
-   PASSAGEIRO: <strong id="nomePassageiroFixo">Aguardando...</strong>
+ <!-- ÁREA DO PASSAGEIRO -->
+ <section id="areaPassageiro" class="escondido">
+  <div class="usuario-barra">
+   <span>Olá, <strong id="nomeUsuarioBarra" class="destaque">Passageiro</strong></span>
+   <button onclick="sairConta()">SAIR DA CONTA</button>
   </div>
 
-  <div class="etapas" id="etapasCorrida">
-   <div class="etapa ativa" id="etapaPedido"><span>1. Pedido</span>Solicitado</div>
-   <div class="etapa" id="etapaMotorista"><span>2. Motorista</span>Aguardando</div>
-   <div class="etapa" id="etapaFinal"><span>3. Viagem</span>Em andamento</div>
-  </div>
+  <section id="telaSolicitacao">
+   <h2>Solicitar uma corrida</h2>
 
-  <div class="status" id="statusCorrida">Procurando motorista...</div>
+   <div class="passageiro-fixo">
+    PASSAGEIRO: <strong id="nomePassageiroSolicitacao">Carregando...</strong>
+   </div>
 
-  <div id="contadorPrazoPassageiro" class="contador-prazo escondido" aria-live="polite">
-   <div class="legenda" id="legendaPrazoPassageiro">TEMPO PARA O MOTORISTA ACEITAR</div>
-   <div class="tempo" id="tempoPrazoPassageiro">00:30</div>
-   <div class="detalhe" id="detalhePrazoPassageiro">Aguardando confirmação do motorista</div>
-  </div>
+   <label for="endereco">Endereço de origem</label>
+   <textarea id="endereco" placeholder="Digite o endereço onde deseja ser buscado" maxlength="500" required></textarea>
 
-  <button id="btnCancelarCorrida" class="secundario" style="background:#9d2929;color:white" onclick="cancelarCorridaPassageiro()">CANCELAR CORRIDA</button>
+   <label for="referencia">Ponto de referência (opcional)</label>
+   <input id="referencia" type="text" placeholder="Ex.: próximo à praça" maxlength="300">
 
-  <div id="dadosMotorista" class="motorista escondido"></div>
+   <div class="preco">
+    Valor da corrida dentro de Nerópolis
+    <strong>R$ 18,00</strong>
+   </div>
 
-  <div id="areaChat" class="escondido">
-   <h2 style="margin-top:25px">Chat com o motorista</h2>
-   <div id="mensagens"><div class="aviso">Carregando mensagens...</div></div>
+   <button id="btnSolicitar" onclick="solicitarCorrida()">SOLICITAR CORRIDA</button>
+   <div id="mensagemInicial" class="aviso">Informe o endereço de origem e solicite sua viagem.</div>
+  </section>
 
-   <button id="btnLocalizacao" class="botao-localizacao" onclick="enviarMinhaLocalizacao()">
-    ENVIAR MINHA LOCALIZAÇÃO ATUAL
-   </button>
+  <section id="telaCorrida" class="escondido">
+   <h2>Acompanhar minha corrida</h2>
 
-   <label for="textoMensagem">Sua mensagem</label>
-   <input id="textoMensagem" type="text" maxlength="1000" placeholder="Digite uma mensagem">
-   <button id="btnEnviar" onclick="enviarMensagem()">ENVIAR MENSAGEM</button>
-   <div id="statusChat" class="aviso"></div>
-  </div>
+   <div class="passageiro-fixo">
+    PASSAGEIRO: <strong id="nomePassageiroFixo">Aguardando...</strong>
+   </div>
 
-  <button id="btnNovaCorrida" class="secundario escondido" onclick="novaCorrida()">SOLICITAR OUTRA CORRIDA</button>
+   <div class="etapas" id="etapasCorrida">
+    <div class="etapa ativa" id="etapaPedido"><span>1. Pedido</span>Solicitado</div>
+    <div class="etapa" id="etapaMotorista"><span>2. Motorista</span>Aguardando</div>
+    <div class="etapa" id="etapaFinal"><span>3. Viagem</span>Em andamento</div>
+   </div>
 
-  <div class="aviso">Esta página atualiza automaticamente o andamento da sua corrida.</div>
+   <div class="status" id="statusCorrida">Procurando motorista...</div>
+
+   <div id="contadorPrazoPassageiro" class="contador-prazo escondido" aria-live="polite">
+    <div class="legenda" id="legendaPrazoPassageiro">TEMPO PARA O MOTORISTA ACEITAR</div>
+    <div class="tempo" id="tempoPrazoPassageiro">00:30</div>
+    <div class="detalhe" id="detalhePrazoPassageiro">Aguardando confirmação do motorista</div>
+   </div>
+
+   <button id="btnCancelarCorrida" class="secundario" style="background:#9d2929;color:white" onclick="cancelarCorridaPassageiro()">CANCELAR CORRIDA</button>
+
+   <div id="dadosMotorista" class="motorista escondido"></div>
+
+   <div id="areaChat" class="escondido">
+    <h2 style="margin-top:25px">Chat com o motorista</h2>
+    <div id="mensagens"><div class="aviso">Carregando mensagens...</div></div>
+
+    <button id="btnLocalizacao" class="botao-localizacao" onclick="enviarMinhaLocalizacao()">ENVIAR MINHA LOCALIZAÇÃO ATUAL</button>
+
+    <label for="textoMensagem">Sua mensagem</label>
+    <input id="textoMensagem" type="text" maxlength="1000" placeholder="Digite uma mensagem">
+    <button id="btnEnviar" onclick="enviarMensagem()">ENVIAR MENSAGEM</button>
+    <div id="statusChat" class="aviso"></div>
+   </div>
+
+   <button id="btnNovaCorrida" class="secundario escondido" onclick="novaCorrida()">SOLICITAR OUTRA CORRIDA</button>
+   <div class="aviso">Esta página atualiza automaticamente o andamento da sua corrida.</div>
+  </section>
  </section>
 </div>
 
@@ -176,9 +203,12 @@ const SUPABASE_URL="https://xfwkwcpnyvhvmreidqck.supabase.co";
 const SUPABASE_KEY="sb_publishable_S9Ztcv3nh0EhzUl8VMeLmg_nQuBJ1hR";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-let corridaId=sessionStorage.getItem("nerocar_corrida_id");
-let passageiroToken=sessionStorage.getItem("nerocar_passageiro_token");
-let nomePassageiro=sessionStorage.getItem("nerocar_nome_passageiro")||localStorage.getItem("nerocar_nome_passageiro")||"Passageiro";
+let usuarioAtual=null;
+let perfilPassageiro=null;
+
+let corridaId=localStorage.getItem("nerocar_corrida_id")||sessionStorage.getItem("nerocar_corrida_id");
+let passageiroToken=localStorage.getItem("nerocar_passageiro_token")||sessionStorage.getItem("nerocar_passageiro_token");
+let nomePassageiro=localStorage.getItem("nerocar_nome_passageiro")||sessionStorage.getItem("nerocar_nome_passageiro")||"Passageiro";
 
 let intervaloAcompanhamento=null;
 let intervaloMensagens=null;
@@ -197,6 +227,8 @@ let enviandoMensagem=false;
 let cancelandoCorrida=false;
 let canceladaPeloPassageiro=false;
 
+const telaAuth=document.getElementById("telaAuth");
+const areaPassageiro=document.getElementById("areaPassageiro");
 const telaSolicitacao=document.getElementById("telaSolicitacao");
 const telaCorrida=document.getElementById("telaCorrida");
 const statusCorrida=document.getElementById("statusCorrida");
@@ -206,19 +238,242 @@ const mensagens=document.getElementById("mensagens");
 const btnSolicitar=document.getElementById("btnSolicitar");
 const btnNovaCorrida=document.getElementById("btnNovaCorrida");
 
-// Recupera o nome salvo no navegador
-const nomeSalvo=localStorage.getItem("nerocar_nome_passageiro");
-if(nomeSalvo){
- document.getElementById("nome").value=nomeSalvo;
+function primeiroRegistro(dados){
+ return Array.isArray(dados)?dados[0]||null:dados||null;
 }
 
 function escaparHTML(valor){
  return String(valor??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"})[c]);
 }
 
-function primeiroRegistro(dados){
- return Array.isArray(dados)?dados[0]||null:dados||null;
+/* AUTENTICAÇÃO E CADASTRO */
+
+function mostrarFormularioAuth(tipo){
+ const cadastro=tipo==="cadastro";
+ document.getElementById("formLogin").classList.toggle("escondido",cadastro);
+ document.getElementById("formCadastro").classList.toggle("escondido",!cadastro);
+ document.getElementById("tabLogin").classList.toggle("ativo",!cadastro);
+ document.getElementById("tabCadastro").classList.toggle("ativo",cadastro);
+ document.getElementById("tituloAuth").textContent=cadastro?"Criar minha conta":"Acesse sua conta";
 }
+
+function mostrarAreaAutenticada(){
+ telaAuth.classList.add("escondido");
+ areaPassageiro.classList.remove("escondido");
+ document.getElementById("nomeUsuarioBarra").textContent=nomePassageiro;
+ document.getElementById("nomePassageiroSolicitacao").textContent=nomePassageiro;
+}
+
+async function carregarPerfil(user){
+ const {data,error}=await db.from("passengers")
+  .select("user_id,full_name,phone,cpf,email")
+  .eq("user_id",user.id)
+  .maybeSingle();
+
+ if(error)throw error;
+ if(!data)throw new Error("Seu cadastro de passageiro não foi encontrado. Entre em contato com a Nerocar.");
+
+ perfilPassageiro=data;
+ nomePassageiro=data.full_name;
+ localStorage.setItem("nerocar_nome_passageiro",nomePassageiro);
+ mostrarAreaAutenticada();
+}
+
+async function entrarConta(){
+ const email=document.getElementById("loginEmail").value.trim().toLowerCase();
+ const senha=document.getElementById("loginSenha").value;
+ const botao=document.getElementById("btnLogin");
+
+ if(!email||!senha){
+  notificar("Dados incompletos","Informe seu e-mail e sua senha.","erro",false);
+  return;
+ }
+
+ botao.disabled=true;
+ botao.textContent="ENTRANDO...";
+
+ try{
+  const {data,error}=await db.auth.signInWithPassword({email,password:senha});
+  if(error)throw error;
+  usuarioAtual=data.user;
+  await carregarPerfil(data.user);
+  notificar("Bem-vindo à Nerocar","Sua conta foi acessada com sucesso.","sucesso");
+  await recuperarCorridaSalva();
+ }catch(error){
+  console.error(error);
+  notificar("Não foi possível entrar",mensagemErroAuth(error),"erro",false);
+ }finally{
+  botao.disabled=false;
+  botao.textContent="ENTRAR NA MINHA CONTA";
+ }
+}
+
+async function cadastrarConta(){
+ const nome=document.getElementById("cadNome").value.trim();
+ const telefone=document.getElementById("cadTelefone").value.trim();
+ const cpf=document.getElementById("cadCPF").value.replace(/\D/g,"");
+ const email=document.getElementById("cadEmail").value.trim().toLowerCase();
+ const senha=document.getElementById("cadSenha").value;
+ const confirmar=document.getElementById("cadConfirmarSenha").value;
+ const botao=document.getElementById("btnCadastro");
+
+ if(!nome||!telefone||!cpf||!email||!senha||!confirmar){
+  notificar("Cadastro incompleto","Preencha todos os campos.","erro",false);
+  return;
+ }
+
+ if(cpf.length!==11||!validarCPF(cpf)){
+  notificar("CPF inválido","Confira os números do CPF informado.","erro",false);
+  return;
+ }
+
+ if(senha.length<6){
+  notificar("Senha muito curta","A senha deve ter pelo menos 6 caracteres.","erro",false);
+  return;
+ }
+
+ if(senha!==confirmar){
+  notificar("Senhas diferentes","A confirmação não corresponde à senha.","erro",false);
+  return;
+ }
+
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+  notificar("E-mail inválido","Informe um endereço de e-mail válido.","erro",false);
+  return;
+ }
+
+ botao.disabled=true;
+ botao.textContent="CRIANDO CONTA...";
+
+ try{
+  const {data,error}=await db.auth.signUp({
+   email,
+   password:senha,
+   options:{
+    data:{
+     full_name:nome,
+     phone:telefone,
+     cpf:cpf
+    }
+   }
+  });
+
+  if(error)throw error;
+
+  if(!data.user)throw new Error("Não foi possível criar o usuário.");
+
+  if(!data.session){
+   throw new Error("A conta foi criada, mas o Supabase não iniciou a sessão. Verifique se a confirmação de e-mail está desativada nas configurações de autenticação.");
+  }
+
+  usuarioAtual=data.user;
+
+  const {error:erroPerfil}=await db.from("passengers").insert({
+   user_id:data.user.id,
+   full_name:nome,
+   phone:telefone,
+   cpf:cpf,
+   email:email
+  });
+
+  if(erroPerfil){
+   console.error("Erro ao criar perfil:",erroPerfil);
+   throw new Error("A conta de acesso foi criada, mas houve um problema ao salvar seus dados. Não tente cadastrar novamente. Entre em contato com a Nerocar.");
+  }
+
+  await carregarPerfil(data.user);
+  notificar("Cadastro realizado!","Sua conta Nerocar foi criada com sucesso.","sucesso");
+  await recuperarCorridaSalva();
+
+ }catch(error){
+  console.error("Erro no cadastro:",error);
+  notificar("Não foi possível concluir o cadastro",mensagemErroAuth(error),"erro",false);
+ }finally{
+  botao.disabled=false;
+  botao.textContent="CRIAR MINHA CONTA";
+ }
+}
+
+function validarCPF(cpf){
+ if(/^(\d)\1{10}$/.test(cpf))return false;
+ let soma=0;
+ for(let i=0;i<9;i++)soma+=Number(cpf[i])*(10-i);
+ let resto=(soma*10)%11;
+ if(resto===10)resto=0;
+ if(resto!==Number(cpf[9]))return false;
+ soma=0;
+ for(let i=0;i<10;i++)soma+=Number(cpf[i])*(11-i);
+ resto=(soma*10)%11;
+ if(resto===10)resto=0;
+ return resto===Number(cpf[10]);
+}
+
+function mensagemErroAuth(error){
+ const msg=String(error?.message||"Erro desconhecido");
+ if(msg.toLowerCase().includes("already registered"))return "Este e-mail já possui cadastro. Tente entrar na sua conta.";
+ if(msg.toLowerCase().includes("duplicate key")||msg.toLowerCase().includes("unique"))return "Este telefone ou CPF já está cadastrado.";
+ if(msg.toLowerCase().includes("invalid login credentials"))return "E-mail ou senha incorretos.";
+ return msg;
+}
+
+async function sairConta(){
+ if(!confirm("Deseja realmente sair da sua conta?"))return;
+ pararAtualizacoes();
+ const {error}=await db.auth.signOut();
+ if(error){
+  notificar("Erro ao sair",error.message,"erro",false);
+  return;
+ }
+ usuarioAtual=null;
+ perfilPassageiro=null;
+ telaAuth.classList.remove("escondido");
+ areaPassageiro.classList.add("escondido");
+ mostrarFormularioAuth("login");
+ notificar("Sessão encerrada","Você saiu da sua conta.","normal",false);
+}
+
+/* INICIALIZAÇÃO DA SESSÃO */
+
+async function iniciarAplicacao(){
+ try{
+  const {data,error}=await db.auth.getSession();
+  if(error)throw error;
+
+  if(data.session?.user){
+   usuarioAtual=data.session.user;
+   await carregarPerfil(usuarioAtual);
+   await recuperarCorridaSalva();
+  }else{
+   telaAuth.classList.remove("escondido");
+   areaPassageiro.classList.add("escondido");
+  }
+ }catch(error){
+  console.error("Erro ao iniciar:",error);
+  telaAuth.classList.remove("escondido");
+  areaPassageiro.classList.add("escondido");
+  notificar("Não foi possível carregar sua conta",mensagemErroAuth(error),"erro",false);
+ }
+}
+
+async function recuperarCorridaSalva(){
+ if(!corridaId||!passageiroToken){
+  mostrarTelaSolicitacao();
+  return;
+ }
+
+ telaSolicitacao.classList.add("escondido");
+ telaCorrida.classList.remove("escondido");
+ document.getElementById("nomePassageiroFixo").textContent=nomePassageiro;
+ primeiraLeituraChat=true;
+ iniciarAcompanhamento();
+}
+
+function mostrarTelaSolicitacao(){
+ telaCorrida.classList.add("escondido");
+ telaSolicitacao.classList.remove("escondido");
+}
+
+/* AVISOS E SONS */
 
 async function liberarAudio(){
  try{
@@ -227,16 +482,13 @@ async function liberarAudio(){
   if(!audioContext)audioContext=new AudioClass();
   if(audioContext.state==="suspended")await audioContext.resume();
   audioLiberado=audioContext.state==="running";
- }catch(e){
-  audioLiberado=false;
- }
+ }catch(e){audioLiberado=false;}
 }
 
 function tocarAviso(tipo="normal"){
  if(navigator.vibrate){
   try{navigator.vibrate(tipo==="urgente"?[180,80,180]:[120]);}catch(e){}
  }
-
  if(!audioLiberado||!audioContext||audioContext.state!=="running")return;
 
  const frequencias=tipo==="sucesso"?[880,1175]:tipo==="erro"?[420,320]:[740,980,740];
@@ -246,7 +498,6 @@ function tocarAviso(tipo="normal"){
   const osc=audioContext.createOscillator();
   const ganho=audioContext.createGain();
   const t=inicio+i*.17;
-
   osc.type="sine";
   osc.frequency.value=freq;
   ganho.gain.setValueAtTime(.0001,t);
@@ -273,6 +524,8 @@ function fecharNotificacao(){
  document.getElementById("notificacao").classList.remove("visivel");
  if(toastTimer)clearTimeout(toastTimer);
 }
+
+/* CONTADOR E ETAPAS DA CORRIDA */
 
 function atualizarContadorPassageiro(corrida){
  const caixa=document.getElementById("contadorPrazoPassageiro");
@@ -353,13 +606,20 @@ function atualizarEtapas(status){
  if(status==="cancelled")motorista.classList.add("ativa");
 }
 
+/* SOLICITAR CORRIDA */
+
 async function solicitarCorrida(){
- const nome=document.getElementById("nome").value.trim();
+ if(!usuarioAtual||!perfilPassageiro){
+  notificar("Faça login","Entre na sua conta antes de solicitar uma corrida.","erro",false);
+  return;
+ }
+
+ const nome=perfilPassageiro.full_name;
  const endereco=document.getElementById("endereco").value.trim();
  const referencia=document.getElementById("referencia").value.trim();
 
- if(!nome||!endereco){
-  notificar("Dados incompletos","Preencha seu nome e o endereço de origem.","erro",false);
+ if(!endereco){
+  notificar("Endereço obrigatório","Informe o endereço de origem.","erro",false);
   return;
  }
 
@@ -377,8 +637,8 @@ async function solicitarCorrida(){
   });
 
   if(error)throw error;
-
   const resultado=primeiroRegistro(data);
+
   if(!resultado||resultado.success===false){
    throw new Error(resultado?.message||"Não foi possível solicitar a corrida.");
   }
@@ -394,9 +654,9 @@ async function solicitarCorrida(){
   passageiroToken=token;
   nomePassageiro=nome;
 
-  // Salva o nome para as próximas visitas
+  localStorage.setItem("nerocar_corrida_id",String(corridaId));
+  localStorage.setItem("nerocar_passageiro_token",String(passageiroToken));
   localStorage.setItem("nerocar_nome_passageiro",nome);
-
   sessionStorage.setItem("nerocar_corrida_id",String(corridaId));
   sessionStorage.setItem("nerocar_passageiro_token",String(passageiroToken));
   sessionStorage.setItem("nerocar_nome_passageiro",nome);
@@ -443,6 +703,8 @@ function mostrarMotorista(dados){
   <strong>Placa:</strong> ${escaparHTML(dados.vehicle_plate||"-")}
  `;
 }
+
+/* ACOMPANHAMENTO */
 
 function iniciarAcompanhamento(){
  if(intervaloAcompanhamento)clearInterval(intervaloAcompanhamento);
@@ -581,10 +843,10 @@ async function acompanharCorrida(){
  }
 }
 
-/* TRANSFORMA O LINK DO GOOGLE MAPS EM BOTÃO CLICÁVEL */
+/* CHAT E LOCALIZAÇÃO */
+
 function formatarMensagem(texto){
  const regex=/https:\/\/www\.google\.com\/maps\?q=-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?/g;
-
  let resultado="";
  let inicio=0;
  let encontrado;
@@ -592,21 +854,11 @@ function formatarMensagem(texto){
 
  while((encontrado=regex.exec(conteudo))!==null){
   resultado+=escaparHTML(conteudo.slice(inicio,encontrado.index));
-
   const link=encontrado[0];
-
-  resultado+=`<a class="link-localizacao"
-    href="${escaparHTML(link)}"
-    target="_blank"
-    rel="noopener noreferrer">
-    📍 ABRIR LOCALIZAÇÃO NO GOOGLE MAPS
-  </a>`;
-
+  resultado+=`<a class="link-localizacao" href="${escaparHTML(link)}" target="_blank" rel="noopener noreferrer">📍 ABRIR LOCALIZAÇÃO NO GOOGLE MAPS</a>`;
   inicio=regex.lastIndex;
  }
-
  resultado+=escaparHTML(conteudo.slice(inicio));
-
  return resultado.replace(/\n/g,"<br>");
 }
 
@@ -645,7 +897,6 @@ async function carregarMensagens(){
   mensagens.innerHTML=lista.map(item=>{
    const hora=item.created_at?new Date(item.created_at).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}):"";
    const minha=item.sender_role==="passenger";
-
    return `<div class="mensagem ${minha?"minha":"motorista-msg"}">
     <strong>${escaparHTML(minha?"Você":item.sender_name||"Motorista")}</strong><br>
     ${formatarMensagem(item.message)}
@@ -701,7 +952,6 @@ async function enviarMensagem(){
  }
 }
 
-/* CAPTURA E ENVIA A LOCALIZAÇÃO GPS PELO CHAT */
 function enviarMinhaLocalizacao(){
  const botao=document.getElementById("btnLocalizacao");
 
@@ -725,7 +975,6 @@ function enviarMinhaLocalizacao(){
    const link="https://www.google.com/maps?q="+latitude+","+longitude;
 
    document.getElementById("textoMensagem").value="Minha localização atual: "+link;
-
    await enviarMensagem();
 
    if(!document.getElementById("textoMensagem").value){
@@ -744,7 +993,6 @@ function enviarMinhaLocalizacao(){
 
  },(erro)=>{
   let mensagem="Não foi possível obter sua localização.";
-
   if(erro.code===1)mensagem="Você precisa permitir o acesso à localização no celular.";
   if(erro.code===2)mensagem="O GPS não conseguiu identificar sua posição. Tente novamente.";
   if(erro.code===3)mensagem="A localização demorou demais. Tente novamente.";
@@ -760,12 +1008,7 @@ function enviarMinhaLocalizacao(){
  });
 }
 
-document.getElementById("textoMensagem").addEventListener("keydown",function(event){
- if(event.key==="Enter"){
-  event.preventDefault();
-  enviarMensagem();
- }
-});
+/* NOVA CORRIDA E LIMPEZA */
 
 function pararAtualizacoes(){
  if(intervaloAcompanhamento)clearInterval(intervaloAcompanhamento);
@@ -780,24 +1023,24 @@ function pararAtualizacoes(){
 function novaCorrida(){
  pararAtualizacoes();
 
+ localStorage.removeItem("nerocar_corrida_id");
+ localStorage.removeItem("nerocar_passageiro_token");
  sessionStorage.removeItem("nerocar_corrida_id");
  sessionStorage.removeItem("nerocar_passageiro_token");
  sessionStorage.removeItem("nerocar_nome_passageiro");
 
  corridaId=null;
  passageiroToken=null;
- nomePassageiro=localStorage.getItem("nerocar_nome_passageiro")||"Passageiro";
+ nomePassageiro=perfilPassageiro?.full_name||"Passageiro";
  ultimoStatus="";
  ultimoMotorista="";
  ultimoAssignedAtPassageiro="";
  ultimaMensagemId="";
  primeiraLeituraChat=true;
 
- // Mantém o nome salvo e limpa somente os dados da viagem anterior
- document.getElementById("nome").value=localStorage.getItem("nerocar_nome_passageiro")||"";
  document.getElementById("endereco").value="";
  document.getElementById("referencia").value="";
- document.getElementById("nomePassageiroFixo").textContent="Aguardando...";
+ document.getElementById("nomePassageiroFixo").textContent=nomePassageiro;
 
  dadosMotorista.innerHTML="";
  dadosMotorista.classList.add("escondido");
@@ -814,21 +1057,31 @@ function novaCorrida(){
  canceladaPeloPassageiro=false;
  mensagens.innerHTML="";
  document.getElementById("statusChat").textContent="";
+ document.getElementById("mensagemInicial").textContent="Informe o endereço de origem e solicite sua viagem.";
 
- telaCorrida.classList.add("escondido");
- telaSolicitacao.classList.remove("escondido");
+ mostrarTelaSolicitacao();
 }
 
-/* RECUPERAR A CORRIDA CASO O PASSAGEIRO FECHE E REABRA A PÁGINA */
-if(corridaId&&passageiroToken){
- telaSolicitacao.classList.add("escondido");
- telaCorrida.classList.remove("escondido");
+/* ENTER PARA ENVIAR MENSAGEM */
+document.getElementById("textoMensagem").addEventListener("keydown",function(event){
+ if(event.key==="Enter"){
+  event.preventDefault();
+  enviarMensagem();
+ }
+});
 
- document.getElementById("nomePassageiroFixo").textContent=nomePassageiro;
+/* MÁSCARA SIMPLES DO CPF */
+document.getElementById("cadCPF").addEventListener("input",function(){
+ let v=this.value.replace(/\D/g,"").slice(0,11);
+ v=v.replace(/(\d{3})(\d)/,"$1.$2");
+ v=v.replace(/(\d{3})(\d)/,"$1.$2");
+ v=v.replace(/(\d{3})(\d{1,2})$/,"$1-$2");
+ this.value=v;
+});
 
- primeiraLeituraChat=true;
- iniciarAcompanhamento();
-}
+/* INICIAR */
+iniciarAplicacao();
 </script>
 </body>
 </html>
+```
