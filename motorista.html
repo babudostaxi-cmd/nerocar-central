@@ -47,6 +47,31 @@ button:disabled{opacity:.5}
 .chat-envio{display:flex;gap:8px;align-items:center}
 .chat-envio input{margin:0;min-width:0;flex:1}
 .chat-envio button{width:auto;min-width:90px;margin:0;padding:14px 10px}
+
+/* Modo foco: quando chega uma corrida, deixa somente o atendimento na tela. */
+body.modo-corrida{padding:0;overflow:hidden}
+body.modo-corrida .container{width:100%;max-width:none;margin:0}
+body.modo-corrida header{display:none!important}
+body.modo-corrida #conta{display:block!important}
+body.modo-corrida #conta>.card:first-child{display:none!important}
+body.modo-corrida #painelCorrida{
+  display:block!important;
+  position:fixed;
+  inset:0;
+  z-index:9998;
+  width:100%;
+  max-width:620px;
+  height:100vh;
+  height:100dvh;
+  overflow-y:auto;
+  margin:0 auto;
+  padding:22px 18px 32px;
+  border:0;
+  border-radius:0;
+  box-shadow:0 0 35px #0009;
+}
+body.modo-corrida #toastContainer{z-index:10000}
+
 </style>
 </head>
 <body>
@@ -410,6 +435,7 @@ sessionStorage.setItem("nerocar_ultima_corrida_monitorada",String(c.ride_id));
 }
 
 document.getElementById("painelCorrida").classList.remove("hidden");
+document.body.classList.add("modo-corrida");
 document.getElementById("passageiro").textContent=c.passenger_name||"Não informado";
 document.getElementById("origem").textContent=c.pickup_address||"Não informado";
 document.getElementById("referencia").textContent=c.reference_point||"Não informada";
@@ -434,6 +460,7 @@ carregarMensagens();
 
 function esconderCorrida(){
 corridaAtual=null;
+document.body.classList.remove("modo-corrida");
 document.getElementById("painelCorrida").classList.add("hidden");
 document.getElementById("chatArea").classList.add("hidden");
 document.getElementById("btnCancelarCorrida").classList.add("hidden");
