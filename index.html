@@ -1,4 +1,4 @@
-```html
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -10,15 +10,12 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#f3f5f8;color:#20252d}
-header{background:#17191f;color:#fff;padding:17px 22px;display:flex;justify-content:space-between;align-items:center;gap:12px}
-.logo{font-size:24px;font-weight:bold;color:#f5c400}
-header small{color:#ddd}
-header button,.secondary{background:#343943;color:white;border:0;padding:10px 15px;border-radius:8px;cursor:pointer}
-.container{max-width:1300px;margin:24px auto;padding:0 16px}
-.card{background:#fff;padding:19px;border-radius:13px;box-shadow:0 2px 10px #0000000b}
-.login{max-width:410px;margin:9vh auto}
+.hidden{display:none!important}
+
+/* LOGIN */
+.login{max-width:410px;margin:9vh auto;background:white;padding:25px;border-radius:15px;box-shadow:0 3px 15px #00000012}
+.logo{font-size:25px;font-weight:bold;color:#e8b900}
 input,textarea{width:100%;padding:12px;margin:7px 0;border:1px solid #d9dde4;border-radius:8px;font-size:15px}
-textarea{min-height:75px;resize:vertical}
 button{cursor:pointer}
 button:disabled{opacity:.45;cursor:not-allowed}
 .primary{background:#e8b900;color:#17191f;border:0;padding:13px 16px;border-radius:8px;font-weight:bold}
@@ -26,16 +23,42 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .green{background:#168447;color:white;border:0;padding:12px 16px;border-radius:8px;font-weight:bold}
 .red{background:#b72c2c;color:white;border:0;padding:10px 13px;border-radius:8px}
 .blue{background:#e6edff;color:#234b9b;border:0;padding:8px 10px;border-radius:6px}
+.secondary{background:#343943;color:white;border:0;padding:10px 15px;border-radius:8px}
+
+/* CABEÇALHO */
+header{height:70px;background:#17191f;color:white;padding:12px 22px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+header small{color:#ddd}
+header button{background:#343943;color:white;border:0;padding:10px 15px;border-radius:8px}
+
+/* ESTRUTURA */
+.layout{display:flex;min-height:calc(100vh - 70px)}
+.sidebar{width:245px;flex-shrink:0;background:#20232b;padding:22px 13px;color:white}
+.sidebar-title{font-size:11px;color:#999;padding:10px 12px;text-transform:uppercase;letter-spacing:1px}
+.nav-button{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:13px 14px;margin:4px 0;border:0;border-radius:9px;background:transparent;color:#d7d9df;font-size:14px;font-weight:bold}
+.nav-button:hover{background:#30343e}
+.nav-button.active{background:#e8b900;color:#17191f}
+.nav-icon{width:22px;text-align:center;font-size:17px}
+.main-content{flex:1;min-width:0;padding:25px}
+.page-header{margin-bottom:20px}
+.page-header h1{font-size:24px;margin:0 0 7px}
+.page-header p{font-size:13px;color:#777;margin:0}
+.page{display:none}
+.page.active{display:block}
+
+/* CARDS E INDICADORES */
+.card{background:#fff;padding:19px;border-radius:13px;box-shadow:0 2px 10px #0000000b}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin:18px 0}
-.stat strong{font-size:29px;display:block;margin-top:8px}
 .stat span,.small{font-size:12px;color:#777}
+.stat strong{font-size:29px;display:block;margin-top:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px}
 .section{margin-top:18px}
-h1,h2,h3{margin-top:0}
-h2{font-size:19px}
+h2{font-size:19px;margin-top:0}
 .message{padding:11px;border-radius:8px;margin:10px 0;overflow-wrap:anywhere}
 .error{background:#ffe5e5;color:#a00000}
 .success{background:#e4f7e9;color:#176b31}
-.hidden{display:none!important}
+.badge{display:inline-block;padding:5px 8px;border-radius:6px;background:#f1f1f1;font-size:12px}
+
+/* TABELA */
 .table-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse}
 th,td{text-align:left;padding:11px;border-bottom:1px solid #eee;font-size:13px;vertical-align:middle}
@@ -45,47 +68,33 @@ th{color:#777}
 .btn-approve{background:#d9f5e2;color:#176b31}
 .btn-reject{background:#ffe3e3;color:#a00000}
 .btn-suspend{background:#fff0d5;color:#8a5700}
-.badge{display:inline-block;padding:5px 8px;border-radius:6px;background:#f1f1f1;font-size:12px}
+
+/* CORRIDAS E FILA */
 .ride{border:1px solid #e5e8ee;border-radius:11px;padding:15px;margin:12px 0}
 .ride-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .address{margin:9px 0;line-height:1.5}
-.queue-item{display:flex;justify-content:space-between;gap:10px;padding:10px;border-bottom:1px solid #eee}
+.queue-item{display:flex;justify-content:space-between;gap:10px;padding:12px;border-bottom:1px solid #eee}
 .countdown{font-weight:bold;color:#b07800}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+#lastUpdate{margin-top:20px}
 
-/* MENU ADMINISTRATIVO */
-.admin-layout{display:grid;grid-template-columns:225px minmax(0,1fr);gap:20px;align-items:start}
-.sidebar{background:#fff;border-radius:13px;padding:14px;box-shadow:0 2px 10px #0000000b;position:sticky;top:15px}
-.sidebar-title{font-size:12px;color:#999;font-weight:bold;padding:8px 10px 12px}
-.menu-btn{width:100%;display:flex;align-items:center;gap:11px;text-align:left;background:transparent;border:0;padding:13px 12px;border-radius:9px;margin:3px 0;color:#424956;font-size:14px;font-weight:bold}
-.menu-btn:hover{background:#f5f6f8}
-.menu-btn.active{background:#fff4c7;color:#6c5300}
-.menu-icon{width:23px;text-align:center;font-size:18px}
-.admin-content{min-width:0}
-.page-section{display:none}
-.page-section.active{display:block}
-.page-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:15px}
-.page-heading h2{margin:0}
-.stat{min-height:105px}
-.stat-label{display:flex;align-items:center;gap:8px}
-.stat-icon{font-size:20px}
-.last-update{margin-top:18px}
-
-@media(max-width:800px){
- .admin-layout{grid-template-columns:1fr}
- .sidebar{position:static}
- .sidebar-menu{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}
- .menu-btn{font-size:12px;padding:11px 8px}
-}
-@media(max-width:500px){
+/* MOBILE */
+@media(max-width:850px){
+ .layout{display:block}
+ .sidebar{width:100%;padding:10px;display:flex;gap:6px;overflow-x:auto}
+ .sidebar-title{display:none}
+ .nav-button{width:auto;min-width:max-content;margin:0;padding:11px 13px}
+ .main-content{padding:16px}
  .stats{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:550px){
+ header{padding:12px}
+ header .logo{font-size:21px}
+ .main-content{padding:12px}
+ .stats{gap:9px}
+ .stat{padding:14px}
+ .stat strong{font-size:24px}
  .grid2{grid-template-columns:1fr}
- header{padding:14px}
- .container{margin:15px auto}
- .card{padding:15px}
- .sidebar-menu{grid-template-columns:repeat(2,1fr)}
- .stat strong{font-size:25px}
- .table-wrap table{min-width:780px}
+ .page-header h1{font-size:21px}
 }
 </style>
 </head>
@@ -93,15 +102,17 @@ th{color:#777}
 <body>
 
 <!-- LOGIN -->
-<div id="loginScreen" class="login card">
+<div id="loginScreen" class="login">
   <div class="logo">NEROCAR</div>
   <h2>Central de Corridas</h2>
   <p class="small">Entre com seu e-mail e senha cadastrados.</p>
+
   <form id="loginForm">
     <input id="email" type="email" placeholder="Seu e-mail" required>
     <input id="password" type="password" placeholder="Sua senha" required>
     <button class="primary full" type="submit">ENTRAR NO PAINEL</button>
   </form>
+
   <div id="loginMessage"></div>
 </div>
 
@@ -119,174 +130,175 @@ th{color:#777}
   </div>
 </header>
 
-<main class="container">
+<div class="layout">
 
-  <div class="page-heading">
-    <div>
-      <h2 id="pageTitle">Painel</h2>
-      <p class="small" id="welcome"></p>
+  <!-- MENU LATERAL -->
+  <aside class="sidebar">
+
+    <div class="sidebar-title">Menu principal</div>
+
+    <button class="nav-button" data-page="overviewPage" id="navOverview">
+      <span class="nav-icon">▦</span> Visão geral
+    </button>
+
+    <button class="nav-button" data-page="driversPage" id="navDrivers">
+      <span class="nav-icon">♙</span> Motoristas
+    </button>
+
+    <button class="nav-button" data-page="queuePage">
+      <span class="nav-icon">☷</span> Fila de espera
+    </button>
+
+    <button class="nav-button" data-page="ridesPage">
+      <span class="nav-icon">🚘</span> Chamadas de corrida
+    </button>
+
+    <button class="nav-button hidden" data-page="availabilityPage" id="navAvailability">
+      <span class="nav-icon">●</span> Minha disponibilidade
+    </button>
+
+  </aside>
+
+  <!-- CONTEÚDO -->
+  <main class="main-content">
+
+    <div class="page-header">
+      <h1 id="pageTitle">Visão geral</h1>
+      <p id="welcome"></p>
     </div>
-  </div>
 
-  <div id="globalMessage"></div>
+    <div id="globalMessage"></div>
 
-  <!-- MENU ADMINISTRATIVO -->
-  <div id="adminLayout" class="admin-layout hidden">
+    <!-- VISÃO GERAL ADMIN -->
+    <section id="overviewPage" class="page">
 
-    <aside class="sidebar">
-      <div class="sidebar-title">MENU PRINCIPAL</div>
+      <div class="stats">
 
-      <nav class="sidebar-menu">
-        <button class="menu-btn active" data-page="overview">
-          <span class="menu-icon">▦</span> Visão geral
-        </button>
-
-        <button class="menu-btn" data-page="drivers">
-          <span class="menu-icon">♙</span> Motoristas
-        </button>
-
-        <button class="menu-btn" data-page="queue">
-          <span class="menu-icon">☷</span> Fila de espera
-        </button>
-
-        <button class="menu-btn" data-page="rides">
-          <span class="menu-icon">🚘</span> Corridas
-        </button>
-      </nav>
-    </aside>
-
-    <div class="admin-content">
-
-      <!-- VISÃO GERAL -->
-      <section id="page-overview" class="page-section active">
-        <div class="card">
-          <div class="page-heading">
-            <h2>Visão geral</h2>
-            <span class="badge">Resumo da operação</span>
-          </div>
-          <p class="small">Acompanhe os principais números da Nerocar.</p>
+        <div class="card stat">
+          <span>Motoristas cadastrados</span>
+          <strong id="totalDrivers">0</strong>
         </div>
 
-        <div class="stats">
-          <div class="card stat">
-            <div class="stat-label"><span class="stat-icon">♙</span><span>Motoristas cadastrados</span></div>
-            <strong id="totalDrivers">0</strong>
-          </div>
-
-          <div class="card stat">
-            <div class="stat-label"><span class="stat-icon">🟢</span><span>Motoristas online</span></div>
-            <strong id="onlineDrivers">0</strong>
-          </div>
-
-          <div class="card stat">
-            <div class="stat-label"><span class="stat-icon">🚘</span><span>Corridas disponíveis</span></div>
-            <strong id="openRides">0</strong>
-          </div>
-
-          <div class="card stat">
-            <div class="stat-label"><span class="stat-icon">✓</span><span>Corridas aceitas</span></div>
-            <strong id="acceptedRides">0</strong>
-          </div>
+        <div class="card stat">
+          <span>Motoristas online</span>
+          <strong id="onlineDrivers">0</strong>
         </div>
 
-        <div class="card section">
-          <h2>Bem-vindo à administração</h2>
-          <p class="small">Utilize o menu ao lado para acessar os cadastros de motoristas, acompanhar a fila de espera e consultar as chamadas de corrida.</p>
+        <div class="card stat">
+          <span>Corridas disponíveis</span>
+          <strong id="openRides">0</strong>
         </div>
-      </section>
 
-      <!-- MOTORISTAS -->
-      <section id="page-drivers" class="page-section">
-        <div class="card">
-          <div class="page-heading">
-            <h2>Gerenciamento de motoristas</h2>
-            <span class="badge">Cadastros</span>
-          </div>
-          <p class="small">Confira os documentos e aprove ou altere a situação dos motoristas.</p>
-
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Nome</th>
-                  <th>Telefone</th>
-                  <th>Veículo</th>
-                  <th>Placa</th>
-                  <th>Aprovação</th>
-                  <th>Disponibilidade</th>
-                  <th>Documentos e ações</th>
-                </tr>
-              </thead>
-              <tbody id="driversTable">
-                <tr><td colspan="7">Carregando...</td></tr>
-              </tbody>
-            </table>
-          </div>
+        <div class="card stat">
+          <span>Corridas aceitas</span>
+          <strong id="acceptedRides">0</strong>
         </div>
-      </section>
 
-      <!-- FILA -->
-      <section id="page-queue" class="page-section">
-        <div class="card">
-          <div class="page-heading">
-            <h2>Fila de espera</h2>
-            <span class="badge">Motoristas aguardando</span>
-          </div>
-          <p class="small">Acompanhe a ordem dos motoristas que estão aguardando chamadas.</p>
-          <div id="queueList"><p class="small">Carregando fila...</p></div>
-        </div>
-      </section>
-
-      <!-- CORRIDAS -->
-      <section id="page-rides" class="page-section">
-        <div class="card">
-          <div class="page-heading">
-            <h2>Chamadas de corrida</h2>
-            <span class="badge">Visível para todos</span>
-          </div>
-          <p class="small">Acompanhe as chamadas, endereços, valores e situação das corridas.</p>
-          <div id="ridesList"><p class="small">Carregando chamadas...</p></div>
-        </div>
-      </section>
-
-    </div>
-  </div>
-
-  <!-- ÁREA DO MOTORISTA -->
-  <section id="driverArea" class="hidden">
-
-    <div class="card">
-      <h2>Sua disponibilidade</h2>
-      <p id="driverApprovalText" class="small">Verificando aprovação...</p>
-
-      <div class="grid2">
-        <button id="joinQueue" class="green">ENTRAR NA FILA</button>
-        <button id="leaveQueue" class="secondary">SAIR DA FILA</button>
       </div>
 
-      <p class="small">Ao aceitar uma corrida, você sai da fila. Quando terminar a viagem, entre novamente para participar das próximas chamadas.</p>
-      <div id="myQueueStatus" class="message"></div>
-    </div>
-
-    <section class="card section">
-      <h2>Fila de espera</h2>
-      <div id="driverQueueList"><p class="small">Carregando fila...</p></div>
-    </section>
-
-    <section class="card section">
-      <div class="ride-top">
-        <h2>Chamadas de corrida</h2>
-        <span class="badge">Visível para todos</span>
+      <div class="card section">
+        <h2>Bem-vindo à Nerocar Central</h2>
+        <p class="small">
+          Utilize o menu lateral para administrar motoristas,
+          acompanhar a fila de espera e visualizar as chamadas de corrida.
+        </p>
       </div>
-      <p class="small">As chamadas aparecem aqui com endereço de embarque e destino. A oportunidade é enviada ao primeiro motorista da fila, com 60 segundos para aceitar.</p>
-      <div id="driverRidesList"><p class="small">Carregando chamadas...</p></div>
+
     </section>
 
-  </section>
+    <!-- MOTORISTAS -->
+    <section id="driversPage" class="page">
 
-  <p class="small last-update" id="lastUpdate"></p>
+      <div class="card">
+        <h2>Gerenciamento de motoristas</h2>
+        <p class="small">
+          Confira os documentos e aprove ou altere a situação dos motoristas.
+        </p>
 
-</main>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Telefone</th>
+                <th>Veículo</th>
+                <th>Placa</th>
+                <th>Aprovação</th>
+                <th>Disponibilidade</th>
+                <th>Documentos e ações</th>
+              </tr>
+            </thead>
+            <tbody id="driversTable">
+              <tr><td colspan="7">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- FILA -->
+    <section id="queuePage" class="page">
+
+      <div class="card">
+        <h2>Fila de espera</h2>
+        <p class="small">
+          Acompanhe os motoristas que estão aguardando chamadas.
+        </p>
+        <div id="queueList">
+          <p class="small">Carregando fila...</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- CORRIDAS -->
+    <section id="ridesPage" class="page">
+
+      <div class="card">
+        <div class="ride-top">
+          <h2>Chamadas de corrida</h2>
+          <span class="badge">Visível para todos</span>
+        </div>
+
+        <p class="small">
+          As chamadas aparecem aqui com endereço de embarque e destino.
+          A oportunidade é enviada ao primeiro motorista da fila.
+        </p>
+
+        <div id="ridesList">
+          <p class="small">Carregando chamadas...</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- DISPONIBILIDADE MOTORISTA -->
+    <section id="availabilityPage" class="page">
+
+      <div class="card">
+        <h2>Sua disponibilidade</h2>
+        <p id="driverApprovalText" class="small">Verificando aprovação...</p>
+
+        <div class="grid2">
+          <button id="joinQueue" class="green">ENTRAR NA FILA</button>
+          <button id="leaveQueue" class="secondary">SAIR DA FILA</button>
+        </div>
+
+        <p class="small">
+          Ao aceitar uma corrida, você sai da fila.
+          Quando terminar a viagem, entre novamente para participar das próximas chamadas.
+        </p>
+
+        <div id="myQueueStatus" class="message"></div>
+      </div>
+
+    </section>
+
+    <p class="small" id="lastUpdate"></p>
+
+  </main>
+</div>
 </div>
 
 <script>
@@ -305,6 +317,44 @@ let refreshTimer = null;
 let busyDispatch = false;
 let lastRides = [];
 
+const pageNames = {
+  overviewPage:"Visão geral",
+  driversPage:"Motoristas",
+  queuePage:"Fila de espera",
+  ridesPage:"Chamadas de corrida",
+  availabilityPage:"Minha disponibilidade"
+};
+
+/* MENU */
+function openPage(pageId){
+  const page=$(pageId);
+  if(!page)return;
+
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".nav-button").forEach(b=>b.classList.remove("active"));
+
+  page.classList.add("active");
+
+  const button=document.querySelector('[data-page="'+pageId+'"]');
+  if(button)button.classList.add("active");
+
+  $("pageTitle").textContent=pageNames[pageId]||"Nerocar";
+  clearMessage();
+
+  if(pageId==="driversPage" && currentProfile?.role==="admin"){
+    loadAdminData();
+  }
+  if(pageId==="queuePage")loadQueue();
+  if(pageId==="ridesPage")loadRides();
+}
+
+document.querySelectorAll(".nav-button").forEach(button=>{
+  button.addEventListener("click",()=>{
+    openPage(button.dataset.page);
+  });
+});
+
+/* MENSAGENS */
 function message(text,type="success"){
   $("globalMessage").textContent=text;
   $("globalMessage").className="message "+type;
@@ -325,6 +375,8 @@ function showApp(){
   $("loginScreen").classList.add("hidden");
   $("app").classList.remove("hidden");
 }
+
+/* FUNÇÕES AUXILIARES */
 function addCell(row,value){
   const td=document.createElement("td");
   td.textContent=value??"";
@@ -341,49 +393,20 @@ function addAction(parent,label,cls,fn){
   return b;
 }
 function money(value){
-  if(value===null||value===undefined||value==="") return "A combinar";
+  if(value===null||value===undefined||value==="")return "A combinar";
   return Number(value).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 }
 function dateText(value){
   return value?new Date(value).toLocaleString("pt-BR"):"";
 }
 function approvalLabel(s){
-  return ({pending:"Pendente",approved:"Aprovado",rejected:"Rejeitado",suspended:"Suspenso"})[s]||s||"Não informado";
+  return ({
+    pending:"Pendente",
+    approved:"Aprovado",
+    rejected:"Rejeitado",
+    suspended:"Suspenso"
+  })[s]||s||"Não informado";
 }
-
-/* NAVEGAÇÃO DO ADMINISTRADOR */
-function showAdminPage(page){
-  document.querySelectorAll(".page-section").forEach(section=>{
-    section.classList.remove("active");
-  });
-
-  document.querySelectorAll(".menu-btn").forEach(button=>{
-    button.classList.toggle("active",button.dataset.page===page);
-  });
-
-  const selected=$("page-"+page);
-  if(selected)selected.classList.add("active");
-
-  const titles={
-    overview:"Visão geral",
-    drivers:"Gerenciamento de motoristas",
-    queue:"Fila de espera",
-    rides:"Chamadas de corrida"
-  };
-
-  $("pageTitle").textContent=titles[page]||"Painel administrativo";
-  clearMessage();
-
-  if(page==="drivers")loadAdminData();
-  if(page==="queue")loadQueue();
-  if(page==="rides")loadRides();
-}
-
-document.querySelectorAll(".menu-btn").forEach(button=>{
-  button.addEventListener("click",()=>{
-    showAdminPage(button.dataset.page);
-  });
-});
 
 /* IDENTIFICAÇÃO */
 async function loadIdentity(){
@@ -420,19 +443,22 @@ async function loadIdentity(){
   $("headerUser").textContent=profile.full_name||user.email;
   $("welcome").textContent="Bem-vindo, "+(profile.full_name||user.email);
 
-  $("adminLayout").classList.toggle("hidden",profile.role!=="admin");
-  $("driverArea").classList.toggle("hidden",profile.role!=="driver");
+  const isAdmin=profile.role==="admin";
+  const isDriver=profile.role==="driver";
 
-  $("pageTitle").textContent=profile.role==="admin"?"Painel administrativo":"Painel do motorista";
+  $("navOverview").classList.toggle("hidden",!isAdmin);
+  $("navDrivers").classList.toggle("hidden",!isAdmin);
+  $("navAvailability").classList.toggle("hidden",!isDriver);
 
   showApp();
 
-  if(profile.role==="admin"){
-    showAdminPage("overview");
-  }
-
-  if(profile.role==="driver"){
+  if(isDriver){
     updateDriverAvailability();
+    openPage("availabilityPage");
+  }else if(isAdmin){
+    openPage("overviewPage");
+  }else{
+    openPage("ridesPage");
   }
 
   await refreshAll();
@@ -454,7 +480,7 @@ function updateDriverAvailability(){
   $("leaveQueue").disabled=!approved;
 }
 
-/* ATUALIZAÇÕES */
+/* ATUALIZAÇÃO GERAL */
 async function refreshAll(){
   if(!currentUser)return;
 
@@ -465,6 +491,7 @@ async function refreshAll(){
   }
 }
 
+/* CORRIDAS */
 async function loadRides(){
   const {data,error}=await db
     .from("rides")
@@ -474,14 +501,11 @@ async function loadRides(){
 
   if(error){
     $("ridesList").textContent="Erro ao carregar chamadas: "+error.message;
-    $("driverRidesList").textContent="Erro ao carregar chamadas: "+error.message;
     return;
   }
 
   lastRides=data||[];
-
-  renderRides(lastRides,$("ridesList"));
-  renderRides(lastRides,$("driverRidesList"));
+  renderRides(lastRides);
 
   $("lastUpdate").textContent="Última atualização: "+new Date().toLocaleTimeString("pt-BR");
 
@@ -489,7 +513,12 @@ async function loadRides(){
     busyDispatch=true;
     try{
       for(const r of lastRides){
-        if(r.status==="open" && (!r.offered_driver_id || !r.offer_expires_at || new Date(r.offer_expires_at)<=new Date())){
+        if(
+          r.status==="open" &&
+          (!r.offered_driver_id ||
+          !r.offer_expires_at ||
+          new Date(r.offer_expires_at)<=new Date())
+        ){
           await db.rpc("advance_ride_offer",{p_ride_id:r.id});
         }
       }
@@ -499,7 +528,8 @@ async function loadRides(){
   }
 }
 
-function renderRides(rides,root){
+function renderRides(rides){
+  const root=$("ridesList");
   root.innerHTML="";
 
   if(!rides.length){
@@ -548,13 +578,17 @@ function renderRides(rides,root){
       box.appendChild(c);
     }
 
-    if(r.status==="open" && r.offered_driver_id && r.offer_expires_at){
+    if(r.status==="open"&&r.offered_driver_id&&r.offer_expires_at){
       const timer=document.createElement("p");
       timer.className="countdown";
 
-      const seconds=Math.max(0,Math.ceil((new Date(r.offer_expires_at)-Date.now())/1000));
+      const seconds=Math.max(
+        0,
+        Math.ceil((new Date(r.offer_expires_at)-Date.now())/1000)
+      );
 
-      const offeredName=r.offered_driver_id===currentUser.id
+      const offeredName=
+        r.offered_driver_id===currentUser.id
         ?"É sua vez!"
         :"Motorista da vez selecionado";
 
@@ -562,7 +596,11 @@ function renderRides(rides,root){
       box.appendChild(timer);
     }
 
-    if(r.status==="open" && r.offered_driver_id===currentUser.id && new Date(r.offer_expires_at)>new Date()){
+    if(
+      r.status==="open" &&
+      r.offered_driver_id===currentUser.id &&
+      new Date(r.offer_expires_at)>new Date()
+    ){
       const accept=document.createElement("button");
       accept.className="green";
       accept.textContent="ACEITAR ESTA CORRIDA";
@@ -576,11 +614,9 @@ function renderRides(rides,root){
       who.textContent="Motorista: "+(r.assigned_driver_name||"Aguardando dados do motorista");
 
       if(r.assigned_vehicle_model||r.assigned_vehicle_color||r.assigned_vehicle_plate){
-        who.textContent+=" | Veículo: "+[
-          r.assigned_vehicle_model,
-          r.assigned_vehicle_color,
-          r.assigned_vehicle_plate
-        ].filter(Boolean).join(" - ");
+        who.textContent+=" | Veículo: "+
+          [r.assigned_vehicle_model,r.assigned_vehicle_color,r.assigned_vehicle_plate]
+          .filter(Boolean).join(" - ");
       }
 
       box.appendChild(who);
@@ -593,52 +629,38 @@ function renderRides(rides,root){
       }
     }
 
-    if(r.status==="open" && !r.offered_driver_id){
+    if(r.status==="open"&&!r.offered_driver_id){
       const wait=document.createElement("p");
       wait.className="small";
       wait.textContent="Aguardando motorista disponível na fila.";
       box.appendChild(wait);
     }
 
-    const created=document.createElement("p");
-    created.className="small";
-    created.textContent="Solicitada: "+dateText(r.created_at);
-    box.appendChild(created);
+    const requested=document.createElement("p");
+    requested.className="small";
+    requested.textContent="Solicitada: "+dateText(r.created_at);
+    box.appendChild(requested);
 
     root.appendChild(box);
   });
 }
 
-/* FILA DE ESPERA */
+/* FILA */
 async function loadQueue(){
   const {data,error}=await db.rpc("get_driver_queue");
 
   if(error){
     $("queueList").textContent="Não foi possível carregar a fila: "+error.message;
-    $("driverQueueList").textContent="Não foi possível carregar a fila: "+error.message;
     return;
   }
 
-  const queue=data||[];
-
-  renderQueue(queue,$("queueList"));
-  renderQueue(queue,$("driverQueueList"));
-
-  const mine=queue.findIndex(q=>q.driver_id===currentUser.id);
-
-  $("myQueueStatus").textContent=mine>=0
-    ?"Você está na posição "+(mine+1)+" da fila."
-    :"Você não está na fila.";
-
-  $("myQueueStatus").className="message "+(mine>=0?"success":"");
-}
-
-function renderQueue(queue,root){
+  const root=$("queueList");
   root.innerHTML="";
+
+  const queue=data||[];
 
   if(!queue.length){
     root.innerHTML='<p class="small">Ninguém na fila neste momento.</p>';
-    return;
   }
 
   queue.forEach((q,i)=>{
@@ -656,6 +678,14 @@ function renderQueue(queue,root){
     row.append(name,time);
     root.appendChild(row);
   });
+
+  const mine=queue.findIndex(q=>q.driver_id===currentUser.id);
+
+  $("myQueueStatus").textContent=mine>=0
+    ?"Você está na posição "+(mine+1)+" da fila."
+    :"Você não está na fila.";
+
+  $("myQueueStatus").className="message "+(mine>=0?"success":"");
 }
 
 /* ENTRAR E SAIR DA FILA */
@@ -738,7 +768,7 @@ async function acceptRide(ride){
     if(ride.customer_phone){
       const phone=String(ride.customer_phone).replace(/\D/g,"");
 
-      if(phone && confirm("Deseja abrir o WhatsApp do cliente com a mensagem pronta?")){
+      if(phone&&confirm("Deseja abrir o WhatsApp do cliente com a mensagem pronta?")){
         window.open(
           "https://wa.me/"+phone+"?text="+encodeURIComponent(customerMessage),
           "_blank",
@@ -852,6 +882,7 @@ async function loadAdminData(){
     actions.className="actions";
 
     addAction(actions,"VER CNH","blue",()=>viewDocument(d.cnh_document_path,"CNH"));
+
     addAction(actions,"VER CRLV","blue",()=>viewDocument(d.vehicle_document_path,"Documento do veículo"));
 
     if(d.approval_status!=="approved"){
@@ -872,14 +903,20 @@ async function loadAdminData(){
   });
 }
 
-/* TEMPO REAL */
+/* ATUALIZAÇÃO EM TEMPO REAL */
 function subscribeRealtime(){
   if(realtimeChannel)db.removeChannel(realtimeChannel);
 
   realtimeChannel=db.channel("nerocar-central-live")
-    .on("postgres_changes",{event:"*",schema:"public",table:"rides"},()=>refreshAll())
-    .on("postgres_changes",{event:"*",schema:"public",table:"drivers"},()=>refreshAll())
-    .on("postgres_changes",{event:"*",schema:"public",table:"driver_queue"},()=>loadQueue())
+    .on("postgres_changes",{
+      event:"*",schema:"public",table:"rides"
+    },()=>refreshAll())
+    .on("postgres_changes",{
+      event:"*",schema:"public",table:"drivers"
+    },()=>refreshAll())
+    .on("postgres_changes",{
+      event:"*",schema:"public",table:"driver_queue"
+    },()=>loadQueue())
     .subscribe();
 }
 
@@ -910,7 +947,10 @@ $("loginForm").addEventListener("submit",async e=>{
 /* SAIR */
 $("logout").addEventListener("click",async()=>{
   if(refreshTimer)clearInterval(refreshTimer);
-  if(realtimeChannel)await db.removeChannel(realtimeChannel);
+
+  if(realtimeChannel){
+    await db.removeChannel(realtimeChannel);
+  }
 
   realtimeChannel=null;
   refreshTimer=null;
@@ -928,6 +968,7 @@ $("logout").addEventListener("click",async()=>{
 $("joinQueue").addEventListener("click",joinQueue);
 $("leaveQueue").addEventListener("click",leaveQueue);
 
+/* SESSÃO */
 db.auth.onAuthStateChange((event)=>{
   if(event==="SIGNED_OUT"){
     if(refreshTimer)clearInterval(refreshTimer);
@@ -935,7 +976,7 @@ db.auth.onAuthStateChange((event)=>{
   }
 });
 
-/* INICIAR */
+/* INICIALIZAÇÃO */
 (async()=>{
   const {data}=await db.auth.getSession();
 
@@ -949,4 +990,3 @@ db.auth.onAuthStateChange((event)=>{
 
 </body>
 </html>
-```
