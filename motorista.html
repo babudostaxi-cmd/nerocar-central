@@ -47,7 +47,7 @@ button:disabled{opacity:.5}
 .chat-area h3{color:#f5c400;margin-top:0}
 .chat-lista{height:260px;overflow-y:auto;background:#111;border:1px solid #383838;border-radius:10px;padding:12px;margin:12px 0}
 .chat-vazio{text-align:center;color:#888;font-size:13px;padding:25px 5px}
-.chat-mensagem{max-width:88%;padding:10px 12px;border-radius:12px;margin:8px 0;overflow-wrap:anywhere;font-size:14px;line-height:1.4}
+.chat-mensagem{max-width:88%;padding:10px 12px;border-radius:12px;margin:8px 0;overflow-wrap:anywhere;font-size:14px;line-height:1.4;position:relative;z-index:2;pointer-events:auto}
 .chat-mensagem.motorista{background:#514400;margin-left:auto;color:white}
 .chat-mensagem.passageiro{background:#303030;margin-right:auto;color:white}
 .chat-autor{font-size:11px;color:#f5c400;font-weight:bold;margin-bottom:4px}
@@ -56,19 +56,27 @@ button:disabled{opacity:.5}
 .chat-envio input{margin:0;min-width:0;flex:1}
 .chat-envio button{width:auto;min-width:90px;margin:0;padding:14px 10px}
 
-/* LINK CLICÁVEL DA LOCALIZAÇÃO */
+/* LINKS CLICÁVEIS NO CHAT */
 .link-localizacao{
  display:inline-block;
+ position:relative;
+ z-index:5;
+ pointer-events:auto;
+ cursor:pointer;
  margin-top:6px;
- padding:9px 12px;
+ padding:10px 12px;
  background:#176b3a;
  color:#fff!important;
  border-radius:7px;
  font-weight:bold;
- text-decoration:none;
+ text-decoration:none!important;
 }
-.link-localizacao:hover{
- background:#21894b;
+.link-localizacao:hover{background:#21894b}
+.chat-mensagem a{
+ position:relative;
+ z-index:5;
+ pointer-events:auto;
+ cursor:pointer;
 }
 
 /* Modo foco: quando chega uma corrida, deixa somente o atendimento na tela. */
@@ -94,7 +102,6 @@ body.modo-corrida #painelCorrida{
   box-shadow:0 0 35px #0009;
 }
 body.modo-corrida #toastContainer{z-index:10000}
-
 </style>
 </head>
 <body>
@@ -213,8 +220,6 @@ let alertaAtivado=false;
 let ultimaCorridaAlertada=null;
 let ultimaCorridaCanceladaNotificada=null;
 
-/* Guarda a última corrida recebida para identificar encaminhamentos
-   mesmo depois que ela desaparecer da tela do motorista. */
 let ultimaCorridaMonitorada=sessionStorage.getItem("nerocar_ultima_corrida_monitorada")||null;
 let ultimaCorridaEncaminhadaNotificada=sessionStorage.getItem("nerocar_ultima_corrida_encaminhada_notificada")||null;
 
@@ -573,8 +578,6 @@ return;
 
 mostrarCorrida(data);
 }else{
-/* A consulta da corrida ativa não encontrou mais a chamada.
-   Usa o ID salvo para confirmar se ela foi enviada a outro motorista. */
 if(idAnterior){
 const {data:resultadoEncaminhamento,error:erroEncaminhamento}=await db.rpc(
 "verificar_encaminhamento_corrida_motorista",
@@ -600,7 +603,6 @@ ultimaCorridaMonitorada=null;
 sessionStorage.removeItem("nerocar_ultima_corrida_monitorada");
 await atualizarStatus();
 }else{
-/* Se não foi encaminhada, verifica se o passageiro cancelou. */
 const {data:resultado,error:erroStatus}=await db.rpc(
 "verificar_cancelamento_corrida_motorista",
 {p_corrida_id:idAnterior}
@@ -634,7 +636,7 @@ consultando=false;
 }
 }
 
-/* CONVERTE O LINK DE LOCALIZAÇÃO EM UM BOTÃO CLICÁVEL */
+/* CONVERTE LINKS DE LOCALIZAÇÃO EM LINKS CLICÁVEIS */
 function escaparHTML(texto){
 return String(texto??"").replace(/[&<>"']/g,function(caractere){
 return {
@@ -649,24 +651,75 @@ return {
 
 function formatarMensagem(texto){
 const conteudo=String(texto??"");
-const regex=/https:\/\/www\.google\.com\/maps\?q=-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?/g;
+
+/* Reconhece links completos e formatos comuns do Google Maps */
+const regex=/(?:https?:\/\/[^\s<>"']+|(?:www\.)?google\.com\/maps[^\s<>"']*|maps\.app\.goo\.gl\/[^\s<>"']*|goo\.gl\/maps[^\s<>"']*)/gi;
 
 let resultado="";
 let inicio=0;
 let encontrado;
 
 while((encontrado=regex.exec(conteudo))!==null){
+
 resultado+=escaparHTML(conteudo.slice(inicio,encontrado.index));
 
-const link=encontrado[0];
+let link=encontrado[0];
+let pontuacao="";
+
+/* Retira pontuação que não faz parte do endereço */
+while(/[.,!?;:)\]]$/.test(link)){
+pontuacao=link.slice(-1)+pontuacao;
+link=link.slice(0,-1);
+}
+
+let href=link;
+
+if(/^(www\.|google\.com\/|maps\.app\.goo\.gl\/|goo\.gl\/)/i.test(href)){
+href="https://"+href;
+}
+
+try{
+const url=new URL(href);
+
+if(!["http:","https:"].includes(url.protocol)){
+throw new Error("Link inválido");
+}
+
+const host=url.hostname.toLowerCase();
+
+const ehGoogleMaps=
+host==="google.com"||
+host.endsWith(".google.com")||
+host==="maps.app.goo.gl"||
+host==="goo.gl";
+
+if(ehGoogleMaps){
 
 resultado+=`<a class="link-localizacao"
-href="${escaparHTML(link)}"
+href="${escaparHTML(url.href)}"
 target="_blank"
-rel="noopener noreferrer">
+rel="noopener noreferrer"
+aria-label="Abrir localização no Google Maps">
 📍 ABRIR LOCALIZAÇÃO NO GOOGLE MAPS
 </a>`;
 
+}else{
+
+resultado+=`<a
+href="${escaparHTML(url.href)}"
+target="_blank"
+rel="noopener noreferrer"
+style="color:#80caff;text-decoration:underline;cursor:pointer;position:relative;z-index:5">
+${escaparHTML(link)}
+</a>`;
+
+}
+
+}catch(e){
+resultado+=escaparHTML(link);
+}
+
+resultado+=escaparHTML(pontuacao);
 inicio=regex.lastIndex;
 }
 
@@ -711,8 +764,6 @@ autor.className="chat-autor";
 autor.textContent=sou?"Você":"Passageiro";
 
 const txt=document.createElement("div");
-
-/* Aqui o link da localização passa a ser clicável */
 txt.innerHTML=formatarMensagem(m.message||"");
 
 const hora=document.createElement("div");
@@ -727,9 +778,6 @@ lista.scrollTop=lista.scrollHeight;
 }catch(e){
 const erroMensagem=String(e?.message||e);
 
-/* Depois que a corrida é transferida, o motorista anterior perde
-   autorização para consultar o chat. Usa esse retorno para confirmar
-   o encaminhamento e avisá-lo, em vez de deixar apenas o erro do chat. */
 if(erroMensagem.toLowerCase().includes("motorista não autorizado")){
 try{
 const {data:resultadoEncaminhamento,error:erroEncaminhamento}=await db.rpc(
