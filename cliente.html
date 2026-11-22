@@ -177,12 +177,12 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
 <script>
 const SUPABASE_URL="https://xfwkwcpnyvhvmreidqck.supabase.co";
-const SUPABASE_KEY="sb_publishable_S9Ztcv3nh0EhzUl8VMeLmg_nQuBJ1hR";
+const SUPABASE_KEY="sb_publishable_S9Ztcv3nh0EhzUl8VMeLmg_nQuBJ1h";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 let corridaId=sessionStorage.getItem("nerocar_corrida_id");
 let passageiroToken=sessionStorage.getItem("nerocar_passageiro_token");
-let nomePassageiro=sessionStorage.getItem("nerocar_nome_passageiro")||"Passageiro";
+let nomePassageiro=localStorage.getItem("nerocar_nome_passageiro")||"Passageiro";
 
 let intervaloAcompanhamento=null;
 let intervaloMensagens=null;
@@ -209,6 +209,13 @@ const areaChat=document.getElementById("areaChat");
 const mensagens=document.getElementById("mensagens");
 const btnSolicitar=document.getElementById("btnSolicitar");
 const btnNovaCorrida=document.getElementById("btnNovaCorrida");
+
+// RECUPERA O NOME SALVO NO CELULAR OU COMPUTADOR
+const nomeSalvo=localStorage.getItem("nerocar_nome_passageiro");
+
+if(nomeSalvo){
+ document.getElementById("nome").value=nomeSalvo;
+}
 
 function escaparHTML(valor){
  return String(valor??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"})[c]);
@@ -395,6 +402,9 @@ async function solicitarCorrida(){
   sessionStorage.setItem("nerocar_corrida_id",String(corridaId));
   sessionStorage.setItem("nerocar_passageiro_token",String(passageiroToken));
   sessionStorage.setItem("nerocar_nome_passageiro",nome);
+
+  // SALVA O NOME PARA AS PRÓXIMAS SOLICITAÇÕES
+  localStorage.setItem("nerocar_nome_passageiro",nome);
 
   document.getElementById("nomePassageiroFixo").textContent=nome;
 
@@ -781,14 +791,17 @@ function novaCorrida(){
 
  corridaId=null;
  passageiroToken=null;
- nomePassageiro="Passageiro";
+ nomePassageiro=localStorage.getItem("nerocar_nome_passageiro")||"Passageiro";
  ultimoStatus="";
  ultimoMotorista="";
  ultimoAssignedAtPassageiro="";
  ultimaMensagemId="";
  primeiraLeituraChat=true;
 
- document.getElementById("nome").value="";
+ // MANTÉM O NOME SALVO NO CAMPO
+ document.getElementById("nome").value=
+  localStorage.getItem("nerocar_nome_passageiro")||"";
+
  document.getElementById("endereco").value="";
  document.getElementById("referencia").value="";
  document.getElementById("nomePassageiroFixo").textContent="Aguardando...";
