@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -6,16 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nerocar Central</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#f3f5f8;color:#20252d}
-.hidden{display:none!important}
-
-/* LOGIN */
-.login{max-width:410px;margin:9vh auto;background:white;padding:25px;border-radius:15px;box-shadow:0 3px 15px #00000012}
-.logo{font-size:25px;font-weight:bold;color:#e8b900}
+header{background:#17191f;color:#fff;padding:17px 22px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.logo{font-size:24px;font-weight:bold;color:#f5c400}
+header small{color:#ddd}
+header button,.secondary{background:#343943;color:white;border:0;padding:10px 15px;border-radius:8px;cursor:pointer}
+.container{max-width:1250px;margin:24px auto;padding:0 16px}
+.card{background:#fff;padding:19px;border-radius:13px;box-shadow:0 2px 10px #0000000b}
+.login{max-width:410px;margin:9vh auto}
 input,textarea{width:100%;padding:12px;margin:7px 0;border:1px solid #d9dde4;border-radius:8px;font-size:15px}
+textarea{min-height:75px;resize:vertical}
 button{cursor:pointer}
 button:disabled{opacity:.45;cursor:not-allowed}
 .primary{background:#e8b900;color:#17191f;border:0;padding:13px 16px;border-radius:8px;font-weight:bold}
@@ -23,42 +24,16 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .green{background:#168447;color:white;border:0;padding:12px 16px;border-radius:8px;font-weight:bold}
 .red{background:#b72c2c;color:white;border:0;padding:10px 13px;border-radius:8px}
 .blue{background:#e6edff;color:#234b9b;border:0;padding:8px 10px;border-radius:6px}
-.secondary{background:#343943;color:white;border:0;padding:10px 15px;border-radius:8px}
-
-/* CABEÇALHO */
-header{height:70px;background:#17191f;color:white;padding:12px 22px;display:flex;justify-content:space-between;align-items:center;gap:12px}
-header small{color:#ddd}
-header button{background:#343943;color:white;border:0;padding:10px 15px;border-radius:8px}
-
-/* ESTRUTURA */
-.layout{display:flex;min-height:calc(100vh - 70px)}
-.sidebar{width:245px;flex-shrink:0;background:#20232b;padding:22px 13px;color:white}
-.sidebar-title{font-size:11px;color:#999;padding:10px 12px;text-transform:uppercase;letter-spacing:1px}
-.nav-button{width:100%;display:flex;align-items:center;gap:12px;text-align:left;padding:13px 14px;margin:4px 0;border:0;border-radius:9px;background:transparent;color:#d7d9df;font-size:14px;font-weight:bold}
-.nav-button:hover{background:#30343e}
-.nav-button.active{background:#e8b900;color:#17191f}
-.nav-icon{width:22px;text-align:center;font-size:17px}
-.main-content{flex:1;min-width:0;padding:25px}
-.page-header{margin-bottom:20px}
-.page-header h1{font-size:24px;margin:0 0 7px}
-.page-header p{font-size:13px;color:#777;margin:0}
-.page{display:none}
-.page.active{display:block}
-
-/* CARDS E INDICADORES */
-.card{background:#fff;padding:19px;border-radius:13px;box-shadow:0 2px 10px #0000000b}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin:18px 0}
-.stat span,.small{font-size:12px;color:#777}
 .stat strong{font-size:29px;display:block;margin-top:8px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.stat span,.small{font-size:12px;color:#777}
 .section{margin-top:18px}
-h2{font-size:19px;margin-top:0}
+h1,h2,h3{margin-top:0}
+h2{font-size:19px}
 .message{padding:11px;border-radius:8px;margin:10px 0;overflow-wrap:anywhere}
 .error{background:#ffe5e5;color:#a00000}
 .success{background:#e4f7e9;color:#176b31}
-.badge{display:inline-block;padding:5px 8px;border-radius:6px;background:#f1f1f1;font-size:12px}
-
-/* TABELA */
+.hidden{display:none!important}
 .table-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse}
 th,td{text-align:left;padding:11px;border-bottom:1px solid #eee;font-size:13px;vertical-align:middle}
@@ -68,925 +43,350 @@ th{color:#777}
 .btn-approve{background:#d9f5e2;color:#176b31}
 .btn-reject{background:#ffe3e3;color:#a00000}
 .btn-suspend{background:#fff0d5;color:#8a5700}
-
-/* CORRIDAS E FILA */
+.badge{display:inline-block;padding:5px 8px;border-radius:6px;background:#f1f1f1;font-size:12px}
 .ride{border:1px solid #e5e8ee;border-radius:11px;padding:15px;margin:12px 0}
 .ride-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .address{margin:9px 0;line-height:1.5}
-.queue-item{display:flex;justify-content:space-between;gap:10px;padding:12px;border-bottom:1px solid #eee}
+.queue-item{display:flex;justify-content:space-between;gap:10px;padding:10px;border-bottom:1px solid #eee}
 .countdown{font-weight:bold;color:#b07800}
-#lastUpdate{margin-top:20px}
-
-/* MOBILE */
-@media(max-width:850px){
- .layout{display:block}
- .sidebar{width:100%;padding:10px;display:flex;gap:6px;overflow-x:auto}
- .sidebar-title{display:none}
- .nav-button{width:auto;min-width:max-content;margin:0;padding:11px 13px}
- .main-content{padding:16px}
- .stats{grid-template-columns:repeat(2,1fr)}
-}
-@media(max-width:550px){
- header{padding:12px}
- header .logo{font-size:21px}
- .main-content{padding:12px}
- .stats{gap:9px}
- .stat{padding:14px}
- .stat strong{font-size:24px}
- .grid2{grid-template-columns:1fr}
- .page-header h1{font-size:21px}
-}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+@media(max-width:750px){.stats{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}header{padding:14px}.table-wrap table{min-width:780px}}
 </style>
 </head>
-
 <body>
-
-<!-- LOGIN -->
-<div id="loginScreen" class="login">
+<div id="loginScreen" class="login card">
   <div class="logo">NEROCAR</div>
   <h2>Central de Corridas</h2>
   <p class="small">Entre com seu e-mail e senha cadastrados.</p>
-
   <form id="loginForm">
     <input id="email" type="email" placeholder="Seu e-mail" required>
     <input id="password" type="password" placeholder="Sua senha" required>
     <button class="primary full" type="submit">ENTRAR NO PAINEL</button>
   </form>
-
   <div id="loginMessage"></div>
 </div>
 
-<!-- APLICAÇÃO -->
 <div id="app" class="hidden">
-
 <header>
-  <div>
-    <div class="logo">NEROCAR</div>
-    <small>Central de Corridas</small>
-  </div>
-  <div>
-    <span id="headerUser" class="small" style="color:#eee;margin-right:12px"></span>
-    <button id="logout">Sair</button>
-  </div>
+  <div><div class="logo">NEROCAR</div><small>Central de Corridas</small></div>
+  <div><span id="headerUser" class="small" style="color:#eee;margin-right:12px"></span><button id="logout">Sair</button></div>
 </header>
+<main class="container">
+  <h2 id="pageTitle">Painel</h2>
+  <p class="small" id="welcome"></p>
+  <div id="globalMessage"></div>
 
-<div class="layout">
-
-  <!-- MENU LATERAL -->
-  <aside class="sidebar">
-
-    <div class="sidebar-title">Menu principal</div>
-
-    <button class="nav-button" data-page="overviewPage" id="navOverview">
-      <span class="nav-icon">▦</span> Visão geral
-    </button>
-
-    <button class="nav-button" data-page="driversPage" id="navDrivers">
-      <span class="nav-icon">♙</span> Motoristas
-    </button>
-
-    <button class="nav-button" data-page="queuePage">
-      <span class="nav-icon">☷</span> Fila de espera
-    </button>
-
-    <button class="nav-button" data-page="ridesPage">
-      <span class="nav-icon">🚘</span> Chamadas de corrida
-    </button>
-
-    <button class="nav-button hidden" data-page="availabilityPage" id="navAvailability">
-      <span class="nav-icon">●</span> Minha disponibilidade
-    </button>
-
-  </aside>
-
-  <!-- CONTEÚDO -->
-  <main class="main-content">
-
-    <div class="page-header">
-      <h1 id="pageTitle">Visão geral</h1>
-      <p id="welcome"></p>
+  <section id="driverArea" class="hidden">
+    <div class="card">
+      <h2>Sua disponibilidade</h2>
+      <p id="driverApprovalText" class="small">Verificando aprovação...</p>
+      <div class="grid2">
+        <button id="joinQueue" class="green">ENTRAR NA FILA</button>
+        <button id="leaveQueue" class="secondary">SAIR DA FILA</button>
+      </div>
+      <p class="small">Ao aceitar uma corrida, você sai da fila. Quando terminar a viagem, entre novamente para participar das próximas chamadas.</p>
+      <div id="myQueueStatus" class="message"></div>
     </div>
+  </section>
 
-    <div id="globalMessage"></div>
+  <section class="card section">
+    <h2>Fila de espera</h2>
+    <div id="queueList"><p class="small">Carregando fila...</p></div>
+  </section>
 
-    <!-- VISÃO GERAL ADMIN -->
-    <section id="overviewPage" class="page">
+  <section class="card section">
+    <div class="ride-top"><h2>Chamadas de corrida</h2><span class="badge">Visível para todos</span></div>
+    <p class="small">As chamadas aparecem aqui com endereço de embarque e destino. A oportunidade é enviada ao primeiro motorista da fila, com 60 segundos para aceitar.</p>
+    <div id="ridesList"><p class="small">Carregando chamadas...</p></div>
+  </section>
 
-      <div class="stats">
-
-        <div class="card stat">
-          <span>Motoristas cadastrados</span>
-          <strong id="totalDrivers">0</strong>
-        </div>
-
-        <div class="card stat">
-          <span>Motoristas online</span>
-          <strong id="onlineDrivers">0</strong>
-        </div>
-
-        <div class="card stat">
-          <span>Corridas disponíveis</span>
-          <strong id="openRides">0</strong>
-        </div>
-
-        <div class="card stat">
-          <span>Corridas aceitas</span>
-          <strong id="acceptedRides">0</strong>
-        </div>
-
-      </div>
-
-      <div class="card section">
-        <h2>Bem-vindo à Nerocar Central</h2>
-        <p class="small">
-          Utilize o menu lateral para administrar motoristas,
-          acompanhar a fila de espera e visualizar as chamadas de corrida.
-        </p>
-      </div>
-
-    </section>
-
-    <!-- MOTORISTAS -->
-    <section id="driversPage" class="page">
-
-      <div class="card">
-        <h2>Gerenciamento de motoristas</h2>
-        <p class="small">
-          Confira os documentos e aprove ou altere a situação dos motoristas.
-        </p>
-
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>Telefone</th>
-                <th>Veículo</th>
-                <th>Placa</th>
-                <th>Aprovação</th>
-                <th>Disponibilidade</th>
-                <th>Documentos e ações</th>
-              </tr>
-            </thead>
-            <tbody id="driversTable">
-              <tr><td colspan="7">Carregando...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- FILA -->
-    <section id="queuePage" class="page">
-
-      <div class="card">
-        <h2>Fila de espera</h2>
-        <p class="small">
-          Acompanhe os motoristas que estão aguardando chamadas.
-        </p>
-        <div id="queueList">
-          <p class="small">Carregando fila...</p>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- CORRIDAS -->
-    <section id="ridesPage" class="page">
-
-      <div class="card">
-        <div class="ride-top">
-          <h2>Chamadas de corrida</h2>
-          <span class="badge">Visível para todos</span>
-        </div>
-
-        <p class="small">
-          As chamadas aparecem aqui com endereço de embarque e destino.
-          A oportunidade é enviada ao primeiro motorista da fila.
-        </p>
-
-        <div id="ridesList">
-          <p class="small">Carregando chamadas...</p>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- DISPONIBILIDADE MOTORISTA -->
-    <section id="availabilityPage" class="page">
-
-      <div class="card">
-        <h2>Sua disponibilidade</h2>
-        <p id="driverApprovalText" class="small">Verificando aprovação...</p>
-
-        <div class="grid2">
-          <button id="joinQueue" class="green">ENTRAR NA FILA</button>
-          <button id="leaveQueue" class="secondary">SAIR DA FILA</button>
-        </div>
-
-        <p class="small">
-          Ao aceitar uma corrida, você sai da fila.
-          Quando terminar a viagem, entre novamente para participar das próximas chamadas.
-        </p>
-
-        <div id="myQueueStatus" class="message"></div>
-      </div>
-
-    </section>
-
-    <p class="small" id="lastUpdate"></p>
-
-  </main>
-</div>
+  <section id="adminArea" class="hidden">
+    <div class="stats">
+      <div class="card stat"><span>Motoristas cadastrados</span><strong id="totalDrivers">0</strong></div>
+      <div class="card stat"><span>Motoristas online</span><strong id="onlineDrivers">0</strong></div>
+      <div class="card stat"><span>Corridas disponíveis</span><strong id="openRides">0</strong></div>
+      <div class="card stat"><span>Corridas aceitas</span><strong id="acceptedRides">0</strong></div>
+    </div>
+    <div class="card section">
+      <h2>Gerenciamento de motoristas</h2>
+      <p class="small">Confira os documentos e aprove ou altere a situação dos motoristas.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Nome</th><th>Telefone</th><th>Veículo</th><th>Placa</th><th>Aprovação</th><th>Disponibilidade</th><th>Documentos e ações</th></tr></thead>
+        <tbody id="driversTable"><tr><td colspan="7">Carregando...</td></tr></tbody>
+      </table></div>
+    </div>
+  </section>
+  <p class="small" id="lastUpdate"></p>
+</main>
 </div>
 
 <script>
 const SUPABASE_URL = "https://lgemdswryijvphzuluih.supabase.co";
 const SUPABASE_KEY = "sb_publishable_5pC0rg4nYow7EifhFiksSg_mr4cM0cK";
 const BUCKET = "nerocar-documentos";
-
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const $ = id => document.getElementById(id);
-
-let currentUser = null;
-let currentProfile = null;
-let currentDriver = null;
-let realtimeChannel = null;
-let refreshTimer = null;
-let busyDispatch = false;
+let currentUser = null, currentProfile = null, currentDriver = null;
+let realtimeChannel = null, refreshTimer = null, busyDispatch = false;
 let lastRides = [];
 
-const pageNames = {
-  overviewPage:"Visão geral",
-  driversPage:"Motoristas",
-  queuePage:"Fila de espera",
-  ridesPage:"Chamadas de corrida",
-  availabilityPage:"Minha disponibilidade"
-};
-
-/* MENU */
-function openPage(pageId){
-  const page=$(pageId);
-  if(!page)return;
-
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.querySelectorAll(".nav-button").forEach(b=>b.classList.remove("active"));
-
-  page.classList.add("active");
-
-  const button=document.querySelector('[data-page="'+pageId+'"]');
-  if(button)button.classList.add("active");
-
-  $("pageTitle").textContent=pageNames[pageId]||"Nerocar";
-  clearMessage();
-
-  if(pageId==="driversPage" && currentProfile?.role==="admin"){
-    loadAdminData();
-  }
-  if(pageId==="queuePage")loadQueue();
-  if(pageId==="ridesPage")loadRides();
-}
-
-document.querySelectorAll(".nav-button").forEach(button=>{
-  button.addEventListener("click",()=>{
-    openPage(button.dataset.page);
-  });
-});
-
-/* MENSAGENS */
 function message(text,type="success"){
   $("globalMessage").textContent=text;
   $("globalMessage").className="message "+type;
 }
-function clearMessage(){
-  $("globalMessage").textContent="";
-  $("globalMessage").className="";
-}
+function clearMessage(){ $("globalMessage").textContent=""; $("globalMessage").className=""; }
 function showLogin(text=""){
   $("loginScreen").classList.remove("hidden");
   $("app").classList.add("hidden");
-  if(text){
-    $("loginMessage").textContent=text;
-    $("loginMessage").className="message error";
-  }
+  if(text){$("loginMessage").textContent=text;$("loginMessage").className="message error";}
 }
 function showApp(){
   $("loginScreen").classList.add("hidden");
   $("app").classList.remove("hidden");
 }
-
-/* FUNÇÕES AUXILIARES */
 function addCell(row,value){
-  const td=document.createElement("td");
-  td.textContent=value??"";
-  row.appendChild(td);
-  return td;
+  const td=document.createElement("td"); td.textContent=value??""; row.appendChild(td); return td;
 }
 function addAction(parent,label,cls,fn){
-  const b=document.createElement("button");
-  b.type="button";
-  b.textContent=label;
-  b.className="action "+cls;
-  b.addEventListener("click",()=>fn(b));
-  parent.appendChild(b);
-  return b;
+  const b=document.createElement("button"); b.type="button"; b.textContent=label; b.className="action "+cls;
+  b.addEventListener("click",()=>fn(b)); parent.appendChild(b); return b;
 }
 function money(value){
-  if(value===null||value===undefined||value==="")return "A combinar";
+  if(value===null||value===undefined||value==="") return "A combinar";
   return Number(value).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 }
-function dateText(value){
-  return value?new Date(value).toLocaleString("pt-BR"):"";
-}
-function approvalLabel(s){
-  return ({
-    pending:"Pendente",
-    approved:"Aprovado",
-    rejected:"Rejeitado",
-    suspended:"Suspenso"
-  })[s]||s||"Não informado";
-}
+function dateText(value){return value?new Date(value).toLocaleString("pt-BR"):"";}
+function approvalLabel(s){return ({pending:"Pendente",approved:"Aprovado",rejected:"Rejeitado",suspended:"Suspenso"})[s]||s||"Não informado";}
 
-/* IDENTIFICAÇÃO */
 async function loadIdentity(){
   const {data:{user},error}=await db.auth.getUser();
-
-  if(error||!user){
-    showLogin(error?.message||"Faça login novamente.");
-    return false;
-  }
-
+  if(error||!user){showLogin(error?.message||"Faça login novamente.");return false;}
   currentUser=user;
-
-  const {data:profile,error:profileError}=await db
-    .from("profiles")
-    .select("id,full_name,phone,role")
-    .eq("id",user.id)
-    .maybeSingle();
-
-  if(profileError||!profile){
-    showLogin(profileError?.message||"Perfil não encontrado.");
-    return false;
-  }
-
+  const {data:profile,error:profileError}=await db.from("profiles").select("id,full_name,phone,role").eq("id",user.id).maybeSingle();
+  if(profileError||!profile){showLogin(profileError?.message||"Perfil não encontrado.");return false;}
   currentProfile=profile;
-
-  const {data:driver}=await db
-    .from("drivers")
-    .select("*")
-    .eq("id",user.id)
-    .maybeSingle();
-
+  const {data:driver}=await db.from("drivers").select("*").eq("id",user.id).maybeSingle();
   currentDriver=driver||null;
-
   $("headerUser").textContent=profile.full_name||user.email;
   $("welcome").textContent="Bem-vindo, "+(profile.full_name||user.email);
-
-  const isAdmin=profile.role==="admin";
-  const isDriver=profile.role==="driver";
-
-  $("navOverview").classList.toggle("hidden",!isAdmin);
-  $("navDrivers").classList.toggle("hidden",!isAdmin);
-  $("navAvailability").classList.toggle("hidden",!isDriver);
-
+  $("pageTitle").textContent=profile.role==="admin"?"Painel administrativo":"Painel do motorista";
+  $("adminArea").classList.toggle("hidden",profile.role!=="admin");
+  $("driverArea").classList.toggle("hidden",profile.role!=="driver");
   showApp();
-
-  if(isDriver){
-    updateDriverAvailability();
-    openPage("availabilityPage");
-  }else if(isAdmin){
-    openPage("overviewPage");
-  }else{
-    openPage("ridesPage");
-  }
-
+  if(profile.role==="driver") updateDriverAvailability();
   await refreshAll();
   subscribeRealtime();
   startPolling();
-
   return true;
 }
-
-/* DISPONIBILIDADE DO MOTORISTA */
 function updateDriverAvailability(){
   const approved=currentDriver?.approval_status==="approved";
-
-  $("driverApprovalText").textContent=approved
-    ?"Cadastro aprovado. Você pode entrar na fila."
-    :"Seu cadastro está "+approvalLabel(currentDriver?.approval_status).toLowerCase()+". Somente motoristas aprovados podem entrar na fila.";
-
+  $("driverApprovalText").textContent=approved?"Cadastro aprovado. Você pode entrar na fila.":"Seu cadastro está "+approvalLabel(currentDriver?.approval_status).toLowerCase()+". Somente motoristas aprovados podem entrar na fila.";
   $("joinQueue").disabled=!approved;
   $("leaveQueue").disabled=!approved;
 }
-
-/* ATUALIZAÇÃO GERAL */
 async function refreshAll(){
   if(!currentUser)return;
-
   await Promise.all([loadRides(),loadQueue()]);
-
-  if(currentProfile?.role==="admin"){
-    await loadAdminData();
-  }
+  if(currentProfile?.role==="admin") await loadAdminData();
 }
-
-/* CORRIDAS */
 async function loadRides(){
-  const {data,error}=await db
-    .from("rides")
-    .select("*")
-    .order("created_at",{ascending:false})
-    .limit(50);
-
-  if(error){
-    $("ridesList").textContent="Erro ao carregar chamadas: "+error.message;
-    return;
-  }
-
+  const {data,error}=await db.from("rides").select("*").order("created_at",{ascending:false}).limit(50);
+  if(error){$("ridesList").textContent="Erro ao carregar chamadas: "+error.message;return;}
   lastRides=data||[];
   renderRides(lastRides);
-
   $("lastUpdate").textContent="Última atualização: "+new Date().toLocaleTimeString("pt-BR");
-
+  // Cada painel conectado tenta avançar chamadas sem oferta ou com prazo vencido.
   if(!busyDispatch){
     busyDispatch=true;
     try{
       for(const r of lastRides){
-        if(
-          r.status==="open" &&
-          (!r.offered_driver_id ||
-          !r.offer_expires_at ||
-          new Date(r.offer_expires_at)<=new Date())
-        ){
+        if(r.status==="open" && (!r.offered_driver_id || !r.offer_expires_at || new Date(r.offer_expires_at)<=new Date())){
           await db.rpc("advance_ride_offer",{p_ride_id:r.id});
         }
       }
-    }finally{
-      busyDispatch=false;
-    }
+    }finally{busyDispatch=false;}
   }
 }
-
 function renderRides(rides){
-  const root=$("ridesList");
-  root.innerHTML="";
-
-  if(!rides.length){
-    root.innerHTML='<p class="small">Nenhuma chamada de corrida no momento.</p>';
-    return;
-  }
-
+  const root=$("ridesList"); root.innerHTML="";
+  if(!rides.length){root.innerHTML='<p class="small">Nenhuma chamada de corrida no momento.</p>';return;}
   rides.forEach(r=>{
-    const box=document.createElement("article");
-    box.className="ride";
-
-    const top=document.createElement("div");
-    top.className="ride-top";
-
+    const box=document.createElement("article");box.className="ride";
+    const top=document.createElement("div");top.className="ride-top";
     const title=document.createElement("strong");
-    title.textContent=
-      r.status==="open"?"Corrida aguardando motorista":
-      r.status==="accepted"?"Corrida aceita":
-      r.status==="completed"?"Corrida concluída":
-      "Corrida cancelada";
-
+    title.textContent=r.status==="open"?"Corrida aguardando motorista":r.status==="accepted"?"Corrida aceita":r.status==="completed"?"Corrida concluída":"Corrida cancelada";
     top.appendChild(title);
-
-    const fare=document.createElement("span");
-    fare.className="badge";
-    fare.textContent=money(r.fare);
-    top.appendChild(fare);
-    box.appendChild(top);
-
-    const addr=document.createElement("div");
-    addr.className="address";
-    addr.innerHTML="<b>Embarque:</b> ";
-    addr.appendChild(document.createTextNode(r.pickup||"Não informado"));
+    const fare=document.createElement("span");fare.className="badge";fare.textContent=money(r.fare);top.appendChild(fare);box.appendChild(top);
+    const addr=document.createElement("div");addr.className="address";
+    addr.innerHTML="<b>Embarque:</b> ";addr.appendChild(document.createTextNode(r.pickup||"Não informado"));
     addr.appendChild(document.createElement("br"));
-
-    const dest=document.createElement("span");
-    dest.innerHTML="<b>Destino:</b> ";
-    dest.appendChild(document.createTextNode(r.destination||"Não informado"));
-    addr.appendChild(dest);
-    box.appendChild(addr);
-
-    if(r.customer_name){
-      const c=document.createElement("p");
-      c.className="small";
-      c.textContent="Cliente: "+r.customer_name;
-      box.appendChild(c);
-    }
-
-    if(r.status==="open"&&r.offered_driver_id&&r.offer_expires_at){
-      const timer=document.createElement("p");
-      timer.className="countdown";
-
-      const seconds=Math.max(
-        0,
-        Math.ceil((new Date(r.offer_expires_at)-Date.now())/1000)
-      );
-
-      const offeredName=
-        r.offered_driver_id===currentUser.id
-        ?"É sua vez!"
-        :"Motorista da vez selecionado";
-
+    const dest=document.createElement("span");dest.innerHTML="<b>Destino:</b> ";dest.appendChild(document.createTextNode(r.destination||"Não informado"));addr.appendChild(dest);box.appendChild(addr);
+    if(r.customer_name){const c=document.createElement("p");c.className="small";c.textContent="Cliente: "+r.customer_name;box.appendChild(c);}
+    if(r.status==="open" && r.offered_driver_id && r.offer_expires_at){
+      const timer=document.createElement("p");timer.className="countdown";
+      const seconds=Math.max(0,Math.ceil((new Date(r.offer_expires_at)-Date.now())/1000));
+      let offeredName=r.offered_driver_id===currentUser.id?"É sua vez!":"Motorista da vez selecionado";
       timer.textContent=offeredName+" — "+seconds+" segundos restantes";
       box.appendChild(timer);
     }
-
-    if(
-      r.status==="open" &&
-      r.offered_driver_id===currentUser.id &&
-      new Date(r.offer_expires_at)>new Date()
-    ){
-      const accept=document.createElement("button");
-      accept.className="green";
-      accept.textContent="ACEITAR ESTA CORRIDA";
-      accept.addEventListener("click",()=>acceptRide(r));
-      box.appendChild(accept);
+    if(r.status==="open" && r.offered_driver_id===currentUser.id && new Date(r.offer_expires_at)>new Date()){
+      const accept=document.createElement("button");accept.className="green";accept.textContent="ACEITAR ESTA CORRIDA";
+      accept.addEventListener("click",()=>acceptRide(r));box.appendChild(accept);
     }
-
     if(r.status==="accepted"){
-      const who=document.createElement("p");
-      who.className="small";
+      const who=document.createElement("p");who.className="small";
       who.textContent="Motorista: "+(r.assigned_driver_name||"Aguardando dados do motorista");
-
       if(r.assigned_vehicle_model||r.assigned_vehicle_color||r.assigned_vehicle_plate){
-        who.textContent+=" | Veículo: "+
-          [r.assigned_vehicle_model,r.assigned_vehicle_color,r.assigned_vehicle_plate]
-          .filter(Boolean).join(" - ");
+        who.textContent+=" | Veículo: "+[r.assigned_vehicle_model,r.assigned_vehicle_color,r.assigned_vehicle_plate].filter(Boolean).join(" - ");
       }
-
       box.appendChild(who);
-
-      if(r.customer_message){
-        const m=document.createElement("p");
-        m.className="small";
-        m.textContent="Mensagem: "+r.customer_message;
-        box.appendChild(m);
-      }
+      if(r.customer_message){const m=document.createElement("p");m.className="small";m.textContent="Mensagem: "+r.customer_message;box.appendChild(m);}
     }
-
-    if(r.status==="open"&&!r.offered_driver_id){
-      const wait=document.createElement("p");
-      wait.className="small";
-      wait.textContent="Aguardando motorista disponível na fila.";
-      box.appendChild(wait);
+    if(r.status==="open" && !r.offered_driver_id){
+      const wait=document.createElement("p");wait.className="small";wait.textContent="Aguardando motorista disponível na fila.";box.appendChild(wait);
     }
-
-    const requested=document.createElement("p");
-    requested.className="small";
-    requested.textContent="Solicitada: "+dateText(r.created_at);
-    box.appendChild(requested);
-
+    box.appendChild(Object.assign(document.createElement("p"),{className:"small",textContent:"Solicitada: "+dateText(r.created_at)}));
     root.appendChild(box);
   });
 }
-
-/* FILA */
 async function loadQueue(){
   const {data,error}=await db.rpc("get_driver_queue");
-
-  if(error){
-    $("queueList").textContent="Não foi possível carregar a fila: "+error.message;
-    return;
-  }
-
-  const root=$("queueList");
-  root.innerHTML="";
-
+  if(error){$("queueList").textContent="Não foi possível carregar a fila: "+error.message;return;}
+  const root=$("queueList");root.innerHTML="";
   const queue=data||[];
-
-  if(!queue.length){
-    root.innerHTML='<p class="small">Ninguém na fila neste momento.</p>';
-  }
-
+  if(!queue.length){root.innerHTML='<p class="small">Ninguém na fila neste momento.</p>';}
   queue.forEach((q,i)=>{
-    const row=document.createElement("div");
-    row.className="queue-item";
-
-    const name=document.createElement("span");
-    name.textContent=(i+1)+"º — "+q.driver_name+
-      (q.driver_id===currentUser.id?" (você)":"");
-
-    const time=document.createElement("span");
-    time.className="small";
-    time.textContent=dateText(q.joined_at);
-
-    row.append(name,time);
-    root.appendChild(row);
+    const row=document.createElement("div");row.className="queue-item";
+    const name=document.createElement("span");name.textContent=(i+1)+"º — "+q.driver_name+(q.driver_id===currentUser.id?" (você)":"");
+    const time=document.createElement("span");time.className="small";time.textContent=dateText(q.joined_at);
+    row.append(name,time);root.appendChild(row);
   });
-
   const mine=queue.findIndex(q=>q.driver_id===currentUser.id);
-
-  $("myQueueStatus").textContent=mine>=0
-    ?"Você está na posição "+(mine+1)+" da fila."
-    :"Você não está na fila.";
-
+  $("myQueueStatus").textContent=mine>=0?"Você está na posição "+(mine+1)+" da fila.":"Você não está na fila.";
   $("myQueueStatus").className="message "+(mine>=0?"success":"");
 }
-
-/* ENTRAR E SAIR DA FILA */
 async function joinQueue(){
   $("joinQueue").disabled=true;
-
   const {error}=await db.rpc("join_driver_queue");
-
   $("joinQueue").disabled=false;
-
-  if(error){
-    message("Não foi possível entrar na fila: "+error.message,"error");
-    return;
-  }
-
+  if(error){message("Não foi possível entrar na fila: "+error.message,"error");return;}
   message("Você entrou na fila. Aguarde as chamadas no painel.");
   await refreshAll();
 }
-
 async function leaveQueue(){
   $("leaveQueue").disabled=true;
-
   const {error}=await db.rpc("leave_driver_queue");
-
-  if(!error){
-    await db.rpc("set_driver_online",{p_online:false});
-  }
-
+  if(!error) await db.rpc("set_driver_online",{p_online:false});
   $("leaveQueue").disabled=false;
-
-  if(error){
-    message("Não foi possível sair da fila: "+error.message,"error");
-    return;
-  }
-
-  message("Você saiu da fila.");
-  await refreshAll();
+  if(error){message("Não foi possível sair da fila: "+error.message,"error");return;}
+  message("Você saiu da fila.");await refreshAll();
 }
-
-/* ACEITAR CORRIDA */
 async function acceptRide(ride){
   if(!confirm("Deseja aceitar esta corrida? Você terá que informar os dados do veículo em seguida."))return;
-
   const {error}=await db.rpc("accept_ride_offer",{p_ride_id:ride.id});
-
-  if(error){
-    message("Não foi possível aceitar: "+error.message,"error");
-    await refreshAll();
-    return;
-  }
-
+  if(error){message("Não foi possível aceitar: "+error.message,"error");await refreshAll();return;}
   const name=prompt("Nome do motorista:",currentProfile.full_name||"");
-
-  if(name===null){
-    message("Corrida aceita. Preencha os dados do veículo depois pelo suporte administrativo.");
-    await refreshAll();
-    return;
-  }
-
+  if(name===null){message("Corrida aceita. Preencha os dados do veículo depois pelo suporte administrativo.");await refreshAll();return;}
   const model=prompt("Modelo do carro:",currentDriver?.vehicle_model||"")||"";
   const color=prompt("Cor do carro:")||"";
   const plate=prompt("Placa do carro:",currentDriver?.vehicle_plate||"")||"";
-
   const customerMessage="Olá! Sou "+name+", motorista da Nerocar. Já estou indo buscar você.";
-
   const {error:saveError}=await db.rpc("save_ride_driver_details",{
-    p_ride_id:ride.id,
-    p_driver_name:name,
-    p_vehicle_model:model,
-    p_vehicle_color:color,
-    p_vehicle_plate:plate,
-    p_customer_message:customerMessage
+    p_ride_id:ride.id,p_driver_name:name,p_vehicle_model:model,
+    p_vehicle_color:color,p_vehicle_plate:plate,p_customer_message:customerMessage
   });
-
-  if(saveError){
-    message("Corrida aceita, mas não foi possível salvar os dados: "+saveError.message,"error");
-  }else{
+  if(saveError){message("Corrida aceita, mas não foi possível salvar os dados: "+saveError.message,"error");}
+  else{
     message("Corrida aceita! Seus dados foram registrados.");
-
     if(ride.customer_phone){
       const phone=String(ride.customer_phone).replace(/\D/g,"");
-
-      if(phone&&confirm("Deseja abrir o WhatsApp do cliente com a mensagem pronta?")){
-        window.open(
-          "https://wa.me/"+phone+"?text="+encodeURIComponent(customerMessage),
-          "_blank",
-          "noopener"
-        );
+      if(phone && confirm("Deseja abrir o WhatsApp do cliente com a mensagem pronta?")){
+        window.open("https://wa.me/"+phone+"?text="+encodeURIComponent(customerMessage),"_blank","noopener");
       }
     }
   }
-
   await refreshAll();
 }
-
-/* ADMINISTRAÇÃO DE MOTORISTAS */
 async function changeDriverStatus(id,status,button){
-  const labels={
-    approved:"aprovar",
-    rejected:"rejeitar",
-    suspended:"suspender"
-  };
-
+  const labels={approved:"aprovar",rejected:"rejeitar",suspended:"suspender"};
   if(!confirm("Tem certeza que deseja "+labels[status]+" este motorista?"))return;
-
   button.disabled=true;
-
-  const {error}=await db.rpc("admin_set_driver_status",{
-    p_driver_id:id,
-    p_status:status
-  });
-
+  const {error}=await db.rpc("admin_set_driver_status",{p_driver_id:id,p_status:status});
   button.disabled=false;
-
-  if(error){
-    message("Não foi possível alterar o cadastro: "+error.message,"error");
-    return;
-  }
-
-  message("Situação do motorista atualizada.");
-  await loadAdminData();
+  if(error){message("Não foi possível alterar o cadastro: "+error.message,"error");return;}
+  message("Situação do motorista atualizada.");await loadAdminData();
 }
-
 async function viewDocument(path,label){
-  if(!path){
-    message(label+" ainda não foi enviado ou não está vinculado ao cadastro.","error");
-    return;
-  }
-
+  if(!path){message(label+" ainda não foi enviado ou não está vinculado ao cadastro.","error");return;}
   const {data,error}=await db.storage.from(BUCKET).createSignedUrl(path,300);
-
-  if(error){
-    message("Erro ao abrir documento: "+error.message,"error");
-    return;
-  }
-
+  if(error){message("Erro ao abrir documento: "+error.message,"error");return;}
   window.open(data.signedUrl,"_blank","noopener");
 }
-
 async function loadAdminData(){
   const [dr,pr,rr]=await Promise.all([
     db.from("drivers").select("*"),
     db.from("profiles").select("id,full_name,phone"),
     db.from("rides").select("id,status")
   ]);
-
   const err=dr.error||pr.error||rr.error;
-
-  if(err){
-    message("Erro ao carregar dados administrativos: "+err.message,"error");
-    return;
-  }
-
-  const drivers=dr.data||[];
-  const profiles=pr.data||[];
-  const rides=rr.data||[];
-
-  const pm={};
-  profiles.forEach(p=>pm[p.id]=p);
-
+  if(err){message("Erro ao carregar dados administrativos: "+err.message,"error");return;}
+  const drivers=dr.data||[],profiles=pr.data||[],rides=rr.data||[];
+  const pm={};profiles.forEach(p=>pm[p.id]=p);
   $("totalDrivers").textContent=drivers.length;
-
-  $("onlineDrivers").textContent=drivers.filter(
-    d=>d.is_online&&d.approval_status==="approved"
-  ).length;
-
+  $("onlineDrivers").textContent=drivers.filter(d=>d.is_online&&d.approval_status==="approved").length;
   $("openRides").textContent=rides.filter(r=>r.status==="open").length;
   $("acceptedRides").textContent=rides.filter(r=>r.status==="accepted").length;
-
-  const tbody=$("driversTable");
-  tbody.innerHTML="";
-
-  if(!drivers.length){
-    const tr=document.createElement("tr");
-    const td=addCell(tr,"Nenhum motorista cadastrado.");
-    td.colSpan=7;
-    tbody.appendChild(tr);
-    return;
-  }
-
+  const tbody=$("driversTable");tbody.innerHTML="";
+  if(!drivers.length){const tr=document.createElement("tr");const td=addCell(tr,"Nenhum motorista cadastrado.");td.colSpan=7;tbody.appendChild(tr);return;}
   drivers.forEach(d=>{
-    const p=pm[d.id]||{};
-    const tr=document.createElement("tr");
-
-    addCell(tr,p.full_name||"Sem nome");
-    addCell(tr,p.phone||"Não informado");
-    addCell(tr,d.vehicle_model||"Não informado");
-    addCell(tr,d.vehicle_plate||"Não informado");
-    addCell(tr,approvalLabel(d.approval_status));
-    addCell(tr,d.is_online?"Online":"Offline");
-
-    const td=document.createElement("td");
-    const actions=document.createElement("div");
-    actions.className="actions";
-
+    const p=pm[d.id]||{},tr=document.createElement("tr");
+    addCell(tr,p.full_name||"Sem nome");addCell(tr,p.phone||"Não informado");
+    addCell(tr,d.vehicle_model||"Não informado");addCell(tr,d.vehicle_plate||"Não informado");
+    addCell(tr,approvalLabel(d.approval_status));addCell(tr,d.is_online?"Online":"Offline");
+    const td=document.createElement("td"),actions=document.createElement("div");actions.className="actions";
     addAction(actions,"VER CNH","blue",()=>viewDocument(d.cnh_document_path,"CNH"));
-
     addAction(actions,"VER CRLV","blue",()=>viewDocument(d.vehicle_document_path,"Documento do veículo"));
-
-    if(d.approval_status!=="approved"){
-      addAction(actions,"APROVAR","btn-approve",b=>changeDriverStatus(d.id,"approved",b));
-    }
-
-    if(d.approval_status!=="rejected"){
-      addAction(actions,"REJEITAR","btn-reject",b=>changeDriverStatus(d.id,"rejected",b));
-    }
-
-    if(d.approval_status!=="suspended"){
-      addAction(actions,"SUSPENDER","btn-suspend",b=>changeDriverStatus(d.id,"suspended",b));
-    }
-
-    td.appendChild(actions);
-    tr.appendChild(td);
-    tbody.appendChild(tr);
+    if(d.approval_status!=="approved")addAction(actions,"APROVAR","btn-approve",b=>changeDriverStatus(d.id,"approved",b));
+    if(d.approval_status!=="rejected")addAction(actions,"REJEITAR","btn-reject",b=>changeDriverStatus(d.id,"rejected",b));
+    if(d.approval_status!=="suspended")addAction(actions,"SUSPENDER","btn-suspend",b=>changeDriverStatus(d.id,"suspended",b));
+    td.appendChild(actions);tr.appendChild(td);tbody.appendChild(tr);
   });
 }
-
-/* ATUALIZAÇÃO EM TEMPO REAL */
 function subscribeRealtime(){
   if(realtimeChannel)db.removeChannel(realtimeChannel);
-
   realtimeChannel=db.channel("nerocar-central-live")
-    .on("postgres_changes",{
-      event:"*",schema:"public",table:"rides"
-    },()=>refreshAll())
-    .on("postgres_changes",{
-      event:"*",schema:"public",table:"drivers"
-    },()=>refreshAll())
-    .on("postgres_changes",{
-      event:"*",schema:"public",table:"driver_queue"
-    },()=>loadQueue())
+    .on("postgres_changes",{event:"*",schema:"public",table:"rides"},()=>refreshAll())
+    .on("postgres_changes",{event:"*",schema:"public",table:"drivers"},()=>refreshAll())
+    .on("postgres_changes",{event:"*",schema:"public",table:"driver_queue"},()=>loadQueue())
     .subscribe();
 }
-
 function startPolling(){
   if(refreshTimer)clearInterval(refreshTimer);
   refreshTimer=setInterval(()=>refreshAll(),5000);
 }
-
-/* LOGIN */
 $("loginForm").addEventListener("submit",async e=>{
-  e.preventDefault();
-
-  $("loginMessage").textContent="Verificando acesso...";
-
-  const {error}=await db.auth.signInWithPassword({
-    email:$("email").value.trim(),
-    password:$("password").value
-  });
-
-  if(error){
-    showLogin("Erro no login: "+error.message);
-    return;
-  }
-
+  e.preventDefault();$("loginMessage").textContent="Verificando acesso...";
+  const {error}=await db.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});
+  if(error){showLogin("Erro no login: "+error.message);return;}
   await loadIdentity();
 });
-
-/* SAIR */
 $("logout").addEventListener("click",async()=>{
   if(refreshTimer)clearInterval(refreshTimer);
-
-  if(realtimeChannel){
-    await db.removeChannel(realtimeChannel);
-  }
-
-  realtimeChannel=null;
-  refreshTimer=null;
-
-  await db.auth.signOut();
-
-  currentUser=null;
-  currentProfile=null;
-  currentDriver=null;
-
-  showLogin();
+  if(realtimeChannel)await db.removeChannel(realtimeChannel);
+  realtimeChannel=null;refreshTimer=null;
+  await db.auth.signOut();currentUser=null;currentProfile=null;currentDriver=null;showLogin();
 });
-
-/* BOTÕES DO MOTORISTA */
 $("joinQueue").addEventListener("click",joinQueue);
 $("leaveQueue").addEventListener("click",leaveQueue);
-
-/* SESSÃO */
 db.auth.onAuthStateChange((event)=>{
-  if(event==="SIGNED_OUT"){
-    if(refreshTimer)clearInterval(refreshTimer);
-    showLogin();
-  }
+  if(event==="SIGNED_OUT"){if(refreshTimer)clearInterval(refreshTimer);showLogin();}
 });
-
-/* INICIALIZAÇÃO */
 (async()=>{
   const {data}=await db.auth.getSession();
-
-  if(data.session){
-    await loadIdentity();
-  }else{
-    showLogin();
-  }
+  if(data.session)await loadIdentity();
+  else showLogin();
 })();
 </script>
-
 </body>
 </html>
