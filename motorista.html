@@ -56,6 +56,21 @@ button:disabled{opacity:.5}
 .chat-envio input{margin:0;min-width:0;flex:1}
 .chat-envio button{width:auto;min-width:90px;margin:0;padding:14px 10px}
 
+/* LINK CLICÁVEL DA LOCALIZAÇÃO */
+.link-localizacao{
+ display:inline-block;
+ margin-top:6px;
+ padding:9px 12px;
+ background:#176b3a;
+ color:#fff!important;
+ border-radius:7px;
+ font-weight:bold;
+ text-decoration:none;
+}
+.link-localizacao:hover{
+ background:#21894b;
+}
+
 /* Modo foco: quando chega uma corrida, deixa somente o atendimento na tela. */
 body.modo-corrida{padding:0;overflow:hidden}
 body.modo-corrida .container{width:100%;max-width:none;margin:0}
@@ -618,6 +633,48 @@ document.getElementById("mensagemCorrida").textContent="Erro ao verificar corrid
 consultando=false;
 }
 }
+
+/* CONVERTE O LINK DE LOCALIZAÇÃO EM UM BOTÃO CLICÁVEL */
+function escaparHTML(texto){
+return String(texto??"").replace(/[&<>"']/g,function(caractere){
+return {
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#039;"
+}[caractere];
+});
+}
+
+function formatarMensagem(texto){
+const conteudo=String(texto??"");
+const regex=/https:\/\/www\.google\.com\/maps\?q=-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?/g;
+
+let resultado="";
+let inicio=0;
+let encontrado;
+
+while((encontrado=regex.exec(conteudo))!==null){
+resultado+=escaparHTML(conteudo.slice(inicio,encontrado.index));
+
+const link=encontrado[0];
+
+resultado+=`<a class="link-localizacao"
+href="${escaparHTML(link)}"
+target="_blank"
+rel="noopener noreferrer">
+📍 ABRIR LOCALIZAÇÃO NO GOOGLE MAPS
+</a>`;
+
+inicio=regex.lastIndex;
+}
+
+resultado+=escaparHTML(conteudo.slice(inicio));
+
+return resultado.replace(/\n/g,"<br>");
+}
+
 async function carregarMensagens(){
 if(!corridaAtual||carregandoChat)return;
 const id=corridaAtual.ride_id;
@@ -654,7 +711,9 @@ autor.className="chat-autor";
 autor.textContent=sou?"Você":"Passageiro";
 
 const txt=document.createElement("div");
-txt.textContent=m.message||"";
+
+/* Aqui o link da localização passa a ser clicável */
+txt.innerHTML=formatarMensagem(m.message||"");
 
 const hora=document.createElement("div");
 hora.className="chat-hora";
