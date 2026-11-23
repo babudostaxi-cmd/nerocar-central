@@ -68,6 +68,27 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .usuario-barra{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#292929;padding:11px;border-radius:10px;margin-bottom:18px;font-size:13px}
 .usuario-barra button{width:auto;margin:0;padding:9px 12px;font-size:12px;background:#444;color:#fff}
 
+/* BOTÃO DE SUPORTE */
+.botao-suporte{
+ display:block;
+ width:100%;
+ padding:15px;
+ margin:0 0 20px;
+ border:1px solid #f5c400;
+ border-radius:9px;
+ background:#292400;
+ color:#f5c400;
+ text-align:center;
+ text-decoration:none;
+ font-size:14px;
+ font-weight:900;
+ transition:.2s;
+}
+.botao-suporte:hover{
+ background:#f5c400;
+ color:#111;
+}
+
 /* TELA DE PAGAMENTO */
 .tela-pagamento{background:#292400;border:1px solid #f5c400;border-radius:13px;padding:18px;margin:15px 0;line-height:1.6}
 .pix-codigo{width:100%;min-height:115px;background:#111;color:#fff;border:1px solid #665500;border-radius:9px;padding:12px;font-size:12px;overflow-wrap:anywhere;resize:none}
@@ -136,6 +157,15 @@ button:disabled{opacity:.5;cursor:not-allowed}
    <span>Olá, <strong id="nomeUsuarioBarra" class="destaque">Passageiro</strong></span>
    <button onclick="sairConta()">SAIR DA CONTA</button>
   </div>
+
+  <!-- SUPORTE WHATSAPP -->
+  <a
+   class="botao-suporte"
+   href="https://wa.me/5562992386449?text=Ol%C3%A1!%20Preciso%20de%20suporte%20da%20Nerocar."
+   target="_blank"
+   rel="noopener noreferrer">
+   REPORTAR PROBLEMA / FALAR COM SUPORTE
+  </a>
 
   <!-- TELA PIX -->
   <section id="telaPagamento" class="escondido">
@@ -237,7 +267,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
 <script>
 const SUPABASE_URL="https://xfwkwcpnyvhvmreidqck.supabase.co";
-const SUPABASE_KEY="sb_publishable_S9Ztcv3nh0EhzUl8VMeLmg_nQuBJ1hR";
+const SUPABASE_KEY="sb_publishable_S9Ztcv3nh0EhzUl8VMeLmg_nQuBJ1h";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
   auth:{
     storageKey:"nerocar-passageiro-auth",
