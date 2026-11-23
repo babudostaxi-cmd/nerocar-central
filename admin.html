@@ -52,28 +52,24 @@ button:disabled{opacity:.5;cursor:not-allowed}
 </section>
 
 <section id="painel" class="hidden">
+<div class="card top">
+<button class="primary" onclick="alternarMotoristas()" id="btnMotoristas">
+MOTORISTAS CADASTRADOS ▼
+</button>
+<button class="neutral" onclick="sair()">Sair</button>
+</div>
+
+<div id="secaoMotoristas" class="hidden">
 
 <div class="card top">
 <h2>Motoristas cadastrados</h2>
-<div>
 <button class="primary" onclick="carregar()">Atualizar</button>
-<button class="neutral" onclick="sair()">Sair</button>
-</div>
 </div>
 
 <div id="resumo" class="card"></div>
 <div id="lista"></div>
 
-<div class="card">
-<div class="top">
-<h2>Fila de espera</h2>
-<button class="primary" onclick="carregarFila()">Atualizar fila</button>
 </div>
-<p class="small">Motoristas organizados por ordem de entrada.</p>
-<div id="resumoFila" class="numero">0 motoristas</div>
-<div id="fila"></div>
-</div>
-
 <!-- COBRANÇAS DE PASSAGEIROS -->
 <div class="card">
 <div class="top">
