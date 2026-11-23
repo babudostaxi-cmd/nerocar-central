@@ -54,6 +54,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
 <section id="painel" class="hidden">
 
+<!-- MENU MOTORISTAS -->
 <div class="card top">
 <button class="primary" onclick="alternarMotoristas()" id="btnMotoristas">
 MOTORISTAS CADASTRADOS ▼
@@ -61,6 +62,7 @@ MOTORISTAS CADASTRADOS ▼
 <button class="neutral" onclick="sair()">Sair</button>
 </div>
 
+<!-- MOTORISTAS ESCONDIDOS INICIALMENTE -->
 <div id="secaoMotoristas" class="hidden">
 
 <div class="card top">
@@ -71,6 +73,17 @@ MOTORISTAS CADASTRADOS ▼
 <div id="resumo" class="card"></div>
 <div id="lista"></div>
 
+</div>
+
+<!-- FILA DE ESPERA: SEMPRE VISÍVEL -->
+<div class="card">
+<div class="top">
+<h2>Fila de espera</h2>
+<button class="primary" onclick="carregarFila()">Atualizar fila</button>
+</div>
+<p class="small">Motoristas organizados por ordem de entrada.</p>
+<div id="resumoFila" class="numero">0 motoristas</div>
+<div id="fila"></div>
 </div>
 
 <!-- COBRANÇAS DE PASSAGEIROS -->
@@ -84,17 +97,6 @@ Taxas de cancelamento de R$ 8,00. Confira o recebimento do Pix no banco antes de
 </p>
 <div id="resumoCobrancas" class="numero">Carregando...</div>
 <div id="listaCobrancas"></div>
-</div>
-
-<!-- FILA DE ESPERA -->
-<div class="card">
-<div class="top">
-<h2>Fila de espera</h2>
-<button class="primary" onclick="carregarFila()">Atualizar fila</button>
-</div>
-<p class="small">Motoristas organizados por ordem de entrada.</p>
-<div id="resumoFila" class="numero">0 motoristas</div>
-<div id="fila"></div>
 </div>
 
 </section>
