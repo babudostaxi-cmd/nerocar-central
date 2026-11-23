@@ -32,7 +32,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .id-text{font-size:12px;color:#aaa;word-break:break-all}
 .valor{font-size:27px;font-weight:bold;color:#f5c400}
 .secao-titulo{color:#f5c400}
-.menu-motoristas{width:100%;padding:17px;font-size:16px;text-align:left}
+.menu-motoristas{width:100%;padding:18px;font-size:16px;text-align:left}
 </style>
 </head>
 <body>
@@ -59,14 +59,14 @@ button:disabled{opacity:.5;cursor:not-allowed}
 <button class="neutral" onclick="sair()">Sair</button>
 </div>
 
-<!-- MENU MOTORISTAS -->
+<!-- MENU MOTORISTAS CADASTRADOS -->
 <div class="card">
 <button class="primary menu-motoristas" id="btnMotoristas" onclick="mostrarMotoristas()">
 MOTORISTAS CADASTRADOS ▼
 </button>
 </div>
 
-<!-- LISTA DE MOTORISTAS ESCONDIDA INICIALMENTE -->
+<!-- CONTEÚDO DOS MOTORISTAS: FECHADO AO ENTRAR -->
 <div id="secaoMotoristas" class="hidden">
 
 <div class="card top">
@@ -117,14 +117,14 @@ function escapar(v){
  })[c]);
 }
 
-/* ABRIR E ESCONDER MOTORISTAS */
+/* ABRIR E FECHAR MOTORISTAS */
 function mostrarMotoristas(){
  const secao=document.getElementById("secaoMotoristas");
  const botao=document.getElementById("btnMotoristas");
 
- const estaOculto=secao.classList.contains("hidden");
+ const fechado=secao.classList.contains("hidden");
 
- if(estaOculto){
+ if(fechado){
   secao.classList.remove("hidden");
   botao.textContent="MOTORISTAS CADASTRADOS ▲";
  }else{
