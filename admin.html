@@ -1,4 +1,4 @@
-```html
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -32,6 +32,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .id-text{font-size:12px;color:#aaa;word-break:break-all}
 .valor{font-size:27px;font-weight:bold;color:#f5c400}
 .secao-titulo{color:#f5c400}
+#btnMotoristas{width:100%;padding:17px;text-align:left;font-size:15px}
 </style>
 </head>
 <body>
@@ -52,6 +53,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 </section>
 
 <section id="painel" class="hidden">
+
 <div class="card top">
 <button class="primary" onclick="alternarMotoristas()" id="btnMotoristas">
 MOTORISTAS CADASTRADOS ▼
@@ -70,6 +72,7 @@ MOTORISTAS CADASTRADOS ▼
 <div id="lista"></div>
 
 </div>
+
 <!-- COBRANÇAS DE PASSAGEIROS -->
 <div class="card">
 <div class="top">
@@ -81,6 +84,17 @@ Taxas de cancelamento de R$ 8,00. Confira o recebimento do Pix no banco antes de
 </p>
 <div id="resumoCobrancas" class="numero">Carregando...</div>
 <div id="listaCobrancas"></div>
+</div>
+
+<!-- FILA DE ESPERA -->
+<div class="card">
+<div class="top">
+<h2>Fila de espera</h2>
+<button class="primary" onclick="carregarFila()">Atualizar fila</button>
+</div>
+<p class="small">Motoristas organizados por ordem de entrada.</p>
+<div id="resumoFila" class="numero">0 motoristas</div>
+<div id="fila"></div>
 </div>
 
 </section>
@@ -351,6 +365,20 @@ async function confirmarPagamento(id){
  }
 }
 
+/* ABRIR E FECHAR MOTORISTAS CADASTRADOS */
+function alternarMotoristas(){
+ const secao=document.getElementById("secaoMotoristas");
+ const botao=document.getElementById("btnMotoristas");
+
+ if(secao.classList.contains("hidden")){
+  secao.classList.remove("hidden");
+  botao.textContent="MOTORISTAS CADASTRADOS ▲";
+ }else{
+  secao.classList.add("hidden");
+  botao.textContent="MOTORISTAS CADASTRADOS ▼";
+ }
+}
+
 async function sair(){
  await db.auth.signOut();
  location.reload();
@@ -362,4 +390,3 @@ db.auth.getSession().then(async({data})=>{
 </script>
 </body>
 </html>
-```
