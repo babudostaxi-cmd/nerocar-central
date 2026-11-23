@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -32,7 +32,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .id-text{font-size:12px;color:#aaa;word-break:break-all}
 .valor{font-size:27px;font-weight:bold;color:#f5c400}
 .secao-titulo{color:#f5c400}
-.menu-motoristas{width:100%;padding:18px;font-size:16px;text-align:left}
 </style>
 </head>
 <body>
@@ -55,31 +54,16 @@ button:disabled{opacity:.5;cursor:not-allowed}
 <section id="painel" class="hidden">
 
 <div class="card top">
-<h2>Painel de controle</h2>
+<h2>Motoristas cadastrados</h2>
+<div>
+<button class="primary" onclick="carregar()">Atualizar</button>
 <button class="neutral" onclick="sair()">Sair</button>
 </div>
-
-<!-- MENU MOTORISTAS CADASTRADOS -->
-<div class="card">
-<button class="primary menu-motoristas" id="btnMotoristas" onclick="mostrarMotoristas()">
-MOTORISTAS CADASTRADOS ▼
-</button>
-</div>
-
-<!-- CONTEÚDO DOS MOTORISTAS: FECHADO AO ENTRAR -->
-<div id="secaoMotoristas" class="hidden">
-
-<div class="card top">
-<h2>Motoristas cadastrados</h2>
-<button class="primary" onclick="carregar()">Atualizar</button>
 </div>
 
 <div id="resumo" class="card"></div>
 <div id="lista"></div>
 
-</div>
-
-<!-- FILA DE ESPERA -->
 <div class="card">
 <div class="top">
 <h2>Fila de espera</h2>
@@ -108,29 +92,13 @@ Taxas de cancelamento de R$ 8,00. Confira o recebimento do Pix no banco antes de
 
 <script>
 const SUPABASE_URL="https://xfwkwcpnyvhvmreidqck.supabase.co";
-const SUPABASE_KEY="sb_publishable_S9Ztcv3nh0EhzUl8VMeLmg_nQuBJ1h";
+const SUPABASE_KEY="sb_publishable_S9Ztcv3nh0EhzUl8VMeLmg_nQuBJ1hR";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 function escapar(v){
  return String(v??"").replace(/[&<>"']/g,c=>({
  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
  })[c]);
-}
-
-/* ABRIR E FECHAR MOTORISTAS */
-function mostrarMotoristas(){
- const secao=document.getElementById("secaoMotoristas");
- const botao=document.getElementById("btnMotoristas");
-
- const fechado=secao.classList.contains("hidden");
-
- if(fechado){
-  secao.classList.remove("hidden");
-  botao.textContent="MOTORISTAS CADASTRADOS ▲";
- }else{
-  secao.classList.add("hidden");
-  botao.textContent="MOTORISTAS CADASTRADOS ▼";
- }
 }
 
 async function login(){
@@ -398,3 +366,4 @@ db.auth.getSession().then(async({data})=>{
 </script>
 </body>
 </html>
+```
