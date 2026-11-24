@@ -210,14 +210,13 @@ const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
     persistSession:true,
     autoRefreshToken:true,
     detectSessionInUrl:true
+  }
+});
 
-   
 async function testarNotificacaoNerocar() {
   const { data, error } = await db.functions.invoke(
     "enviar-notificacao-fcm",
-    {
-      body: {}
-    }
+    { body: {} }
   );
 
   if (error) {
@@ -229,8 +228,6 @@ async function testarNotificacaoNerocar() {
   alert(JSON.stringify(data));
 }
 
-  }
-});
 let tokenFirebaseRecebido = "";
 
 async function registrarTokenFirebase(token) {
