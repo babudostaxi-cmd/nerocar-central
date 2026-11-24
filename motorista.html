@@ -212,7 +212,44 @@ const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
     detectSessionInUrl:true
   }
 });
+let tokenFirebaseRecebido = "";
 
+async function registrarTokenFirebase(token) {
+  if (!token || token === tokenFirebaseRecebido) return;
+
+  tokenFirebaseRecebido = token;
+
+  const { data, error } = await db.rpc("registrar_fcm_token", {
+    p_fcm_token: token
+  });
+
+  if (error) {
+    console.error("Erro ao registrar token Firebase:", error.message);
+    tokenFirebaseRecebido = "";
+    return;
+  }
+
+  console.log("Token Firebase registrado com sucesso!");
+}
+
+function verificarTokenKodular() {
+  try {
+    if (!window.Kodular ||
+        typeof window.Kodular.getWebViewString !== "function") return;
+
+    const mensagem = window.Kodular.getWebViewString();
+
+    if (mensagem && mensagem.startsWith("NEROCAR_TOKEN:")) {
+      const token = mensagem.substring("NEROCAR_TOKEN:".length).trim();
+
+      if (token) registrarTokenFirebase(token);
+    }
+  } catch (erro) {
+    console.error("Erro ao receber token:", erro);
+  }
+}
+
+setInterval(verificarTokenKodular, 1000);
 let corridaAtual=null;
 let verificacaoTimer=null;
 let chatTimer=null;
