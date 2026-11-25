@@ -177,6 +177,21 @@ body.modo-corrida #toastContainer{z-index:10000}
 <p><strong>Valor:</strong> <span id="valorCorrida"></span></p>
 </div>
 
+ 
+<div id="tempoChegadaBox" class="hidden">
+  <label for="tempoChegada" class="small">
+    Em quantos minutos você chega ao passageiro?
+  </label>
+  <input
+    id="tempoChegada"
+    type="number"
+    min="1"
+    max="60"
+    step="1"
+    placeholder="Informe de 1 a 60 minutos"
+  >
+</div>
+
 <button id="btnAceitar" class="primary hidden" onclick="aceitarCorrida()">ACEITAR CORRIDA</button>
 <button id="btnRecusar" class="danger hidden" onclick="recusarCorrida()">RECUSAR CORRIDA</button>
 <button id="btnFinalizar" class="primary hidden" onclick="finalizarCorrida()">FINALIZAR CORRIDA</button>
@@ -978,9 +993,62 @@ b2.disabled=false;
 }
 }
 
+
 async function aceitarCorrida(){
-await responderCorrida("aceitar_corrida");
+  if(!corridaAtual)return;
+
+  const campo=document.getElementById("tempoChegada");
+  const minutos=Number(campo.value);
+
+  if(!Number.isInteger(minutos)||minutos<1||minutos>60){
+    mostrarNotificacao(
+      "TEMPO INVÁLIDO",
+      "Informe um tempo entre 1 e 60 minutos.",
+      "erro"
+    );
+    campo.focus();
+    return;
+  }
+
+  const id=corridaAtual.ride_id;
+  const b1=document.getElementById("btnAceitar");
+  const b2=document.getElementById("btnRecusar");
+  const mc=document.getElementById("mensagemCorrida");
+
+  b1.disabled=true;
+  b2.disabled=true;
+  mc.textContent="Confirmando corrida...";
+
+  try{
+    const {data,error}=await db.rpc("aceitar_corrida",{
+      p_corrida_id:id,
+      p_tempo_estimado_minutos:minutos
+    });
+
+    if(error)throw error;
+    if(!data||!data.success){
+      throw new Error(data?.message||"Não foi possível aceitar.");
+    }
+
+    mc.textContent=data.message;
+    mostrarNotificacao(
+      "CORRIDA ACEITA",
+      "Previsão de chegada: "+minutos+" minutos.",
+      "sucesso"
+    );
+
+    await verificarCorrida();
+    await atualizarStatus();
+
+  }catch(e){
+    mc.textContent="Erro: "+e.message;
+    mostrarNotificacao("NÃO FOI POSSÍVEL ACEITAR",e.message,"erro");
+  }finally{
+    b1.disabled=false;
+    b2.disabled=false;
+  }
 }
+
 
 async function recusarCorrida(){
 await responderCorrida("recusar_corrida");
