@@ -643,6 +643,473 @@ button:disabled{opacity:.5;cursor:not-allowed}
  #telaSolicitacao .solicitacao-passageiro-info strong{font-size:14px}
  .nerocar-logout{font-size:9px;padding:10px 7px}
 }
+
+ 
+/* =====================================
+   NEROCAR - TELA ACOMPANHAR CORRIDA
+===================================== */
+
+#telaCorrida .nerocar-acompanhar {
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 20px 16px;
+  background: #080808;
+  color: #fff;
+  border-radius: 18px;
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+  box-shadow: 0 0 25px rgba(255, 193, 7, 0.12);
+}
+
+#telaCorrida .nerocar-acompanhar-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #292929;
+}
+
+#telaCorrida .nerocar-acompanhar-marca {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#telaCorrida .nerocar-acompanhar-logo {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffc107;
+  color: #000;
+  font-size: 25px;
+  font-weight: 900;
+  border-radius: 12px;
+}
+
+#telaCorrida .nerocar-acompanhar-marca strong {
+  display: block;
+  color: #ffc107;
+  font-size: 15px;
+  letter-spacing: 2px;
+}
+
+#telaCorrida .nerocar-acompanhar-marca small {
+  display: block;
+  color: #888;
+  font-size: 8px;
+  margin-top: 4px;
+}
+
+#telaCorrida .nerocar-acompanhar-seguranca {
+  color: #aaa;
+  font-size: 9px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+#telaCorrida .nerocar-acompanhar-seguranca span {
+  color: #ffc107;
+}
+
+#telaCorrida .nerocar-acompanhar-titulo {
+  padding: 25px 2px 20px;
+}
+
+#telaCorrida .nerocar-acompanhar-etiqueta {
+  color: #ffc107;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+#telaCorrida .nerocar-acompanhar-titulo h2 {
+  color: #fff;
+  font-size: 23px;
+  margin: 9px 0;
+}
+
+#telaCorrida .nerocar-acompanhar-titulo p {
+  color: #999;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+#telaCorrida .nerocar-acompanhar-passageiro {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  margin-bottom: 16px;
+  background: #171717;
+  border: 1px solid #303030;
+  border-radius: 14px;
+}
+
+#telaCorrida .nerocar-acompanhar-avatar {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #292929;
+  border-radius: 50%;
+  font-size: 20px;
+}
+
+#telaCorrida .nerocar-acompanhar-passageiro small {
+  display: block;
+  color: #888;
+  font-size: 9px;
+  margin-bottom: 5px;
+}
+
+#telaCorrida .nerocar-acompanhar-passageiro strong {
+  color: #fff;
+  font-size: 14px;
+}
+
+#telaCorrida .nerocar-acompanhar-online {
+  margin-left: auto;
+  color: #ffc107;
+  font-size: 9px;
+  font-weight: bold;
+}
+
+#telaCorrida .nerocar-acompanhar-card {
+  padding: 18px 14px;
+  background: #171717;
+  border: 1px solid #303030;
+  border-radius: 15px;
+}
+
+#telaCorrida .nerocar-acompanhar-card-titulo {
+  display: flex;
+  justify-content: space-between;
+  color: #ffc107;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+}
+
+#telaCorrida .nerocar-acompanhar-ponto {
+  font-size: 13px;
+}
+
+#telaCorrida .nerocar-acompanhar-etapas {
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+}
+
+#telaCorrida .nerocar-acompanhar-etapas .etapa {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: #777;
+  text-align: center;
+  font-size: 11px;
+}
+
+#telaCorrida .nerocar-etapa-numero {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #555;
+  border-radius: 50%;
+  color: #aaa;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+#telaCorrida .nerocar-acompanhar-etapas .etapa.ativa .nerocar-etapa-numero,
+#telaCorrida .nerocar-acompanhar-etapas .etapa.concluida .nerocar-etapa-numero {
+  background: #ffc107;
+  border-color: #ffc107;
+  color: #000;
+}
+
+#telaCorrida .nerocar-acompanhar-etapas .etapa.ativa,
+#telaCorrida .nerocar-acompanhar-etapas .etapa.concluida {
+  color: #ffc107;
+}
+
+#telaCorrida .nerocar-acompanhar-etapas .etapa span {
+  font-weight: bold;
+  color: inherit;
+}
+
+#telaCorrida .nerocar-acompanhar-etapas .etapa small {
+  color: #999;
+  font-size: 9px;
+}
+
+#telaCorrida .nerocar-status {
+  margin-top: 20px;
+  padding: 13px;
+  background: #24200f;
+  border: 1px solid #51420d;
+  border-radius: 10px;
+  color: #ffc107;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+#telaCorrida .nerocar-contador {
+  margin-top: 16px;
+  padding: 20px 15px;
+  background: #171717;
+  border: 1px solid #3a3219;
+  border-radius: 15px;
+  text-align: center;
+}
+
+#telaCorrida .nerocar-contador .legenda {
+  color: #ffc107;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+#telaCorrida .nerocar-contador .tempo {
+  color: #ffc107;
+  font-size: 42px;
+  font-weight: 900;
+  margin: 12px 0;
+}
+
+#telaCorrida .nerocar-contador .detalhe {
+  color: #aaa;
+  font-size: 11px;
+}
+
+#telaCorrida .nerocar-pista {
+  position: relative;
+  height: 7px;
+  margin: 25px 10px 12px;
+  background: #333;
+  border-radius: 20px;
+}
+
+#telaCorrida .nerocar-barra-progresso {
+  width: 0;
+  height: 100%;
+  background: #ffc107;
+  border-radius: 20px;
+}
+
+#telaCorrida .nerocar-pista-inicio {
+  position: absolute;
+  right: -8px;
+  top: -13px;
+  font-size: 17px;
+}
+
+#telaCorrida .nerocar-carro-progresso {
+  position: absolute;
+  left: 0;
+  top: -17px;
+  font-size: 21px;
+}
+
+#telaCorrida .nerocar-texto-chegada {
+  color: #999;
+  font-size: 10px;
+}
+
+#telaCorrida .nerocar-motorista {
+  margin-top: 16px;
+  padding: 18px;
+  background: #171717;
+  border: 1px solid #3a3219;
+  border-radius: 15px;
+  color: #fff;
+}
+
+#telaCorrida .nerocar-motorista h2,
+#telaCorrida .nerocar-motorista h3 {
+  color: #ffc107;
+  margin-bottom: 12px;
+}
+
+#telaCorrida .nerocar-motorista p {
+  color: #ddd;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+#telaCorrida .nerocar-chat {
+  margin-top: 18px;
+  padding: 17px;
+  background: #171717;
+  border: 1px solid #303030;
+  border-radius: 15px;
+}
+
+#telaCorrida .nerocar-chat-titulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+#telaCorrida .nerocar-chat-titulo h3 {
+  color: #fff;
+  font-size: 17px;
+  margin-top: 7px;
+}
+
+#telaCorrida .nerocar-chat-icone {
+  font-size: 24px;
+}
+
+#telaCorrida .nerocar-mensagens {
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 10px;
+  background: #0d0d0d;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+#telaCorrida .nerocar-chat label {
+  display: block;
+  color: #ccc;
+  font-size: 11px;
+  margin: 12px 0 7px;
+}
+
+#telaCorrida .nerocar-chat input {
+  width: 100%;
+  padding: 13px;
+  background: #0b0b0b;
+  border: 1px solid #444;
+  border-radius: 9px;
+  color: #fff;
+  outline: none;
+}
+
+#telaCorrida .nerocar-chat input:focus {
+  border-color: #ffc107;
+}
+
+#telaCorrida .nerocar-botao-localizacao,
+#telaCorrida .nerocar-botao-enviar,
+#telaCorrida .nerocar-acoes button {
+  width: 100%;
+  padding: 14px;
+  border: 0;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#telaCorrida .nerocar-botao-localizacao {
+  background: #292929;
+  color: #ffc107;
+  border: 1px solid #51420d;
+}
+
+#telaCorrida .nerocar-botao-enviar {
+  margin-top: 10px;
+  background: #ffc107;
+  color: #000;
+}
+
+#telaCorrida .nerocar-acoes {
+  margin-top: 18px;
+}
+
+#telaCorrida .nerocar-botao-cancelar {
+  background: #242424;
+  color: #ff7777;
+  border: 1px solid #693333;
+}
+
+#telaCorrida .nerocar-botao-nova {
+  margin-top: 10px;
+  background: #ffc107;
+  color: #000;
+}
+
+#telaCorrida .nerocar-rodape {
+  margin-top: 25px;
+  padding-top: 18px;
+  border-top: 1px solid #292929;
+  text-align: center;
+}
+
+#telaCorrida .nerocar-rodape span {
+  color: #ffc107;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 3px;
+}
+
+#telaCorrida .nerocar-rodape p {
+  color: #888;
+  font-size: 10px;
+  margin: 9px 0;
+}
+
+#telaCorrida .nerocar-rodape small {
+  color: #666;
+  font-size: 8px;
+  letter-spacing: 1px;
+}
+
+#telaCorrida .nerocar-mensagens .mensagem {
+  max-width: 90%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 10px;
+  background: #292929;
+  color: #fff;
+  font-size: 12px;
+}
+
+#telaCorrida .nerocar-mensagens .mensagem.minha {
+  margin-left: auto;
+  background: #4b3b0b;
+}
+
+#telaCorrida .nerocar-mensagens .horario {
+  display: block;
+  color: #aaa;
+  font-size: 9px;
+  margin-top: 5px;
+}
+
+@media (max-width: 380px) {
+  #telaCorrida .nerocar-acompanhar {
+    padding: 16px 12px;
+  }
+
+  #telaCorrida .nerocar-acompanhar-titulo h2 {
+    font-size: 20px;
+  }
+
+  #telaCorrida .nerocar-acompanhar-seguranca {
+    font-size: 8px;
+  }
+}
+
 </style>
 </head>
 
@@ -872,54 +1339,155 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
  
 
-  <section id="telaCorrida" class="escondido">
-   <h2>Acompanhar minha corrida</h2>
+ <section id="telaCorrida" class="escondido">
 
-   <div class="passageiro-fixo">
-    PASSAGEIRO: <strong id="nomePassageiroFixo">Aguardando...</strong>
-   </div>
+  <div class="nerocar-acompanhar">
 
-   <div class="etapas" id="etapasCorrida">
-    <div class="etapa ativa" id="etapaPedido"><span>1. Pedido</span>Solicitado</div>
-    <div class="etapa" id="etapaMotorista"><span>2. Motorista</span>Aguardando</div>
-    <div class="etapa" id="etapaFinal"><span>3. Viagem</span>Em andamento</div>
-   </div>
+    <header class="nerocar-acompanhar-topo">
+      <div class="nerocar-acompanhar-marca">
+        <span class="nerocar-acompanhar-logo">N</span>
+        <div>
+          <strong>N E R O C A R</strong>
+          <small>SUA VIAGEM COMEÇA AQUI</small>
+        </div>
+      </div>
+      <div class="nerocar-acompanhar-seguranca">
+        <span>●</span> VIAGEM SEGURA
+      </div>
+    </header>
 
-   <div class="status" id="statusCorrida">Procurando motorista...</div>
-
-   <div id="contadorPrazoPassageiro" class="contador-prazo escondido" aria-live="polite">
-    <div class="legenda" id="legendaPrazoPassageiro">TEMPO PARA O MOTORISTA ACEITAR</div>
-    <div class="tempo" id="tempoPrazoPassageiro">00:30</div>
-    <div class="detalhe" id="detalhePrazoPassageiro">Aguardando confirmação do motorista</div>
-
-    <div id="pistaChegada" style="display:none;position:relative;height:48px;margin:18px 8px 8px;background:#eeeeee;border-radius:25px;overflow:hidden;">
-     <div id="barraProgressoChegada" style="position:absolute;left:0;top:0;height:100%;width:0%;background:#b9e6c5;border-radius:25px;"></div>
-     <div style="position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:20px;">📍</div>
-     <div id="carroProgressoChegada" style="position:absolute;left:0%;top:50%;transform:translate(-50%,-50%);font-size:27px;transition:left 1s linear;">🚗</div>
+    <div class="nerocar-acompanhar-titulo">
+      <span class="nerocar-acompanhar-etiqueta">ACOMPANHAMENTO</span>
+      <h2>Acompanhar minha corrida</h2>
+      <p>Estamos acompanhando sua solicitação em tempo real.</p>
     </div>
 
-    <div id="textoChegada" style="display:none;text-align:center;font-size:12px;color:#666;">Progresso estimado até você</div>
-   </div>
+    <div class="nerocar-acompanhar-passageiro">
+      <div class="nerocar-acompanhar-avatar">👤</div>
+      <div>
+        <small>PASSAGEIRO</small>
+        <strong id="nomePassageiroFixo">Aguardando...</strong>
+      </div>
+      <span class="nerocar-acompanhar-online">● ATIVO</span>
+    </div>
 
-   <button id="btnCancelarCorrida" class="secundario" style="background:#9d2929;color:white" onclick="cancelarCorridaPassageiro()">CANCELAR CORRIDA</button>
+    <div class="nerocar-acompanhar-card">
+      <div class="nerocar-acompanhar-card-titulo">
+        <span>ANDAMENTO DA VIAGEM</span>
+        <span class="nerocar-acompanhar-ponto">●</span>
+      </div>
 
-   <div id="dadosMotorista" class="motorista escondido"></div>
+      <div class="etapas nerocar-acompanhar-etapas" id="etapasCorrida">
+        <div class="etapa ativa" id="etapaPedido">
+          <div class="nerocar-etapa-numero">1</div>
+          <span>Pedido</span>
+          <small>Solicitado</small>
+        </div>
 
-   <div id="areaChat" class="escondido">
-    <h2 style="margin-top:25px">Chat com o motorista</h2>
-    <div id="mensagens"><div class="aviso">Carregando mensagens...</div></div>
+        <div class="etapa" id="etapaMotorista">
+          <div class="nerocar-etapa-numero">2</div>
+          <span>Motorista</span>
+          <small>Aguardando</small>
+        </div>
 
-    <button id="btnLocalizacao" class="botao-localizacao" onclick="enviarMinhaLocalizacao()">ENVIAR MINHA LOCALIZAÇÃO ATUAL</button>
+        <div class="etapa" id="etapaFinal">
+          <div class="nerocar-etapa-numero">3</div>
+          <span>Viagem</span>
+          <small>Em andamento</small>
+        </div>
+      </div>
 
-    <label for="textoMensagem">Sua mensagem</label>
-    <input id="textoMensagem" type="text" maxlength="1000" placeholder="Digite uma mensagem">
+      <div id="statusCorrida" class="status nerocar-status">
+        Procurando motorista...
+      </div>
+    </div>
 
-    <button id="btnEnviar" onclick="enviarMensagem()">ENVIAR MENSAGEM</button>
-    <div id="statusChat" class="aviso"></div>
-   </div>
+    <div id="contadorPrazoPassageiro"
+         class="contador-prazo escondido nerocar-contador"
+         aria-live="polite">
 
-   <button id="btnNovaCorrida" class="secundario escondido" onclick="novaCorrida()">SOLICITAR OUTRA CORRIDA</button>
-   <div class="aviso">Esta página atualiza automaticamente o andamento da sua corrida.</div>
+      <div class="legenda" id="legendaPrazoPassageiro">
+        TEMPO PARA O MOTORISTA ACEITAR
+      </div>
+
+      <div class="tempo" id="tempoPrazoPassageiro">00:30</div>
+
+      <div class="detalhe" id="detalhePrazoPassageiro">
+        Aguardando confirmação do motorista
+      </div>
+
+      <div id="pistaChegada" class="nerocar-pista">
+        <div id="barraProgressoChegada" class="nerocar-barra-progresso"></div>
+        <div class="nerocar-pista-inicio">📍</div>
+        <div id="carroProgressoChegada" class="nerocar-carro-progresso">🚗</div>
+      </div>
+
+      <div id="textoChegada" class="nerocar-texto-chegada">
+        Progresso estimado até você
+      </div>
+    </div>
+
+    <div id="dadosMotorista"
+         class="motorista escondido nerocar-motorista">
+    </div>
+
+    <div id="areaChat" class="escondido nerocar-chat">
+
+      <div class="nerocar-chat-titulo">
+        <div>
+          <span class="nerocar-acompanhar-etiqueta">COMUNICAÇÃO</span>
+          <h3>Chat com o motorista</h3>
+        </div>
+        <span class="nerocar-chat-icone">💬</span>
+      </div>
+
+      <div id="mensagens" class="nerocar-mensagens">
+        <div class="aviso">Carregando mensagens...</div>
+      </div>
+
+      <button id="btnLocalizacao"
+              class="botao-localizacao nerocar-botao-localizacao"
+              onclick="enviarMinhaLocalizacao()">
+        📍 ENVIAR MINHA LOCALIZAÇÃO ATUAL
+      </button>
+
+      <label for="textoMensagem">Sua mensagem</label>
+      <input id="textoMensagem"
+             type="text"
+             maxlength="1000"
+             placeholder="Digite uma mensagem">
+
+      <button id="btnEnviar"
+              class="nerocar-botao-enviar"
+              onclick="enviarMensagem()">
+        ENVIAR MENSAGEM
+      </button>
+
+      <div id="statusChat" class="aviso"></div>
+    </div>
+
+    <div class="nerocar-acoes">
+      <button id="btnCancelarCorrida"
+              class="secundario nerocar-botao-cancelar"
+              onclick="cancelarCorridaPassageiro()">
+        CANCELAR CORRIDA
+      </button>
+
+      <button id="btnNovaCorrida"
+              class="secundario escondido nerocar-botao-nova"
+              onclick="novaCorrida()">
+        SOLICITAR OUTRA CORRIDA
+      </button>
+    </div>
+
+    <div class="nerocar-rodape">
+      <span>NEROCAR</span>
+      <p>Esta página atualiza automaticamente o andamento da sua corrida.</p>
+      <small>SEGURANÇA • CONFORTO • CONFIANÇA</small>
+    </div>
+
+  </div>
+</section>
   </section>
  </section>
 </div>
