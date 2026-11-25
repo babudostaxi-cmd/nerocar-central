@@ -793,7 +793,12 @@ if(status==="accepted"){
 
  caixa.classList.remove("aceita");
 
- if(status!=="pending"){
+
+document.getElementById("pistaChegada").style.display="none";
+document.getElementById("textoChegada").style.display="none";
+
+if(status!=="pending"){
+
   caixa.classList.add("escondido");
   return;
  }
