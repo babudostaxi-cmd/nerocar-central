@@ -7,63 +7,129 @@
 <title>Nerocar | Motorista</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--bg:#080808;--card:#171717;--card2:#1d1d1d;--line:#303030;--yellow:#ffc107;--muted:#a6a6a6;--green:#43d17a;--red:#ff6969}
+
+:root{
+  --bg:#08090b;--surface:#15171b;--surface-2:#1c1f24;--line:#2c3038;
+  --yellow:#ffc629;--yellow-soft:#332a12;--text:#f7f7f8;--muted:#a5aab3;
+  --green:#45d483;--red:#ff6969
+}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:var(--bg);color:#fff;font-family:Arial,Helvetica,sans-serif;padding:20px 16px 32px}
-.container{width:100%;max-width:430px;margin:0 auto}
-header{text-align:center;margin:12px 0 22px;padding:8px 0 16px}
-.logo{font-size:31px;font-weight:900;letter-spacing:2px;color:var(--yellow);line-height:1.1}
-header h2{font-size:19px;letter-spacing:.2px;margin:10px 0 6px;color:#fff}
+html{min-height:100%;background:var(--bg)}
+body{
+  margin:0;min-height:100vh;padding:28px 22px 48px;
+  background:radial-gradient(ellipse at 50% -15%,#29220f 0,transparent 42%),var(--bg);
+  color:var(--text);font-family:Arial,Helvetica,sans-serif
+}
+.container{width:100%;max-width:1000px;margin:0 auto}
+header{
+  text-align:center;margin:8px 0 28px;padding:22px 16px 24px;
+  border-bottom:1px solid #25282e
+}
+.logo{font-size:clamp(30px,5vw,43px);font-weight:900;letter-spacing:3px;color:var(--yellow);line-height:1}
+header h2{font-size:21px;letter-spacing:.2px;margin:12px 0 7px}
 header .small{margin:0;color:var(--muted)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 8px 24px #0005}
+.card,.profile-card,.alert-card,.queue-card{
+  background:linear-gradient(145deg,#1a1c21,#131519);
+  border:1px solid var(--line);border-radius:20px;padding:24px;
+  margin-bottom:17px;box-shadow:0 14px 35px #0006
+}
+#acesso{max-width:560px;margin:0 auto 20px}
 #conta>.driver-shell{background:transparent;border:0;box-shadow:none;padding:0;margin:0}
-.driver-shell h3{font-size:15px;letter-spacing:.5px;margin:0 0 13px;color:#fff}
-.profile-card,.alert-card,.queue-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:13px;box-shadow:0 8px 24px #0005}
-.profile-card{border-top:3px solid var(--yellow)}
-.profile-eyebrow{font-size:10px;letter-spacing:1.6px;color:var(--yellow);font-weight:800;margin-bottom:9px}
-.profile-greeting{font-size:21px;font-weight:800;margin:0 0 7px}
-#veiculoMotorista{margin:0;color:var(--muted);font-size:13px}
-.alert-card{background:#19170f;border-color:#5a480c}
+.driver-shell h3{font-size:16px;letter-spacing:.4px;margin:0 0 14px}
+.profile-card{border-top:3px solid var(--yellow);margin-bottom:15px}
+.profile-eyebrow{font-size:11px;letter-spacing:1.7px;color:var(--yellow);font-weight:800;margin-bottom:11px}
+.profile-greeting{font-size:clamp(21px,3vw,28px);font-weight:800;margin:0 0 8px}
+#veiculoMotorista{margin:0;color:var(--muted);font-size:14px}
+.alert-card{background:linear-gradient(135deg,#211d11,#17160f);border-color:#665019}
 .alert-card h3{color:var(--yellow);margin-bottom:8px}
-#statusAlerta{margin:10px 0 0;color:#c9bd91;line-height:1.4}
-.queue-card h3{margin-bottom:12px}
-input{width:100%;padding:14px 13px;margin:8px 0;border-radius:11px;border:1px solid #414141;background:#101010;color:#fff;font-size:16px;outline:none}
-input:focus{border-color:var(--yellow);box-shadow:0 0 0 2px #ffc10722}
-button{width:100%;padding:15px 14px;border:0;border-radius:12px;font-weight:800;font-size:14px;letter-spacing:.35px;cursor:pointer;margin-top:10px;transition:filter .15s,transform .15s}
-button:active{transform:scale(.99)}button:hover{filter:brightness(1.08)}button:disabled{opacity:.5;cursor:not-allowed}
-.primary{background:var(--yellow);color:#111}.secondary{background:#292929;color:#fff;border:1px solid #3a3a3a}.danger{background:#8f2929;color:#fff}
+#statusAlerta{margin:12px 0 0;color:#d4c89e;line-height:1.5}
+.queue-card h3{margin-bottom:14px}
+input{
+  display:block;width:100%;padding:15px 14px;margin:9px 0;
+  border-radius:12px;border:1px solid #3a3e47;background:#0e1013;
+  color:#fff;font-size:16px;outline:none
+}
+input:focus{border-color:var(--yellow);box-shadow:0 0 0 3px #ffc62920}
+button{
+  width:100%;padding:15px 16px;border:0;border-radius:12px;
+  font-weight:800;font-size:14px;letter-spacing:.45px;cursor:pointer;
+  margin-top:10px;transition:filter .15s,transform .15s
+}
+button:active{transform:scale(.99)}
+button:hover{filter:brightness(1.08)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.primary{background:linear-gradient(135deg,#ffd34e,#f4b900);color:#17130a}
+.secondary{background:#292d34;color:#f5f5f5;border:1px solid #414650}
+.danger{background:#8f2929;color:#fff}
 .hidden{display:none!important}
-.small{font-size:12px;color:var(--muted);line-height:1.45}
-.status{font-size:17px;font-weight:800;margin:13px 0 6px;padding:12px 13px;border-radius:12px;background:#222;line-height:1.35}
+.small{font-size:13px;color:var(--muted);line-height:1.5}
+.status{
+  font-size:18px;font-weight:800;margin:14px 0 7px;padding:15px;
+  border-radius:13px;background:#242830;line-height:1.35
+}
 .yellow{color:var(--yellow)}.green{color:var(--green)}.red{color:var(--red)}
-.info{background:#101010;border:1px solid #343434;padding:13px;border-radius:12px;margin:10px 0;overflow-wrap:anywhere}
-#posicaoFila{border:1px solid #8c6b08;background:#29220c;padding:15px;border-radius:14px;margin:13px 0}
+.info{background:#101216;border:1px solid #343943;padding:15px;border-radius:13px;margin:12px 0;overflow-wrap:anywhere}
+#posicaoFila{border:1px solid #94700e;background:#29220e;padding:17px;border-radius:15px;margin:14px 0}
 #posicaoFila .small:first-child{color:var(--yellow);font-weight:800;letter-spacing:1px}
-.posicao-numero{font-size:42px;line-height:1.1;font-weight:900;color:var(--yellow);margin:6px 0}
-#mensagemFila{margin:10px 0 0}
-.contador-prazo{background:#332d12;border:1px solid #9b7c00;border-radius:14px;padding:15px;text-align:center;margin:14px 0}
-.contador-legenda{font-size:11px;color:#f5d95d;font-weight:bold;letter-spacing:.8px}
-.contador-tempo{font-size:44px;font-weight:900;color:var(--yellow);line-height:1.2;margin:5px 0;font-variant-numeric:tabular-nums}
-.contador-detalhe{font-size:12px;color:#ddd;line-height:1.4}
-.contador-prazo.aceita{background:#123321;border-color:#287447}.contador-prazo.aceita .contador-legenda,.contador-prazo.aceita .contador-tempo{color:#79dfa0}
-.contador-prazo.encerrado{background:#351d1d;border-color:#8e3333}.contador-prazo.encerrado .contador-legenda,.contador-prazo.encerrado .contador-tempo{color:#ff8585}
-#toastContainer{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;width:min(92%,430px);pointer-events:none}
+.posicao-numero{font-size:48px;line-height:1.1;font-weight:900;color:var(--yellow);margin:7px 0}
+#mensagemFila{margin:12px 0 0}
+.contador-prazo{background:#332d12;border:1px solid #9b7c00;border-radius:15px;padding:17px;text-align:center;margin:15px 0}
+.contador-legenda{font-size:11px;color:#f5d95d;font-weight:bold;letter-spacing:.9px}
+.contador-tempo{font-size:46px;font-weight:900;color:var(--yellow);line-height:1.2;margin:6px 0;font-variant-numeric:tabular-nums}
+.contador-detalhe{font-size:13px;color:#ddd;line-height:1.45}
+.contador-prazo.aceita{background:#123321;border-color:#287447}
+.contador-prazo.aceita .contador-legenda,.contador-prazo.aceita .contador-tempo{color:#79dfa0}
+.contador-prazo.encerrado{background:#351d1d;border-color:#8e3333}
+.contador-prazo.encerrado .contador-legenda,.contador-prazo.encerrado .contador-tempo{color:#ff8585}
+#toastContainer{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;width:min(92%,500px);pointer-events:none}
 .toast{background:#242424;color:#fff;border:1px solid var(--yellow);border-left:5px solid var(--yellow);border-radius:12px;padding:14px 16px;margin-bottom:9px;box-shadow:0 8px 28px #0009;font-size:13px;line-height:1.45;animation:toastIn .25s ease-out}
-.toast.sucesso{border-color:var(--green)}.toast.erro{border-color:var(--red)}.toast strong{display:block;color:var(--yellow);margin-bottom:3px}
+.toast.sucesso{border-color:var(--green)}.toast.erro{border-color:var(--red)}
+.toast strong{display:block;color:var(--yellow);margin-bottom:3px}
 @keyframes toastIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
-.chat-area{border-top:1px solid #3a3a3a;margin-top:20px;padding-top:17px}.chat-area h3{color:var(--yellow);margin:0 0 8px}
-.chat-lista{height:260px;overflow-y:auto;background:#101010;border:1px solid #383838;border-radius:12px;padding:12px;margin:12px 0}
-.chat-vazio{text-align:center;color:#888;font-size:12px;padding:25px 5px}
-.chat-mensagem{max-width:88%;padding:10px 12px;border-radius:12px;margin:8px 0;overflow-wrap:anywhere;font-size:13px;line-height:1.4;position:relative;z-index:2;pointer-events:auto}
-.chat-mensagem.motorista{background:#514400;margin-left:auto;color:white}.chat-mensagem.passageiro{background:#303030;margin-right:auto;color:white}
-.chat-autor{font-size:10px;color:var(--yellow);font-weight:bold;margin-bottom:4px}.chat-hora{font-size:10px;color:#aaa;margin-top:5px;text-align:right}
-.chat-envio{display:flex;gap:8px;align-items:center}.chat-envio input{margin:0;min-width:0;flex:1}.chat-envio button{width:auto;min-width:90px;margin:0;padding:14px 10px}
-.link-localizacao{display:inline-block;position:relative;z-index:20;pointer-events:auto;cursor:pointer;margin-top:6px;padding:10px 12px;background:#176b3a;color:#fff!important;border-radius:8px;font-weight:bold;text-decoration:none!important}.link-localizacao:hover{background:#21894b}.chat-mensagem a{position:relative;z-index:20;pointer-events:auto;cursor:pointer}
-#painelCorrida{border-top:3px solid var(--yellow)}#painelCorrida h3{color:var(--yellow)}
-body.modo-corrida{padding:0;overflow:hidden}body.modo-corrida .container{width:100%;max-width:none;margin:0}body.modo-corrida header{display:none!important}body.modo-corrida #conta{display:block!important}body.modo-corrida #conta>.card:first-child{display:none!important}
-body.modo-corrida #painelCorrida{display:block!important;position:fixed;inset:0;z-index:9998;width:100%;max-width:620px;height:100vh;height:100dvh;overflow-y:auto;margin:0 auto;padding:22px 18px 32px;border:0;border-radius:0;box-shadow:0 0 35px #0009}
+.chat-area{border-top:1px solid #3a3a3a;margin-top:21px;padding-top:18px}
+.chat-area h3{color:var(--yellow);margin:0 0 8px}
+.chat-lista{height:280px;overflow-y:auto;background:#101216;border:1px solid #383d46;border-radius:13px;padding:12px;margin:13px 0}
+.chat-vazio{text-align:center;color:#888;font-size:13px;padding:25px 5px}
+.chat-mensagem{max-width:88%;padding:10px 12px;border-radius:12px;margin:8px 0;overflow-wrap:anywhere;font-size:14px;line-height:1.4;position:relative;z-index:2;pointer-events:auto}
+.chat-mensagem.motorista{background:#514400;margin-left:auto;color:white}
+.chat-mensagem.passageiro{background:#303030;margin-right:auto;color:white}
+.chat-autor{font-size:11px;color:var(--yellow);font-weight:bold;margin-bottom:4px}
+.chat-hora{font-size:10px;color:#aaa;margin-top:5px;text-align:right}
+.chat-envio{display:flex;gap:8px;align-items:center}
+.chat-envio input{margin:0;min-width:0;flex:1}
+.chat-envio button{width:auto;min-width:100px;margin:0;padding:14px 12px}
+.link-localizacao{display:inline-block;position:relative;z-index:20;pointer-events:auto;cursor:pointer;margin-top:6px;padding:10px 12px;background:#176b3a;color:#fff!important;border-radius:8px;font-weight:bold;text-decoration:none!important}
+.link-localizacao:hover{background:#21894b}
+.chat-mensagem a{position:relative;z-index:20;pointer-events:auto;cursor:pointer}
+#painelCorrida{border-top:3px solid var(--yellow)}
+#painelCorrida h3{color:var(--yellow)}
+body.modo-corrida{padding:0;overflow:hidden}
+body.modo-corrida .container{width:100%;max-width:none;margin:0}
+body.modo-corrida header{display:none!important}
+body.modo-corrida #conta{display:block!important}
+body.modo-corrida #conta>.card:first-child{display:none!important}
+body.modo-corrida #conta>.driver-shell{display:none!important}
+body.modo-corrida #painelCorrida{
+  display:block!important;position:fixed;inset:0;z-index:9998;width:100%;
+  max-width:680px;height:100vh;height:100dvh;overflow-y:auto;margin:0 auto;
+  padding:24px 20px 36px;border:0;border-radius:0;box-shadow:0 0 35px #0009
+}
 body.modo-corrida #toastContainer{z-index:10000}
-@media(max-width:380px){body{padding:16px 12px 26px}.logo{font-size:28px}header h2{font-size:18px}.profile-greeting{font-size:19px}.card,.profile-card,.alert-card,.queue-card{padding:15px}}
+@media(min-width:760px){
+  #conta>.driver-shell{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch}
+  #conta>.driver-shell>.profile-card{grid-column:1/-1;margin:0}
+  #conta>.driver-shell>.alert-card,#conta>.driver-shell>.queue-card{margin:0}
+  #conta>.driver-shell>.queue-card{grid-column:1/-1}
+  #conta>.driver-shell>.queue-card button{max-width:calc(50% - 7px);display:inline-block}
+}
+@media(max-width:600px){
+  body{padding:15px 12px 30px}
+  header{margin:3px 0 18px;padding:15px 8px 20px}
+  .card,.profile-card,.alert-card,.queue-card{padding:17px;border-radius:16px}
+  .profile-greeting{font-size:21px}
+  .chat-envio button{min-width:82px}
+}
+
 </style>
 </head>
 <body>
@@ -99,7 +165,7 @@ body.modo-corrida #toastContainer{z-index:10000}
 
 <section id="conta" class="hidden">
 
-<div class="card driver-shell">
+<div class="driver-shell">
   <div class="profile-card">
     <div class="profile-eyebrow">NEROCAR • CENTRAL DO MOTORISTA</div>
     <h3 class="profile-greeting">Olá, <strong id="nomeMotorista"></strong></h3>
