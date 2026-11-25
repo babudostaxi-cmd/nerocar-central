@@ -732,9 +732,14 @@ function atualizarContadorPassageiro(corrida){
  const detalhe=document.getElementById("detalhePrazoPassageiro");
  const status=String(corrida.status||"").toLowerCase();
 
- if(status==="accepted"){
+
+if(status==="accepted"){
   caixa.classList.remove("escondido","encerrado");
   caixa.classList.add("aceita");
+
+  document.getElementById("pistaChegada").style.display="block";
+  document.getElementById("textoChegada").style.display="block";
+
   legenda.textContent="PREVISÃO DE CHEGADA";
 
   const prazo=corrida.arrival_deadline_at;
@@ -744,6 +749,8 @@ function atualizarContadorPassageiro(corrida){
    tempo.textContent="--:--";
    detalhe.textContent="Aguardando previsão de chegada do motorista.";
    return;
+  }
+
   }
 
   const prazoMs=new Date(prazo).getTime();
