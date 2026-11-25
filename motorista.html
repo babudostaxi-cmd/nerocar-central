@@ -102,310 +102,201 @@ body.modo-corrida #painelCorrida{
   box-shadow:0 0 35px #0009;
 }
 body.modo-corrida #toastContainer{z-index:10000}
-
-/* ==========================================
-   NEROCAR - NOVO VISUAL CENTRAL DO MOTORISTA
-   Somente aparência. Não altera o JavaScript.
-========================================== */
+ 
+/* ===== NEROCAR - DESIGN MOTORISTA ===== */
 
 body {
-    background: #090909;
+    background: #080808;
     color: #fff;
     font-family: Arial, sans-serif;
 }
 
 .container {
-    max-width: 520px;
+    max-width: 500px;
+    margin: auto;
     padding: 12px;
 }
 
 /* CABEÇALHO */
-
 header {
-    padding: 24px 15px;
-    margin: 5px 0 22px;
-    background: linear-gradient(145deg, #1d1d1d, #090909);
-    border: 1px solid #333;
-    border-radius: 18px;
+    background: #080808;
+    text-align: center;
+    padding: 25px 15px;
+    border-bottom: 2px solid #d6a900;
+    margin-bottom: 20px;
 }
 
 .logo {
-    font-size: 35px;
-    letter-spacing: 2px;
     color: #f5c400;
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: 3px;
 }
 
 header h2 {
+    color: #fff;
+    margin: 12px 0 8px;
     font-size: 21px;
-    margin: 12px 0 7px;
-}
-
-header .small {
-    line-height: 1.5;
 }
 
 /* CARTÕES */
-
 .card {
-    background: #171717;
-    border: 1px solid #303030;
-    border-radius: 18px;
+    background: linear-gradient(145deg, #202020, #111);
+    border: 1px solid #51420b;
+    border-radius: 20px;
     padding: 20px;
     margin-bottom: 18px;
-    box-shadow: 0 8px 25px #0005;
+    box-shadow: 0 5px 22px #000;
 }
 
 .card h3 {
-    font-size: 18px;
-    margin-bottom: 17px;
     color: #f5c400;
-}
-
-.card p {
-    line-height: 1.6;
-}
-
-.small {
-    color: #aaa;
-    line-height: 1.5;
+    font-size: 19px;
+    margin-bottom: 18px;
 }
 
 /* CAMPOS */
-
 input {
     width: 100%;
+    background: #090909;
+    color: white;
+    border: 1px solid #555;
+    border-radius: 12px;
     padding: 15px;
     margin: 8px 0;
-    background: #101010;
-    border: 1px solid #393939;
-    border-radius: 11px;
-    color: #fff;
     font-size: 15px;
-    outline: none;
 }
 
 input:focus {
     border-color: #f5c400;
-    box-shadow: 0 0 0 2px #f5c40022;
-}
-
-input::placeholder {
-    color: #777;
+    outline: none;
 }
 
 /* BOTÕES */
-
 button {
-    min-height: 48px;
-    padding: 14px;
-    border-radius: 11px;
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: .4px;
-    transition: opacity .2s, transform .2s;
+    width: 100%;
+    min-height: 50px;
+    border-radius: 13px;
+    font-weight: bold;
+    font-size: 14px;
+    margin-top: 10px;
+    border: none;
 }
 
-button:active {
-    transform: scale(.98);
-}
-
-button:disabled {
-    opacity: .45;
-    cursor: not-allowed;
-}
-
-.primary {
-    background: #f5c400;
+.primary,
+#btnAlerta,
+#btnAceitar,
+#btnFinalizar {
+    background: linear-gradient(135deg, #ffdf32, #d6a900);
     color: #111;
-    box-shadow: 0 4px 14px #f5c40022;
 }
 
 .secondary {
     background: #292929;
-    color: #fff;
-    border: 1px solid #414141;
+    color: white;
+    border: 1px solid #555;
 }
 
-.danger {
-    background: #9e2929;
-    color: #fff;
+.danger,
+#btnRecusar,
+#btnCancelarCorrida {
+    background: #a52a2a;
+    color: white;
 }
 
-/* IDENTIFICAÇÃO DO MOTORISTA */
-
-#conta > .card:first-child > p:first-of-type {
-    background: #242424;
-    border-radius: 10px;
-    padding: 13px;
-    margin: 12px 0;
-}
-
+/* IDENTIFICAÇÃO */
 #nomeMotorista {
     color: #f5c400;
-    font-size: 17px;
+    font-size: 19px;
+    font-weight: bold;
 }
 
 #veiculoMotorista {
     display: block;
-    background: #101010;
-    border: 1px solid #333;
-    padding: 12px;
-    border-radius: 10px;
-    margin: 10px 0 17px;
-    line-height: 1.6;
+    background: #090909;
+    padding: 13px;
+    border-radius: 12px;
+    margin: 12px 0;
+    border: 1px solid #393939;
 }
 
-/* STATUS E FILA */
-
+/* STATUS */
 #status {
-    padding: 14px;
-    background: #252525;
-    border-radius: 11px;
-    border-left: 4px solid #f5c400;
-    font-size: 17px;
+    background: #12351f;
+    color: #65e88b;
+    border: 1px solid #267c42;
+    border-radius: 12px;
+    padding: 15px;
+    font-weight: bold;
+    margin: 12px 0;
 }
 
+/* POSIÇÃO NA FILA */
 #posicaoFila {
-    padding: 18px;
-    border: 1px solid #8b7000;
-    border-radius: 14px;
-    background: linear-gradient(145deg, #302800, #171717);
+    background: linear-gradient(145deg, #292000, #111);
+    border: 2px solid #c9a000;
+    border-radius: 18px;
+    padding: 20px;
     text-align: center;
+    margin: 18px 0;
 }
 
 .posicao-numero {
-    font-size: 48px;
-    margin: 10px 0;
-    color: #f5c400;
+    color: #ffda26;
+    font-size: 55px;
+    font-weight: 900;
+    margin: 12px 0;
 }
 
-/* ALERTA SONORO */
-
+/* ALERTA */
 #btnAlerta {
-    background: #f5c400;
-    color: #111;
+    min-height: 55px;
+    font-size: 15px;
 }
 
-#statusAlerta {
-    margin: 8px 0 15px;
-}
-
-/* PAINEL DE CORRIDA */
-
+/* CORRIDA */
 #painelCorrida {
-    border: 1px solid #665300;
-    background: linear-gradient(160deg, #1c1c1c, #101010);
-}
-
-#painelCorrida > h3 {
-    font-size: 20px;
-    padding-bottom: 13px;
-    border-bottom: 1px solid #393939;
+    background: #151515;
+    border: 2px solid #c9a000;
+    border-radius: 20px;
 }
 
 #avisoCorrida {
-    padding: 14px;
-    background: #302800;
-    border-radius: 10px;
-    line-height: 1.5;
+    background: #332900;
+    border: 1px solid #8d7200;
+    border-radius: 12px;
+    padding: 15px;
 }
 
 #painelCorrida .info {
-    background: #101010;
-    border: 1px solid #363636;
-    padding: 16px;
-    border-radius: 12px;
-}
-
-#painelCorrida .info p {
-    padding: 7px 0;
-    border-bottom: 1px solid #292929;
-    overflow-wrap: anywhere;
-}
-
-#painelCorrida .info p:last-child {
-    border-bottom: 0;
+    background: #090909;
+    border: 1px solid #444;
+    border-radius: 13px;
+    padding: 15px;
 }
 
 #painelCorrida .info strong {
     color: #f5c400;
 }
 
-/* CONTADOR */
-
-.contador-prazo {
-    background: #302800;
-    border: 1px solid #9b7c00;
-    border-radius: 15px;
-    padding: 20px;
-}
-
-.contador-tempo {
-    font-size: 50px;
-    letter-spacing: 2px;
-}
-
-/* TEMPO DE CHEGADA */
-
 #tempoChegadaBox {
-    padding: 14px;
-    margin: 14px 0;
-    background: #242424;
-    border: 1px solid #444;
-    border-radius: 12px;
-}
-
-#tempoChegadaBox label {
-    display: block;
-    color: #f5c400;
-    font-weight: bold;
-    margin-bottom: 8px;
-}
-
-/* BOTÕES DA CORRIDA */
-
-#btnAceitar,
-#btnRecusar,
-#btnFinalizar,
-#btnCancelarCorrida {
-    min-height: 53px;
-    margin-top: 12px;
-}
-
-#btnAceitar,
-#btnFinalizar {
-    background: #f5c400;
-    color: #111;
-}
-
-#btnRecusar,
-#btnCancelarCorrida {
-    background: #8e2929;
-    color: #fff;
+    background: #292000;
+    border: 1px solid #a98b00;
+    border-radius: 13px;
+    padding: 15px;
 }
 
 /* CHAT */
-
 .chat-area {
-    border-top: 1px solid #444;
-    margin-top: 22px;
-    padding-top: 20px;
-}
-
-.chat-area h3 {
-    font-size: 18px;
+    border-top: 1px solid #555;
+    margin-top: 20px;
+    padding-top: 18px;
 }
 
 .chat-lista {
-    background: #0c0c0c;
-    border: 1px solid #363636;
+    background: #080808;
+    border: 1px solid #444;
     border-radius: 13px;
-    padding: 12px;
-}
-
-.chat-mensagem {
-    border-radius: 13px;
-    padding: 12px;
 }
 
 .chat-mensagem.motorista {
@@ -416,60 +307,31 @@ button:disabled {
     background: #292929;
 }
 
-.chat-envio {
-    gap: 7px;
-}
-
 .chat-envio button {
     background: #f5c400;
     color: #111;
-    font-size: 11px;
 }
 
-/* MENSAGENS E NOTIFICAÇÕES */
-
-.info {
-    overflow-wrap: anywhere;
-}
-
-.toast {
-    border-radius: 13px;
-    backdrop-filter: blur(10px);
-}
-
-/* MODO FOCO DA CORRIDA */
-
+/* MODO CORRIDA */
 body.modo-corrida #painelCorrida {
     background: #101010;
-    border-left: 1px solid #333;
-    border-right: 1px solid #333;
-}
-
-body.modo-corrida #painelCorrida > h3 {
-    font-size: 21px;
-    margin-bottom: 18px;
 }
 
 /* CELULARES */
-
-@media(max-width: 380px) {
+@media (max-width: 480px) {
     .container {
-        padding: 7px;
+        padding: 10px;
     }
 
     .card {
-        padding: 15px;
+        padding: 17px;
     }
 
     .logo {
-        font-size: 29px;
-    }
-
-    .contador-tempo {
-        font-size: 42px;
+        font-size: 32px;
     }
 }
- 
+
 </style>
 </head>
 <body>
