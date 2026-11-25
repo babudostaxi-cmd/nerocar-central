@@ -1,18 +1,25 @@
 
 <style>
+
+<style>
 * {
   box-sizing: border-box;
 }
 
+html {
+  min-height: 100%;
+  background: #080808;
+}
+
 body {
   margin: 0;
+  min-height: 100vh;
   padding: 16px;
   background: #101010;
   color: #fff;
   font-family: Arial, sans-serif;
 }
 
-/* VISUAL PREMIUM DA TELA DE ACESSO */
 body:has(#telaAuth:not(.escondido)) {
   background:
     radial-gradient(ellipse at 50% 0%, #3b3100 0%, transparent 45%),
@@ -20,26 +27,25 @@ body:has(#telaAuth:not(.escondido)) {
 }
 
 .container {
+  width: 100%;
   max-width: 500px;
   margin: 20px auto;
+  padding: 24px;
   background: #1b1b1b;
   border: 1px solid #333;
   border-radius: 18px;
-  padding: 24px;
   box-shadow: 0 10px 35px #0008;
 }
 
-.container:has(#telaAuth:not(.escondido)) {
+/* ACESSO E CADASTRO */
+body:has(#telaAuth:not(.escondido)) .container {
   max-width: 460px;
   margin: 35px auto;
   padding: 28px;
   background: linear-gradient(145deg, #202020, #111);
   border: 1px solid #665500;
   border-radius: 24px;
-  box-shadow:
-    0 0 12px #f5c40020,
-    0 0 35px #f5c40012,
-    0 20px 60px #000;
+  box-shadow: 0 0 12px #f5c40020, 0 0 35px #f5c40012, 0 20px 60px #000;
 }
 
 .logo {
@@ -50,7 +56,7 @@ body:has(#telaAuth:not(.escondido)) {
   margin-bottom: 5px;
 }
 
-.container:has(#telaAuth:not(.escondido)) .logo {
+body:has(#telaAuth:not(.escondido)) .logo {
   font-size: 39px;
   letter-spacing: -1.5px;
   text-shadow: 0 0 18px #f5c40055;
@@ -62,7 +68,7 @@ body:has(#telaAuth:not(.escondido)) {
   margin-bottom: 25px;
 }
 
-.container:has(#telaAuth:not(.escondido)) .subtitulo {
+body:has(#telaAuth:not(.escondido)) .subtitulo {
   font-size: 13px;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -119,7 +125,6 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* PERSONALIZAÇÃO EXCLUSIVA DO LOGIN E CADASTRO */
 #telaAuth {
   background: linear-gradient(160deg, #252525, #171717);
   border: 1px solid #3b351c;
@@ -225,7 +230,7 @@ button:disabled {
   padding: 13px;
 }
 
-/* DEMAIS TELAS DO APLICATIVO */
+/* DEMAIS TELAS */
 .secundario {
   background: #333;
   color: white;
@@ -555,7 +560,7 @@ button:disabled {
   color: #fff;
 }
 
-/* TELA DE PAGAMENTO */
+/* PAGAMENTO */
 .tela-pagamento {
   background: #292400;
   border: 1px solid #f5c400;
@@ -593,13 +598,13 @@ button:disabled {
   padding: 15px;
 }
 
-/* AJUSTES PARA CELULAR */
+/* CELULAR */
 @media (max-width: 480px) {
   body {
     padding: 12px;
   }
 
-  .container:has(#telaAuth:not(.escondido)) {
+  body:has(#telaAuth:not(.escondido)) .container {
     margin: 12px auto;
     padding: 19px;
     border-radius: 20px;
@@ -609,8 +614,10 @@ button:disabled {
     padding: 19px 15px;
   }
 
-  .container:has(#telaAuth:not(.escondido)) .logo {
+  body:has(#telaAuth:not(.escondido)) .logo {
     font-size: 35px;
   }
 }
+</style>
+
 </style>
