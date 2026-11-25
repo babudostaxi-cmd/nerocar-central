@@ -601,6 +601,8 @@ const aceita=c.status==="accepted";
 document.getElementById("avisoCorrida").textContent=pendente?"Nova corrida aguardando sua resposta!":"Corrida aceita. Boa viagem!";
 document.getElementById("btnAceitar").classList.toggle("hidden",!pendente);
 document.getElementById("btnRecusar").classList.toggle("hidden",!pendente);
+ document.getElementById("tempoChegadaBox").classList.toggle("hidden",!pendente);
+if(mudou) document.getElementById("tempoChegada").value="";
 document.getElementById("btnFinalizar").classList.toggle("hidden",!aceita);
 document.getElementById("btnCancelarCorrida").classList.toggle("hidden",!aceita);
 document.getElementById("chatArea").classList.remove("hidden");
