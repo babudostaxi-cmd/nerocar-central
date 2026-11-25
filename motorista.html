@@ -6,6 +6,375 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nerocar | Motorista</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+ 
+/* ==========================================
+   NEROCAR - NOVO VISUAL CENTRAL DO MOTORISTA
+   Somente aparência. Não altera o JavaScript.
+========================================== */
+
+body {
+    background: #090909;
+    color: #fff;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    max-width: 520px;
+    padding: 12px;
+}
+
+/* CABEÇALHO */
+
+header {
+    padding: 24px 15px;
+    margin: 5px 0 22px;
+    background: linear-gradient(145deg, #1d1d1d, #090909);
+    border: 1px solid #333;
+    border-radius: 18px;
+}
+
+.logo {
+    font-size: 35px;
+    letter-spacing: 2px;
+    color: #f5c400;
+}
+
+header h2 {
+    font-size: 21px;
+    margin: 12px 0 7px;
+}
+
+header .small {
+    line-height: 1.5;
+}
+
+/* CARTÕES */
+
+.card {
+    background: #171717;
+    border: 1px solid #303030;
+    border-radius: 18px;
+    padding: 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 8px 25px #0005;
+}
+
+.card h3 {
+    font-size: 18px;
+    margin-bottom: 17px;
+    color: #f5c400;
+}
+
+.card p {
+    line-height: 1.6;
+}
+
+.small {
+    color: #aaa;
+    line-height: 1.5;
+}
+
+/* CAMPOS */
+
+input {
+    width: 100%;
+    padding: 15px;
+    margin: 8px 0;
+    background: #101010;
+    border: 1px solid #393939;
+    border-radius: 11px;
+    color: #fff;
+    font-size: 15px;
+    outline: none;
+}
+
+input:focus {
+    border-color: #f5c400;
+    box-shadow: 0 0 0 2px #f5c40022;
+}
+
+input::placeholder {
+    color: #777;
+}
+
+/* BOTÕES */
+
+button {
+    min-height: 48px;
+    padding: 14px;
+    border-radius: 11px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .4px;
+    transition: opacity .2s, transform .2s;
+}
+
+button:active {
+    transform: scale(.98);
+}
+
+button:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+.primary {
+    background: #f5c400;
+    color: #111;
+    box-shadow: 0 4px 14px #f5c40022;
+}
+
+.secondary {
+    background: #292929;
+    color: #fff;
+    border: 1px solid #414141;
+}
+
+.danger {
+    background: #9e2929;
+    color: #fff;
+}
+
+/* IDENTIFICAÇÃO DO MOTORISTA */
+
+#conta > .card:first-child > p:first-of-type {
+    background: #242424;
+    border-radius: 10px;
+    padding: 13px;
+    margin: 12px 0;
+}
+
+#nomeMotorista {
+    color: #f5c400;
+    font-size: 17px;
+}
+
+#veiculoMotorista {
+    display: block;
+    background: #101010;
+    border: 1px solid #333;
+    padding: 12px;
+    border-radius: 10px;
+    margin: 10px 0 17px;
+    line-height: 1.6;
+}
+
+/* STATUS E FILA */
+
+#status {
+    padding: 14px;
+    background: #252525;
+    border-radius: 11px;
+    border-left: 4px solid #f5c400;
+    font-size: 17px;
+}
+
+#posicaoFila {
+    padding: 18px;
+    border: 1px solid #8b7000;
+    border-radius: 14px;
+    background: linear-gradient(145deg, #302800, #171717);
+    text-align: center;
+}
+
+.posicao-numero {
+    font-size: 48px;
+    margin: 10px 0;
+    color: #f5c400;
+}
+
+/* ALERTA SONORO */
+
+#btnAlerta {
+    background: #f5c400;
+    color: #111;
+}
+
+#statusAlerta {
+    margin: 8px 0 15px;
+}
+
+/* PAINEL DE CORRIDA */
+
+#painelCorrida {
+    border: 1px solid #665300;
+    background: linear-gradient(160deg, #1c1c1c, #101010);
+}
+
+#painelCorrida > h3 {
+    font-size: 20px;
+    padding-bottom: 13px;
+    border-bottom: 1px solid #393939;
+}
+
+#avisoCorrida {
+    padding: 14px;
+    background: #302800;
+    border-radius: 10px;
+    line-height: 1.5;
+}
+
+#painelCorrida .info {
+    background: #101010;
+    border: 1px solid #363636;
+    padding: 16px;
+    border-radius: 12px;
+}
+
+#painelCorrida .info p {
+    padding: 7px 0;
+    border-bottom: 1px solid #292929;
+    overflow-wrap: anywhere;
+}
+
+#painelCorrida .info p:last-child {
+    border-bottom: 0;
+}
+
+#painelCorrida .info strong {
+    color: #f5c400;
+}
+
+/* CONTADOR */
+
+.contador-prazo {
+    background: #302800;
+    border: 1px solid #9b7c00;
+    border-radius: 15px;
+    padding: 20px;
+}
+
+.contador-tempo {
+    font-size: 50px;
+    letter-spacing: 2px;
+}
+
+/* TEMPO DE CHEGADA */
+
+#tempoChegadaBox {
+    padding: 14px;
+    margin: 14px 0;
+    background: #242424;
+    border: 1px solid #444;
+    border-radius: 12px;
+}
+
+#tempoChegadaBox label {
+    display: block;
+    color: #f5c400;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+/* BOTÕES DA CORRIDA */
+
+#btnAceitar,
+#btnRecusar,
+#btnFinalizar,
+#btnCancelarCorrida {
+    min-height: 53px;
+    margin-top: 12px;
+}
+
+#btnAceitar,
+#btnFinalizar {
+    background: #f5c400;
+    color: #111;
+}
+
+#btnRecusar,
+#btnCancelarCorrida {
+    background: #8e2929;
+    color: #fff;
+}
+
+/* CHAT */
+
+.chat-area {
+    border-top: 1px solid #444;
+    margin-top: 22px;
+    padding-top: 20px;
+}
+
+.chat-area h3 {
+    font-size: 18px;
+}
+
+.chat-lista {
+    background: #0c0c0c;
+    border: 1px solid #363636;
+    border-radius: 13px;
+    padding: 12px;
+}
+
+.chat-mensagem {
+    border-radius: 13px;
+    padding: 12px;
+}
+
+.chat-mensagem.motorista {
+    background: #514400;
+}
+
+.chat-mensagem.passageiro {
+    background: #292929;
+}
+
+.chat-envio {
+    gap: 7px;
+}
+
+.chat-envio button {
+    background: #f5c400;
+    color: #111;
+    font-size: 11px;
+}
+
+/* MENSAGENS E NOTIFICAÇÕES */
+
+.info {
+    overflow-wrap: anywhere;
+}
+
+.toast {
+    border-radius: 13px;
+    backdrop-filter: blur(10px);
+}
+
+/* MODO FOCO DA CORRIDA */
+
+body.modo-corrida #painelCorrida {
+    background: #101010;
+    border-left: 1px solid #333;
+    border-right: 1px solid #333;
+}
+
+body.modo-corrida #painelCorrida > h3 {
+    font-size: 21px;
+    margin-bottom: 18px;
+}
+
+/* CELULARES */
+
+@media(max-width: 380px) {
+    .container {
+        padding: 7px;
+    }
+
+    .card {
+        padding: 15px;
+    }
+
+    .logo {
+        font-size: 29px;
+    }
+
+    .contador-tempo {
+        font-size: 42px;
+    }
+}
+
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#101010;color:white;font-family:Arial,sans-serif;padding:20px}
