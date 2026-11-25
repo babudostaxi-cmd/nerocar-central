@@ -712,7 +712,12 @@ function fecharNotificacao(){
 
 /* CONTADOR E ETAPAS DA CORRIDA */
 
+
+let dadosContadorPassageiro=null;
+
 function atualizarContadorPassageiro(corrida){
+ dadosContadorPassageiro=corrida;
+
  const caixa=document.getElementById("contadorPrazoPassageiro");
  const legenda=document.getElementById("legendaPrazoPassageiro");
  const tempo=document.getElementById("tempoPrazoPassageiro");
@@ -722,30 +727,75 @@ function atualizarContadorPassageiro(corrida){
  if(status==="accepted"){
   caixa.classList.remove("escondido","encerrado");
   caixa.classList.add("aceita");
-  legenda.textContent="ATENDIMENTO CONFIRMADO";
-  tempo.textContent="ACEITA";
-  detalhe.textContent="O motorista confirmou sua corrida e está a caminho.";
+  legenda.textContent="PREVISÃO DE CHEGADA";
+
+  const prazo=corrida.arrival_deadline_at;
+  const estimativa=Number(corrida.estimated_arrival_minutes);
+
+  if(!prazo||!Number.isFinite(estimativa)||estimativa<1){
+   tempo.textContent="--:--";
+   detalhe.textContent="Aguardando previsão de chegada do motorista.";
+   return;
+  }
+
+  const prazoMs=new Date(prazo).getTime();
+
+  if(!Number.isFinite(prazoMs)){
+   tempo.textContent="--:--";
+   detalhe.textContent="Aguardando atualização da previsão.";
+   return;
+  }
+
+  const duracao=estimativa*60*1000;
+  const inicio=prazoMs-duracao;
+  const agora=Date.now();
+  const restante=Math.max(0,Math.ceil((prazoMs-agora)/1000));
+  const progresso=Math.min(100,Math.max(0,((agora-inicio)/duracao)*100));
+
+  const minutos=Math.floor(restante/60);
+  const segundos=restante%60;
+
+  tempo.textContent=String(minutos).padStart(2,"0")+":"+String(segundos).padStart(2,"0");
+
+  const barra=document.getElementById("barraProgressoChegada");
+  const carro=document.getElementById("carroProgressoChegada");
+
+  if(barra)barra.style.width=progresso+"%";
+  if(carro)carro.style.left=progresso+"%";
+
+  if(restante>0){
+   detalhe.textContent="O motorista está a caminho. Previsão de chegada: "+estimativa+" minutos.";
+   caixa.classList.remove("encerrado");
+  }else{
+   caixa.classList.add("encerrado");
+   legenda.textContent="PREVISÃO DE CHEGADA ULTRAPASSADA";
+   tempo.textContent="00:00";
+   detalhe.textContent="Atenção: o prazo previsto para a chegada do motorista terminou.";
+  }
+
   return;
  }
 
  caixa.classList.remove("aceita");
+
  if(status!=="pending"){
   caixa.classList.add("escondido");
   return;
  }
 
- caixa.classList.remove("escondido");
+ caixa.classList.remove("escondido","encerrado");
  legenda.textContent="TEMPO PARA O MOTORISTA ACEITAR";
+
  const atribuidoEm=corrida.assigned_at;
 
  if(!atribuidoEm){
-  caixa.classList.remove("encerrado");
   tempo.textContent="--:--";
   detalhe.textContent="Aguardando a distribuição da corrida.";
   return;
  }
 
  const inicio=new Date(atribuidoEm).getTime();
+
  if(!Number.isFinite(inicio)){
   tempo.textContent="--:--";
   detalhe.textContent="Aguardando atualização do prazo.";
@@ -756,7 +806,6 @@ function atualizarContadorPassageiro(corrida){
  tempo.textContent="00:"+String(restante).padStart(2,"0");
 
  if(restante>0){
-  caixa.classList.remove("encerrado");
   detalhe.textContent="O motorista tem até o fim da contagem para aceitar.";
  }else{
   caixa.classList.add("encerrado");
@@ -767,29 +816,50 @@ function atualizarContadorPassageiro(corrida){
 
 function iniciarContadorPassageiro(){
  if(intervaloContadorPassageiro)clearInterval(intervaloContadorPassageiro);
- atualizarContadorPassageiro({status:ultimoStatus,assigned_at:ultimoAssignedAtPassageiro});
+
+ atualizarContadorPassageiro(
+  dadosContadorPassageiro||{
+   status:ultimoStatus,
+   assigned_at:ultimoAssignedAtPassageiro
+  }
+ );
+
  intervaloContadorPassageiro=setInterval(()=>{
-  atualizarContadorPassageiro({status:ultimoStatus,assigned_at:ultimoAssignedAtPassageiro});
- },250);
+  if(dadosContadorPassageiro){
+   atualizarContadorPassageiro(dadosContadorPassageiro);
+  }else{
+   atualizarContadorPassageiro({
+    status:ultimoStatus,
+    assigned_at:ultimoAssignedAtPassageiro
+   });
+  }
+ },1000);
 }
 
 function atualizarEtapas(status){
  const pedido=document.getElementById("etapaPedido");
  const motorista=document.getElementById("etapaMotorista");
  const final=document.getElementById("etapaFinal");
+
  [pedido,motorista,final].forEach(e=>e.classList.remove("ativa","concluida"));
+
  pedido.classList.add("concluida");
+
  if(status==="pending")motorista.classList.add("ativa");
+
  if(status==="accepted"){
   motorista.classList.add("concluida");
   final.classList.add("ativa");
  }
+
  if(status==="completed"){
   motorista.classList.add("concluida");
   final.classList.add("concluida");
  }
+
  if(status==="cancelled")motorista.classList.add("ativa");
 }
+
 
 /* SOLICITAR CORRIDA */
 
