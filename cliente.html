@@ -368,6 +368,281 @@ button:disabled{opacity:.5;cursor:not-allowed}
 @media(min-width:600px){
  .container{max-width:500px}
 }
+ /* NOVO VISUAL DA ÁREA DO PASSAGEIRO */
+
+#areaPassageiro{
+ padding:0;
+ background:#050505;
+}
+
+.passageiro-topbar{
+ height:60px;
+ display:flex;
+ align-items:center;
+ padding:0 18px;
+ gap:12px;
+ background:#111;
+ color:#fff;
+ font-size:15px;
+ font-weight:bold;
+}
+
+.passageiro-topbar .topbar-menu{
+ margin-left:auto;
+ color:#ffd000;
+}
+
+.passageiro-hero{
+ height:155px;
+ position:relative;
+ overflow:hidden;
+ padding:15px;
+ background:radial-gradient(ellipse at 80% 30%,#252525,#050505 70%);
+ border-bottom:1px solid #292929;
+}
+
+.passageiro-logo{
+ text-align:center;
+ margin-top:3px;
+ font-size:47px;
+ font-weight:900;
+ font-style:italic;
+ letter-spacing:-3px;
+}
+
+.passageiro-logo span{
+ color:#ffd000;
+}
+
+.passageiro-slogan{
+ text-align:center;
+ color:#ccc;
+ font-size:14px;
+ margin-top:2px;
+}
+
+.passageiro-hero-pin{
+ position:absolute;
+ right:20px;
+ top:12px;
+ font-size:27px;
+ color:#ffd000;
+}
+
+.passageiro-hero-carro{
+ position:absolute;
+ left:15px;
+ bottom:3px;
+ font-size:53px;
+}
+
+.nerocar-user-card{
+ margin:14px 15px 0;
+ padding:15px;
+ border-radius:19px;
+ background:linear-gradient(120deg,#282828,#101010);
+ display:flex;
+ align-items:center;
+ gap:10px;
+}
+
+.nerocar-user-pin{
+ font-size:27px;
+ color:#ffd000;
+}
+
+.nerocar-user-info{
+ flex:1;
+ min-width:0;
+ font-size:14px;
+ line-height:1.5;
+ overflow-wrap:anywhere;
+}
+
+.nerocar-user-info strong{
+ color:#ffd000;
+}
+
+.nerocar-logout{
+ width:auto;
+ flex-shrink:0;
+ margin:0;
+ padding:11px 10px;
+ border:1px solid #484848;
+ border-radius:12px;
+ background:#222;
+ color:white;
+ font-size:10px;
+}
+
+#telaSolicitacao{
+ padding:22px 16px;
+}
+
+#telaSolicitacao .solicitacao-titulo{
+ font-size:23px;
+ font-weight:900;
+ margin:0 0 18px;
+}
+
+#telaSolicitacao .solicitacao-passageiro{
+ min-height:85px;
+ display:flex;
+ align-items:center;
+ gap:13px;
+ padding:12px 15px;
+ margin-bottom:23px;
+ border:1.5px solid #ffd000;
+ border-radius:19px;
+ background:linear-gradient(120deg,#282828,#101010);
+}
+
+#telaSolicitacao .solicitacao-avatar{
+ width:52px;
+ height:52px;
+ flex-shrink:0;
+ display:grid;
+ place-items:center;
+ border:1px solid #806900;
+ border-radius:50%;
+ color:#ffd000;
+ font-size:27px;
+}
+
+#telaSolicitacao .solicitacao-passageiro-info{
+ flex:1;
+ min-width:0;
+}
+
+#telaSolicitacao .solicitacao-passageiro-info small{
+ display:block;
+ color:#ccc;
+ font-size:12px;
+ margin-bottom:4px;
+}
+
+#telaSolicitacao .solicitacao-passageiro-info strong{
+ display:block;
+ color:#ffd000;
+ font-size:16px;
+ overflow-wrap:anywhere;
+}
+
+#telaSolicitacao label{
+ margin:17px 0 9px;
+ font-size:14px;
+}
+
+#telaSolicitacao .campo-nerocar{
+ min-height:65px;
+ display:flex;
+ align-items:center;
+ gap:12px;
+ padding:10px 14px;
+ border:1px solid #414141;
+ border-radius:17px;
+ background:linear-gradient(120deg,#242424,#151515);
+}
+
+#telaSolicitacao .campo-nerocar .campo-icone{
+ flex-shrink:0;
+ color:#ffd000;
+ font-size:22px;
+}
+
+#telaSolicitacao .campo-nerocar textarea,
+#telaSolicitacao .campo-nerocar input{
+ flex:1;
+ min-width:0;
+ width:100%;
+ margin:0;
+ padding:9px 0;
+ border:0;
+ border-radius:0;
+ outline:none;
+ background:transparent;
+ color:#fff;
+ font-family:Arial,sans-serif;
+ font-size:14px;
+}
+
+#telaSolicitacao .campo-nerocar textarea{
+ min-height:55px;
+ resize:vertical;
+}
+
+#telaSolicitacao .campo-nerocar textarea:focus,
+#telaSolicitacao .campo-nerocar input:focus{
+ border:0;
+ box-shadow:none;
+}
+
+#telaSolicitacao .campo-nerocar input::placeholder,
+#telaSolicitacao .campo-nerocar textarea::placeholder{
+ color:#999;
+}
+
+#telaSolicitacao .tarifa-nerocar{
+ display:flex;
+ align-items:center;
+ gap:12px;
+ padding:16px 12px;
+ margin:22px 0 15px;
+ border:1px solid #303030;
+ border-radius:19px;
+ background:linear-gradient(110deg,#252525,#111);
+}
+
+#telaSolicitacao .tarifa-carro{
+ width:30%;
+ flex-shrink:0;
+ text-align:center;
+ font-size:43px;
+ border-right:2px solid #ffd000;
+}
+
+#telaSolicitacao .tarifa-info{
+ flex:1;
+ font-size:13px;
+ line-height:1.5;
+}
+
+#telaSolicitacao .tarifa-valor{
+ display:block;
+ color:#ffd000;
+ font-size:36px;
+ font-weight:900;
+ white-space:nowrap;
+}
+
+#telaSolicitacao #btnSolicitar{
+ height:62px;
+ margin-top:5px;
+ border:0;
+ border-radius:40px;
+ background:linear-gradient(100deg,#ffdf00,#f5b500);
+ color:#000;
+ font-size:17px;
+ font-weight:900;
+ box-shadow:0 5px 16px #ffd00020;
+}
+
+#telaSolicitacao #btnSolicitar:disabled{
+ opacity:.55;
+}
+
+#telaSolicitacao #mensagemInicial{
+ padding:12px 5px;
+ color:#aaa;
+ font-size:12px;
+}
+
+@media(max-width:360px){
+ .passageiro-logo{font-size:42px}
+ #telaSolicitacao .tarifa-valor{font-size:30px}
+ #telaSolicitacao .solicitacao-passageiro-info strong{font-size:14px}
+ .nerocar-logout{font-size:9px;padding:10px 7px}
+}
 </style>
 </head>
 
@@ -467,42 +742,132 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
  <section id="areaPassageiro" class="escondido">
 
-  <div class="usuario-barra">
-   <span>Olá, <strong id="nomeUsuarioBarra" class="destaque">Passageiro</strong></span>
-   <button onclick="sairConta()">SAIR DA CONTA</button>
+ 
+  <header class="passageiro-topbar">
+    <span>Nerocar viagens passageiro</span>
+    <span class="topbar-menu">●</span>
+  </header>
+
+  <section class="passageiro-hero">
+    <div class="passageiro-logo">
+      Nero<span>car</span>
+    </div>
+
+    <div class="passageiro-slogan">
+      Sua viagem começa aqui
+    </div>
+
+    <div class="passageiro-hero-pin">📍</div>
+    <div class="passageiro-hero-carro">🚘</div>
+  </section>
+
+  <div class="nerocar-user-card">
+    <div class="nerocar-user-pin">📍</div>
+
+    <div class="nerocar-user-info">
+      Olá,
+      <strong id="nomeUsuarioBarra">Passageiro</strong>
+    </div>
+
+    <button type="button" class="nerocar-logout" onclick="sairConta()">
+      SAIR DA CONTA ⇥
+    </button>
   </div>
 
   <section id="telaPagamento" class="escondido">
-   <h2>Pagamento pendente</h2>
+    <h2>Pagamento pendente</h2>
 
-   <div class="tela-pagamento">
-    <div style="text-align:center;font-weight:bold">TAXA DE CANCELAMENTO</div>
-    <div class="pagamento-valor" id="valorCobranca">R$ 8,00</div>
+    <div class="tela-pagamento">
+      <div style="text-align:center;font-weight:bold">TAXA DE CANCELAMENTO</div>
+      <div class="pagamento-valor" id="valorCobranca">R$ 8,00</div>
 
-    <p>Para liberar novas solicitações de corrida, realize o pagamento via Pix.</p>
+      <p>Para liberar novas solicitações de corrida, realize o pagamento via Pix.</p>
 
-    <label for="codigoPix">Pix Copia e Cola</label>
-    <textarea id="codigoPix" class="pix-codigo" readonly>00020101021126360014br.gov.bcb.pix0114+556299238644952040000530398654048.005802BR5920ADRIANO T P DA SILVA6009NEROPOLIS62070503***630451B4</textarea>
+      <label for="codigoPix">Pix Copia e Cola</label>
+      <textarea id="codigoPix" class="pix-codigo" readonly>00020101021126360014br.gov.bcb.pix0114+556299238644952040000530398654048.005802BR5920ADRIANO T P DA SILVA6009NEROPOLIS62070503***630451B4</textarea>
 
-    <button type="button" onclick="copiarPix()">COPIAR CÓDIGO PIX</button>
+      <button type="button" onclick="copiarPix()">COPIAR CÓDIGO PIX</button>
 
-    <div id="statusPagamento" class="aviso">
-     Aguardando confirmação do pagamento pelo administrador.
+      <div id="statusPagamento" class="aviso">
+        Aguardando confirmação do pagamento pelo administrador.
+      </div>
+
+      <div id="pagamentoConfirmado" class="pagamento-pago escondido">
+        Pagamento confirmado! Você já pode solicitar outra corrida.
+      </div>
+
+      <button id="btnContinuarPagamento" class="escondido" onclick="continuarAposPagamento()">
+        SOLICITAR NOVA CORRIDA
+      </button>
     </div>
 
-    <div id="pagamentoConfirmado" class="pagamento-pago escondido">
-     Pagamento confirmado! Você já pode solicitar outra corrida.
+    <div class="aviso">
+      Após pagar, aguarde a confirmação da Nerocar. A liberação é feita pelo administrador.
     </div>
-
-    <button id="btnContinuarPagamento" class="escondido" onclick="continuarAposPagamento()">
-     SOLICITAR NOVA CORRIDA
-    </button>
-   </div>
-
-   <div class="aviso">
-    Após pagar, aguarde a confirmação da Nerocar. A liberação é feita pelo administrador.
-   </div>
   </section>
+
+  <section id="telaSolicitacao">
+
+    <h2 class="solicitacao-titulo">
+      ⇄ &nbsp; Solicitar uma corrida
+    </h2>
+
+    <div class="solicitacao-passageiro">
+      <div class="solicitacao-avatar">♟</div>
+
+      <div class="solicitacao-passageiro-info">
+        <small>PASSAGEIRO:</small>
+        <strong id="nomePassageiroSolicitacao">Carregando...</strong>
+      </div>
+
+      <div style="font-size:27px;color:#aaa">›</div>
+    </div>
+
+    <label for="endereco">📍 &nbsp; Endereço de origem</label>
+
+    <div class="campo-nerocar">
+      <span class="campo-icone">📍</span>
+
+      <textarea
+        id="endereco"
+        placeholder="Digite o endereço onde deseja ser buscado"
+        maxlength="500"
+        required
+      ></textarea>
+    </div>
+
+    <label for="referencia">⚑ &nbsp; Ponto de referência (opcional)</label>
+
+    <div class="campo-nerocar">
+      <span class="campo-icone">★</span>
+
+      <input
+        id="referencia"
+        type="text"
+        placeholder="Ex.: próximo à praça"
+        maxlength="300"
+      >
+    </div>
+
+    <div class="tarifa-nerocar">
+      <div class="tarifa-carro">🚘</div>
+
+      <div class="tarifa-info">
+        Valor da corrida dentro de Nerópolis
+        <span class="tarifa-valor">R$ 18,00</span>
+      </div>
+    </div>
+
+    <button id="btnSolicitar" type="button" onclick="solicitarCorrida()">
+      🚘 &nbsp; SOLICITAR CORRIDA
+    </button>
+
+    <div id="mensagemInicial" class="aviso">
+      🛡 Informe o endereço de origem e solicite sua viagem.
+    </div>
+
+  </section>
+
 
   <section id="telaSolicitacao">
    <h2>Solicitar uma corrida</h2>
