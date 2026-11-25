@@ -207,11 +207,19 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
    <div class="status" id="statusCorrida">Procurando motorista...</div>
 
-   <div id="contadorPrazoPassageiro" class="contador-prazo escondido" aria-live="polite">
+<div id="contadorPrazoPassageiro" class="contador-prazo escondido" aria-live="polite">
     <div class="legenda" id="legendaPrazoPassageiro">TEMPO PARA O MOTORISTA ACEITAR</div>
     <div class="tempo" id="tempoPrazoPassageiro">00:30</div>
     <div class="detalhe" id="detalhePrazoPassageiro">Aguardando confirmação do motorista</div>
-   </div>
+
+    <div id="pistaChegada" style="display:none; position:relative; height:48px; margin:18px 8px 8px; background:#eeeeee; border-radius:25px; overflow:hidden;">
+      <div id="barraProgressoChegada" style="position:absolute; left:0; top:0; height:100%; width:0%; background:#b9e6c5; border-radius:25px;"></div>
+      <div style="position:absolute; left:8px; top:50%; transform:translateY(-50%); font-size:20px;">📍</div>
+      <div id="carroProgressoChegada" style="position:absolute; left:0%; top:50%; transform:translate(-50%,-50%); font-size:27px; transition:left 1s linear;">🚗</div>
+    </div>
+    <div id="textoChegada" style="display:none; text-align:center; font-size:12px; color:#666;">Progresso estimado até você</div>
+</div>
+
 
    <button id="btnCancelarCorrida" class="secundario" style="background:#9d2929;color:white" onclick="cancelarCorridaPassageiro()">CANCELAR CORRIDA</button>
 
