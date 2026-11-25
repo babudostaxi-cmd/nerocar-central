@@ -723,6 +723,7 @@ function fecharNotificacao(){
 
 let dadosContadorPassageiro=null;
 
+
 function atualizarContadorPassageiro(corrida){
  dadosContadorPassageiro=corrida;
 
@@ -732,8 +733,7 @@ function atualizarContadorPassageiro(corrida){
  const detalhe=document.getElementById("detalhePrazoPassageiro");
  const status=String(corrida.status||"").toLowerCase();
 
-
-if(status==="accepted"){
+ if(status==="accepted"){
   caixa.classList.remove("escondido","encerrado");
   caixa.classList.add("aceita");
 
@@ -749,8 +749,6 @@ if(status==="accepted"){
    tempo.textContent="--:--";
    detalhe.textContent="Aguardando previsão de chegada do motorista.";
    return;
-  }
-
   }
 
   const prazoMs=new Date(prazo).getTime();
@@ -791,14 +789,12 @@ if(status==="accepted"){
   return;
  }
 
+ document.getElementById("pistaChegada").style.display="none";
+ document.getElementById("textoChegada").style.display="none";
+
  caixa.classList.remove("aceita");
 
-
-document.getElementById("pistaChegada").style.display="none";
-document.getElementById("textoChegada").style.display="none";
-
-if(status!=="pending"){
-
+ if(status!=="pending"){
   caixa.classList.add("escondido");
   return;
  }
@@ -830,7 +826,7 @@ if(status!=="pending"){
  }else{
   caixa.classList.add("encerrado");
   legenda.textContent="PRAZO ENCERRADO";
-  detalhe.textContent="Aguarde: o sistema está encaminhando a corrida ao próximo motorista.";
+  detalhe.textContent="Aguarde: o sistema está encaminhando a corrida ao próximo motorista da fila.";
  }
 }
 
