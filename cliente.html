@@ -9,23 +9,80 @@
 
 <style>
 *{box-sizing:border-box}
-body{margin:0;padding:16px;background:#101010;color:#fff;font-family:Arial,sans-serif}
-.container{max-width:500px;margin:20px auto;background:#1b1b1b;border:1px solid #333;border-radius:18px;padding:24px;box-shadow:0 10px 35px #0008}
-.logo{text-align:center;font-size:34px;font-weight:900;color:#f5c400;margin-bottom:5px}
-.subtitulo{text-align:center;color:#aaa;margin-bottom:25px}
+
+body{
+ margin:0;
+ padding:0;
+ background:#000;
+ color:#fff;
+ font-family:Arial,sans-serif;
+}
+
+.container{
+ width:100%;
+ max-width:500px;
+ min-height:100vh;
+ margin:0 auto;
+ padding:0;
+ background:#080808;
+ border:0;
+ border-radius:0;
+ overflow:hidden;
+ box-shadow:none;
+}
+
+.logo,.subtitulo{
+ display:none;
+}
+
 h2{font-size:20px;margin-top:0}
 label{display:block;margin:15px 0 7px;font-weight:bold;font-size:14px}
-input,textarea{width:100%;padding:14px;border:1px solid #444;border-radius:9px;background:#292929;color:white;font-size:16px;outline:none}
+
+input,textarea{
+ width:100%;
+ padding:14px;
+ border:1px solid #444;
+ border-radius:9px;
+ background:#292929;
+ color:white;
+ font-size:16px;
+ outline:none;
+}
+
 input:focus,textarea:focus{border-color:#f5c400}
 textarea{resize:vertical;min-height:75px}
-button{width:100%;padding:15px;border:0;border-radius:9px;background:#f5c400;color:#111;font-size:15px;font-weight:900;cursor:pointer;margin-top:18px}
+
+button{
+ width:100%;
+ padding:15px;
+ border:0;
+ border-radius:9px;
+ background:#f5c400;
+ color:#111;
+ font-size:15px;
+ font-weight:900;
+ cursor:pointer;
+ margin-top:18px;
+}
+
 button:disabled{opacity:.5;cursor:not-allowed}
 .secundario{background:#333;color:white}
 .link-botao{background:none;border:0;color:#f5c400;text-decoration:underline;padding:8px;margin-top:10px}
+
 .preco{text-align:center;padding:15px;background:#292929;border-radius:10px;margin:20px 0}
 .preco strong{display:block;color:#f5c400;font-size:30px;margin-top:5px}
+
 .status{padding:15px;background:#292929;border-radius:10px;margin:15px 0;line-height:1.5}
-.contador-prazo{background:#332d12;border:1px solid #9b7c00;border-radius:13px;padding:15px;text-align:center;margin:12px 0}
+
+.contador-prazo{
+ background:#332d12;
+ border:1px solid #9b7c00;
+ border-radius:13px;
+ padding:15px;
+ text-align:center;
+ margin:12px 0;
+}
+
 .contador-prazo .legenda{font-size:12px;color:#f5d95d;font-weight:bold;letter-spacing:.5px}
 .contador-prazo .tempo{font-size:42px;font-weight:900;color:#f5c400;line-height:1.2;margin:5px 0;font-variant-numeric:tabular-nums}
 .contador-prazo .detalhe{font-size:13px;color:#ddd}
@@ -33,19 +90,41 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .contador-prazo.aceita .legenda,.contador-prazo.aceita .tempo{color:#79dfa0}
 .contador-prazo.encerrado{background:#351d1d;border-color:#8e3333}
 .contador-prazo.encerrado .legenda,.contador-prazo.encerrado .tempo{color:#ff8585}
+
 .destaque{color:#f5c400;font-weight:bold}
 .motorista{background:#292929;border:1px solid #555;padding:15px;border-radius:10px;line-height:1.8;margin-top:15px}
 .escondido{display:none!important}
+
 #mensagens{height:230px;overflow-y:auto;background:#111;border:1px solid #444;border-radius:10px;padding:10px;margin-top:12px}
 .mensagem{padding:9px 11px;margin:7px 0;border-radius:9px;background:#303030;overflow-wrap:anywhere}
 .mensagem strong{color:#f5c400}
 .mensagem.minha{background:#514400;margin-left:12%}
 .mensagem.motorista-msg{margin-right:12%}
 .horario{font-size:11px;color:#999}
+
 .aviso{color:#bbb;font-size:13px;text-align:center;line-height:1.5;margin-top:18px}
 .erro{color:#ff7777}
 .sucesso{color:#7ee6a1}
-#notificacao{position:fixed;z-index:9999;top:18px;left:50%;transform:translate(-50%,-18px);width:calc(100% - 32px);max-width:460px;padding:15px 17px;border-radius:13px;background:#252525;border:1px solid #f5c400;box-shadow:0 10px 35px #000b;opacity:0;visibility:hidden;transition:.25s;line-height:1.4}
+
+#notificacao{
+ position:fixed;
+ z-index:9999;
+ top:18px;
+ left:50%;
+ transform:translate(-50%,-18px);
+ width:calc(100% - 32px);
+ max-width:460px;
+ padding:15px 17px;
+ border-radius:13px;
+ background:#252525;
+ border:1px solid #f5c400;
+ box-shadow:0 10px 35px #000b;
+ opacity:0;
+ visibility:hidden;
+ transition:.25s;
+ line-height:1.4;
+}
+
 #notificacao.visivel{opacity:1;visibility:visible;transform:translate(-50%,0)}
 #notificacao.sucesso-toast{border-color:#43c879}
 #notificacao.erro-toast{border-color:#e45b5b}
@@ -53,155 +132,215 @@ button:disabled{opacity:.5;cursor:not-allowed}
 #notificacao.sucesso-toast .toast-titulo{color:#72e6a0}
 #notificacao.erro-toast .toast-titulo{color:#ff8585}
 #notificacao .toast-fechar{float:right;width:auto;margin:0 0 0 10px;padding:0;background:transparent;color:#aaa;font-size:20px}
+
 .etapas{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:14px 0}
 .etapa{padding:9px 5px;border-radius:8px;background:#292929;color:#777;text-align:center;font-size:11px;line-height:1.35;border:1px solid #383838}
 .etapa.ativa{color:#f5c400;border-color:#9b7c00;background:#332d12}
 .etapa.concluida{color:#79dfa0;border-color:#286b43}
-.passageiro-fixo{position:sticky;top:0;z-index:100;background:#292400;border:1px solid #f5c400;border-radius:10px;padding:13px;margin-bottom:15px;font-weight:bold;color:#fff;box-shadow:0 5px 15px #0005}
+
+.passageiro-fixo{
+ position:sticky;
+ top:0;
+ z-index:100;
+ background:#292400;
+ border:1px solid #f5c400;
+ border-radius:10px;
+ padding:13px;
+ margin-bottom:15px;
+ font-weight:bold;
+ color:#fff;
+ box-shadow:0 5px 15px #0005;
+}
+
 .passageiro-fixo strong{color:#f5c400}
 .botao-localizacao{background:#267344;color:white;margin-top:12px}
 .link-localizacao{display:inline-block;margin-top:6px;padding:9px 12px;background:#176b3a;color:#fff!important;border-radius:7px;font-weight:bold;text-decoration:none}
-.auth-info{background:#292929;border:1px solid #444;border-radius:10px;padding:13px;margin:15px 0;color:#bbb;font-size:13px;line-height:1.5}
-.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
-.auth-tabs button{margin:0;background:#333;color:#aaa}
-.auth-tabs button.ativo{background:#f5c400;color:#111}
-.usuario-barra{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#292929;padding:11px;border-radius:10px;margin-bottom:18px;font-size:13px}
-.usuario-barra button{width:auto;margin:0;padding:9px 12px;font-size:12px;background:#444;color:#fff}
 
-/* TELA DE PAGAMENTO */
-.tela-pagamento{background:#292400;border:1px solid #f5c400;border-radius:13px;padding:18px;margin:15px 0;line-height:1.6}
-.pix-codigo{width:100%;min-height:115px;background:#111;color:#fff;border:1px solid #665500;border-radius:9px;padding:12px;font-size:12px;overflow-wrap:anywhere;resize:none}
-.pagamento-valor{text-align:center;font-size:34px;font-weight:900;color:#f5c400;margin:15px 0}
-.pagamento-pago{color:#79dfa0;font-weight:bold;text-align:center;padding:15px}
+/* =========================================
+   TELA DE LOGIN NEROCAR - NOVO VISUAL
+========================================= */
 
-  
-/* NOVO VISUAL DA TELA DE LOGIN NEROCAR */
-body {
-    padding: 0;
-    background: #000;
+#telaAuth{
+ padding:0;
+ background:#080808;
 }
 
-.container {
-    max-width: 500px;
-    min-height: 100vh;
-    margin: 0 auto;
-    padding: 0;
-    background: #080808;
-    border: 0;
-    border-radius: 0;
-    overflow: hidden;
-    box-shadow: none;
+.banner-auth{
+ width:100%;
+ height:auto;
+ display:block;
+ margin:0;
 }
 
-.container > .logo,
-.container > .subtitulo {
-    display: none;
+.login{
+ margin:15px;
+ padding:25px 18px;
+ border:1px solid #b18c00;
+ border-radius:30px;
+ background:linear-gradient(145deg,#202020,#050505);
+ box-shadow:0 0 20px #ffcc0030;
 }
 
-#telaAuth {
-    padding: 0 18px 25px;
-    background: linear-gradient(145deg, #202020, #050505);
+#telaAuth h2{
+ font-size:27px;
+ margin:0 0 25px;
+ color:white;
 }
 
-.banner-auth {
-    display: block;
-    width: calc(100% + 36px);
-    height: auto;
-    margin: 0 -18px 25px;
+#telaAuth h2 span{
+ color:#ffd000;
 }
 
-#tituloAuth {
-    font-size: 27px;
-    margin: 0 0 25px;
+.auth-tabs{
+ display:flex;
+ gap:0;
+ padding:3px;
+ background:#292929;
+ border-radius:50px;
+ margin-bottom:25px;
 }
 
-#telaAuth .auth-tabs {
-    display: flex;
-    gap: 3px;
-    padding: 3px;
-    margin-bottom: 25px;
-    background: #292929;
-    border-radius: 50px;
+.auth-tabs button{
+ width:50%;
+ padding:17px 5px;
+ margin:0;
+ border:0;
+ border-radius:50px;
+ background:transparent;
+ color:#aaa;
+ font-weight:bold;
+ font-size:14px;
 }
 
-#telaAuth .auth-tabs button {
-    width: 50%;
-    padding: 16px 5px;
-    margin: 0;
-    border-radius: 50px;
-    background: transparent;
-    color: #aaa;
-    font-size: 14px;
+.auth-tabs button.ativo{
+ background:#ffd000;
+ color:#000;
 }
 
-#telaAuth .auth-tabs button.ativo {
-    background: linear-gradient(90deg, #ffdf00, #f4b500);
-    color: #000;
+#telaAuth label{
+ display:block;
+ font-size:16px;
+ margin:0 0 10px;
 }
 
-#telaAuth label {
-    font-size: 15px;
-    margin: 15px 0 10px;
+#telaAuth input{
+ width:100%;
+ height:65px;
+ padding:15px;
+ margin:0 0 22px;
+ border:1px solid #444;
+ border-radius:20px;
+ background:#252525;
+ color:white;
+ font-size:16px;
+ outline:none;
 }
 
-#telaAuth input {
-    height: 62px;
-    padding: 15px;
-    margin-bottom: 18px;
-    border: 1px solid #444;
-    border-radius: 18px;
-    background: #252525;
-    color: #fff;
-    font-size: 16px;
-}
+#telaAuth input::placeholder{color:#aaa}
 
-#telaAuth input::placeholder {
-    color: #aaa;
-}
-
-#telaAuth input:focus {
-    border-color: #ffd000;
-    box-shadow: 0 0 10px #ffcc0025;
+#telaAuth input:focus{
+ border-color:#ffd000;
+ box-shadow:0 0 10px #ffcc0025;
 }
 
 #telaAuth #btnLogin,
-#telaAuth #btnCadastro {
-    padding: 20px 10px;
-    border: 2px solid #ffe77a;
-    border-radius: 45px;
-    background: linear-gradient(90deg, #ffdf00, #f4b500);
-    color: #000;
-    font-size: 16px;
-    font-weight: 900;
+#telaAuth #btnCadastro{
+ width:100%;
+ padding:22px 10px;
+ margin-top:0;
+ border:2px solid #ffe77a;
+ border-radius:45px;
+ background:linear-gradient(90deg,#ffdf00,#f4b500);
+ color:#000;
+ font-size:17px;
+ font-weight:bold;
 }
 
-#telaAuth .aviso {
-    padding: 15px 5px 0;
-    color: #ccc;
+#telaAuth #btnLogin:disabled,
+#telaAuth #btnCadastro:disabled{
+ opacity:.5;
 }
 
-#telaAuth .auth-info {
-    border-radius: 15px;
-    line-height: 1.6;
+#telaAuth .aviso{
+ padding:25px 10px 0;
+ text-align:center;
+ color:#ccc;
+ font-size:13px;
 }
 
-#areaPassageiro {
-    padding: 20px 18px;
+#telaAuth .auth-info{
+ background:#292929;
+ border:1px solid #444;
+ border-radius:15px;
+ padding:13px;
+ margin:15px 0;
+ color:#bbb;
+ font-size:13px;
+ line-height:1.5;
 }
 
-@media (max-width: 400px) {
-    #telaAuth {
-        padding-left: 15px;
-        padding-right: 15px;
-    }
-
-    .banner-auth {
-        width: calc(100% + 30px);
-        margin-left: -15px;
-        margin-right: -15px;
-    }
+.usuario-barra{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:10px;
+ background:#292929;
+ padding:11px;
+ border-radius:10px;
+ margin-bottom:18px;
+ font-size:13px;
 }
 
+.usuario-barra button{
+ width:auto;
+ margin:0;
+ padding:9px 12px;
+ font-size:12px;
+ background:#444;
+ color:#fff;
+}
+
+/* TELA DE PAGAMENTO */
+
+.tela-pagamento{
+ background:#292400;
+ border:1px solid #f5c400;
+ border-radius:13px;
+ padding:18px;
+ margin:15px 0;
+ line-height:1.6;
+}
+
+.pix-codigo{
+ width:100%;
+ min-height:115px;
+ background:#111;
+ color:#fff;
+ border:1px solid #665500;
+ border-radius:9px;
+ padding:12px;
+ font-size:12px;
+ overflow-wrap:anywhere;
+ resize:none;
+}
+
+.pagamento-valor{text-align:center;font-size:34px;font-weight:900;color:#f5c400;margin:15px 0}
+.pagamento-pago{color:#79dfa0;font-weight:bold;text-align:center;padding:15px}
+
+#areaPassageiro{
+ padding:20px 18px;
+}
+
+@media(max-width:400px){
+ .login{
+  margin:12px;
+  padding:22px 15px;
+ }
+}
+
+@media(min-width:600px){
+ .container{max-width:500px}
+}
 </style>
 </head>
 
@@ -214,59 +353,74 @@ body {
 </div>
 
 <div class="container">
- <div class="logo">Nerocar</div>
- <div class="subtitulo">Sua viagem começa aqui</div>
 
  <section id="telaAuth">
-  <h2 id="tituloAuth">Acesse sua conta</h2>
 
-  <div class="auth-tabs">
-   <button type="button" id="tabLogin" class="ativo" onclick="mostrarFormularioAuth('login')">ENTRAR</button>
-   <button type="button" id="tabCadastro" onclick="mostrarFormularioAuth('cadastro')">CADASTRAR</button>
-  </div>
+  <img
+   class="banner-auth"
+   src="https://i.ibb.co/qM4wnWbK/tela-login-cliente.png"
+   alt="Nerocar - Sua viagem começa aqui"
+  >
 
-  <div id="formLogin">
-   <label for="loginEmail">E-mail</label>
-   <input id="loginEmail" type="email" placeholder="seuemail@exemplo.com" autocomplete="email">
+  <div class="login">
 
-   <label for="loginSenha">Senha</label>
-   <input id="loginSenha" type="password" placeholder="Digite sua senha" autocomplete="current-password">
+   <h2 id="tituloAuth">Acesse <span>sua conta</span></h2>
 
-   <button id="btnLogin" onclick="entrarConta()">ENTRAR NA MINHA CONTA</button>
-   <div class="aviso">Entre para solicitar e acompanhar suas corridas.</div>
-  </div>
+   <div class="auth-tabs">
+    <button type="button" id="tabLogin" class="ativo" onclick="mostrarFormularioAuth('login')">ENTRAR</button>
+    <button type="button" id="tabCadastro" onclick="mostrarFormularioAuth('cadastro')">CADASTRAR</button>
+   </div>
 
-  <div id="formCadastro" class="escondido">
-   <label for="cadNome">Nome completo</label>
-   <input id="cadNome" type="text" maxlength="100" placeholder="Seu nome completo" autocomplete="name">
+   <div id="formLogin">
 
-   <label for="cadTelefone">Telefone com DDD</label>
-   <input id="cadTelefone" type="tel" maxlength="20" placeholder="Ex.: (62) 99999-9999" autocomplete="tel">
+    <label for="loginEmail">E-mail</label>
+    <input id="loginEmail" type="email" placeholder="seuemail@exemplo.com" autocomplete="email">
 
-   <label for="cadCPF">CPF</label>
-   <input id="cadCPF" type="text" maxlength="14" placeholder="000.000.000-00" inputmode="numeric">
+    <label for="loginSenha">Senha</label>
+    <input id="loginSenha" type="password" placeholder="Digite sua senha" autocomplete="current-password">
 
-   <label for="cadEmail">E-mail</label>
-   <input id="cadEmail" type="email" placeholder="seuemail@exemplo.com" autocomplete="email">
+    <button id="btnLogin" onclick="entrarConta()">ENTRAR NA MINHA CONTA</button>
 
-   <label for="cadSenha">Criar senha</label>
-   <input id="cadSenha" type="password" minlength="6" placeholder="Mínimo de 6 caracteres" autocomplete="new-password">
+    <div class="aviso">Entre para solicitar e acompanhar suas corridas.</div>
+   </div>
 
-   <label for="cadConfirmarSenha">Confirmar senha</label>
-   <input id="cadConfirmarSenha" type="password" minlength="6" placeholder="Digite a senha novamente" autocomplete="new-password">
+   <div id="formCadastro" class="escondido">
 
-   <button id="btnCadastro" onclick="cadastrarConta()">CRIAR MINHA CONTA</button>
-   <div class="auth-info">Seus dados serão usados para identificar sua conta e suas solicitações de corrida. O acesso é feito por e-mail e senha. Não utilizamos código por SMS nesta etapa.</div>
+    <label for="cadNome">Nome completo</label>
+    <input id="cadNome" type="text" maxlength="100" placeholder="Seu nome completo" autocomplete="name">
+
+    <label for="cadTelefone">Telefone com DDD</label>
+    <input id="cadTelefone" type="tel" maxlength="20" placeholder="Ex.: (62) 99999-9999" autocomplete="tel">
+
+    <label for="cadCPF">CPF</label>
+    <input id="cadCPF" type="text" maxlength="14" placeholder="000.000.000-00" inputmode="numeric">
+
+    <label for="cadEmail">E-mail</label>
+    <input id="cadEmail" type="email" placeholder="seuemail@exemplo.com" autocomplete="email">
+
+    <label for="cadSenha">Criar senha</label>
+    <input id="cadSenha" type="password" minlength="6" placeholder="Mínimo de 6 caracteres" autocomplete="new-password">
+
+    <label for="cadConfirmarSenha">Confirmar senha</label>
+    <input id="cadConfirmarSenha" type="password" minlength="6" placeholder="Digite a senha novamente" autocomplete="new-password">
+
+    <button id="btnCadastro" onclick="cadastrarConta()">CRIAR MINHA CONTA</button>
+
+    <div class="auth-info">Seus dados serão usados para identificar sua conta e suas solicitações de corrida. O acesso é feito por e-mail e senha. Não utilizamos código por SMS nesta etapa.</div>
+   </div>
+
   </div>
  </section>
 
  <section id="areaPassageiro" class="escondido">
+
   <div class="usuario-barra">
    <span>Olá, <strong id="nomeUsuarioBarra" class="destaque">Passageiro</strong></span>
    <button onclick="sairConta()">SAIR DA CONTA</button>
   </div>
 
   <!-- TELA PIX -->
+
   <section id="telaPagamento" class="escondido">
    <h2>Pagamento pendente</h2>
 
@@ -336,19 +490,19 @@ body {
 
    <div class="status" id="statusCorrida">Procurando motorista...</div>
 
-<div id="contadorPrazoPassageiro" class="contador-prazo escondido" aria-live="polite">
+   <div id="contadorPrazoPassageiro" class="contador-prazo escondido" aria-live="polite">
     <div class="legenda" id="legendaPrazoPassageiro">TEMPO PARA O MOTORISTA ACEITAR</div>
     <div class="tempo" id="tempoPrazoPassageiro">00:30</div>
     <div class="detalhe" id="detalhePrazoPassageiro">Aguardando confirmação do motorista</div>
 
-    <div id="pistaChegada" style="display:none; position:relative; height:48px; margin:18px 8px 8px; background:#eeeeee; border-radius:25px; overflow:hidden;">
-      <div id="barraProgressoChegada" style="position:absolute; left:0; top:0; height:100%; width:0%; background:#b9e6c5; border-radius:25px;"></div>
-      <div style="position:absolute; left:8px; top:50%; transform:translateY(-50%); font-size:20px;">📍</div>
-      <div id="carroProgressoChegada" style="position:absolute; left:0%; top:50%; transform:translate(-50%,-50%); font-size:27px; transition:left 1s linear;">🚗</div>
+    <div id="pistaChegada" style="display:none;position:relative;height:48px;margin:18px 8px 8px;background:#eeeeee;border-radius:25px;overflow:hidden;">
+     <div id="barraProgressoChegada" style="position:absolute;left:0;top:0;height:100%;width:0%;background:#b9e6c5;border-radius:25px;"></div>
+     <div style="position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:20px;">📍</div>
+     <div id="carroProgressoChegada" style="position:absolute;left:0%;top:50%;transform:translate(-50%,-50%);font-size:27px;transition:left 1s linear;">🚗</div>
     </div>
-    <div id="textoChegada" style="display:none; text-align:center; font-size:12px; color:#666;">Progresso estimado até você</div>
-</div>
 
+    <div id="textoChegada" style="display:none;text-align:center;font-size:12px;color:#666;">Progresso estimado até você</div>
+   </div>
 
    <button id="btnCancelarCorrida" class="secundario" style="background:#9d2929;color:white" onclick="cancelarCorridaPassageiro()">CANCELAR CORRIDA</button>
 
@@ -362,6 +516,7 @@ body {
 
     <label for="textoMensagem">Sua mensagem</label>
     <input id="textoMensagem" type="text" maxlength="1000" placeholder="Digite uma mensagem">
+
     <button id="btnEnviar" onclick="enviarMensagem()">ENVIAR MENSAGEM</button>
     <div id="statusChat" class="aviso"></div>
    </div>
@@ -374,14 +529,15 @@ body {
 
 <script>
 const SUPABASE_URL="https://xfwkwcpnyvhvmreidqck.supabase.co";
-const SUPABASE_KEY="sb_publishable_S9Ztcv3nh0EhzUl8VMeLmg_nQuBJ1hR";
+const SUPABASE_KEY="sb_publishable_S9Ztcv3nh0EhzUl8VMeLmg_nQuBJ1h";
+
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
-  auth:{
-    storageKey:"nerocar-passageiro-auth",
-    persistSession:true,
-    autoRefreshToken:true,
-    detectSessionInUrl:true
-  }
+ auth:{
+  storageKey:"nerocar-passageiro-auth",
+  persistSession:true,
+  autoRefreshToken:true,
+  detectSessionInUrl:true
+ }
 });
 
 let usuarioAtual=null;
@@ -436,11 +592,14 @@ function escaparHTML(valor){
 
 function mostrarFormularioAuth(tipo){
  const cadastro=tipo==="cadastro";
+
  document.getElementById("formLogin").classList.toggle("escondido",cadastro);
  document.getElementById("formCadastro").classList.toggle("escondido",!cadastro);
  document.getElementById("tabLogin").classList.toggle("ativo",!cadastro);
  document.getElementById("tabCadastro").classList.toggle("ativo",cadastro);
- document.getElementById("tituloAuth").textContent=cadastro?"Criar minha conta":"Acesse sua conta";
+
+ document.getElementById("tituloAuth").innerHTML=
+  cadastro?"Criar <span>minha conta</span>":"Acesse <span>sua conta</span>";
 }
 
 function mostrarAreaAutenticada(){
@@ -483,10 +642,13 @@ async function entrarConta(){
  try{
   const {data,error}=await db.auth.signInWithPassword({email,password:senha});
   if(error)throw error;
+
   usuarioAtual=data.user;
   await carregarPerfil(data.user);
+
   notificar("Bem-vindo à Nerocar","Sua conta foi acessada com sucesso.","sucesso");
   await recuperarCorridaSalva();
+
  }catch(error){
   console.error(error);
   notificar("Não foi possível entrar",mensagemErroAuth(error),"erro",false);
@@ -583,23 +745,30 @@ async function cadastrarConta(){
 
 function validarCPF(cpf){
  if(/^(\d)\1{10}$/.test(cpf))return false;
+
  let soma=0;
  for(let i=0;i<9;i++)soma+=Number(cpf[i])*(10-i);
+
  let resto=(soma*10)%11;
  if(resto===10)resto=0;
  if(resto!==Number(cpf[9]))return false;
+
  soma=0;
  for(let i=0;i<10;i++)soma+=Number(cpf[i])*(11-i);
+
  resto=(soma*10)%11;
  if(resto===10)resto=0;
+
  return resto===Number(cpf[10]);
 }
 
 function mensagemErroAuth(error){
  const msg=String(error?.message||"Erro desconhecido");
+
  if(msg.toLowerCase().includes("already registered"))return "Este e-mail já possui cadastro. Tente entrar na sua conta.";
  if(msg.toLowerCase().includes("duplicate key")||msg.toLowerCase().includes("unique"))return "Este telefone ou CPF já está cadastrado.";
  if(msg.toLowerCase().includes("invalid login credentials"))return "E-mail ou senha incorretos.";
+
  return msg;
 }
 
@@ -612,6 +781,7 @@ async function sairConta(){
  intervaloCobranca=null;
 
  const {error}=await db.auth.signOut();
+
  if(error){
   notificar("Erro ao sair",error.message,"erro",false);
   return;
@@ -624,7 +794,9 @@ async function sairConta(){
 
  telaAuth.classList.remove("escondido");
  areaPassageiro.classList.add("escondido");
+
  mostrarFormularioAuth("login");
+
  notificar("Sessão encerrada","Você saiu da sua conta.","normal",false);
 }
 
@@ -764,10 +936,13 @@ async function iniciarAplicacao(){
    telaAuth.classList.remove("escondido");
    areaPassageiro.classList.add("escondido");
   }
+
  }catch(error){
   console.error("Erro ao iniciar:",error);
+
   telaAuth.classList.remove("escondido");
   areaPassageiro.classList.add("escondido");
+
   notificar("Não foi possível carregar sua conta",mensagemErroAuth(error),"erro",false);
  }
 }
@@ -785,7 +960,9 @@ async function recuperarCorridaSalva(){
 
  telaSolicitacao.classList.add("escondido");
  telaCorrida.classList.remove("escondido");
+
  document.getElementById("nomePassageiroFixo").textContent=nomePassageiro;
+
  primeiraLeituraChat=true;
  iniciarAcompanhamento();
 }
@@ -801,16 +978,24 @@ async function liberarAudio(){
  try{
   const AudioClass=window.AudioContext||window.webkitAudioContext;
   if(!AudioClass)return;
+
   if(!audioContext)audioContext=new AudioClass();
   if(audioContext.state==="suspended")await audioContext.resume();
+
   audioLiberado=audioContext.state==="running";
- }catch(e){audioLiberado=false;}
+
+ }catch(e){
+  audioLiberado=false;
+ }
 }
 
 function tocarAviso(tipo="normal"){
  if(navigator.vibrate){
-  try{navigator.vibrate(tipo==="urgente"?[180,80,180]:[120]);}catch(e){}
+  try{
+   navigator.vibrate(tipo==="urgente"?[180,80,180]:[120]);
+  }catch(e){}
  }
+
  if(!audioLiberado||!audioContext||audioContext.state!=="running")return;
 
  const frequencias=tipo==="sucesso"?[880,1175]:tipo==="erro"?[420,320]:[740,980,740];
@@ -820,13 +1005,17 @@ function tocarAviso(tipo="normal"){
   const osc=audioContext.createOscillator();
   const ganho=audioContext.createGain();
   const t=inicio+i*.17;
+
   osc.type="sine";
   osc.frequency.value=freq;
+
   ganho.gain.setValueAtTime(.0001,t);
   ganho.gain.exponentialRampToValueAtTime(.16,t+.025);
   ganho.gain.exponentialRampToValueAtTime(.0001,t+.14);
+
   osc.connect(ganho);
   ganho.connect(audioContext.destination);
+
   osc.start(t);
   osc.stop(t+.15);
  });
@@ -834,24 +1023,28 @@ function tocarAviso(tipo="normal"){
 
 function notificar(titulo,texto,tipo="normal",som=true){
  const caixa=document.getElementById("notificacao");
+
  document.getElementById("toastTitulo").textContent=titulo;
  document.getElementById("toastTexto").textContent=texto;
+
  caixa.className="visivel"+(tipo==="sucesso"?" sucesso-toast":tipo==="erro"?" erro-toast":"");
+
  if(toastTimer)clearTimeout(toastTimer);
+
  toastTimer=setTimeout(fecharNotificacao,6500);
+
  if(som)tocarAviso(tipo);
 }
 
 function fecharNotificacao(){
  document.getElementById("notificacao").classList.remove("visivel");
+
  if(toastTimer)clearTimeout(toastTimer);
 }
 
 /* CONTADOR E ETAPAS DA CORRIDA */
 
-
 let dadosContadorPassageiro=null;
-
 
 function atualizarContadorPassageiro(corrida){
  dadosContadorPassageiro=corrida;
@@ -948,6 +1141,7 @@ function atualizarContadorPassageiro(corrida){
  }
 
  const restante=Math.max(0,30-Math.floor((Date.now()-inicio)/1000));
+
  tempo.textContent="00:"+String(restante).padStart(2,"0");
 
  if(restante>0){
@@ -1005,7 +1199,6 @@ function atualizarEtapas(status){
  if(status==="cancelled")motorista.classList.add("ativa");
 }
 
-
 /* SOLICITAR CORRIDA */
 
 async function solicitarCorrida(){
@@ -1025,6 +1218,7 @@ async function solicitarCorrida(){
 
  btnSolicitar.disabled=true;
  btnSolicitar.textContent="SOLICITANDO...";
+
  document.getElementById("mensagemInicial").textContent="Estamos procurando um motorista disponível...";
 
  try{
@@ -1037,6 +1231,7 @@ async function solicitarCorrida(){
   });
 
   if(error)throw error;
+
   const resultado=primeiroRegistro(data);
 
   if(resultado?.payment_required){
@@ -1068,6 +1263,7 @@ async function solicitarCorrida(){
   localStorage.setItem("nerocar_corrida_id",String(corridaId));
   localStorage.setItem("nerocar_passageiro_token",String(passageiroToken));
   localStorage.setItem("nerocar_nome_passageiro",nome);
+
   sessionStorage.setItem("nerocar_corrida_id",String(corridaId));
   sessionStorage.setItem("nerocar_passageiro_token",String(passageiroToken));
   sessionStorage.setItem("nerocar_nome_passageiro",nome);
@@ -1077,23 +1273,30 @@ async function solicitarCorrida(){
   ultimoStatus="pending";
   ultimoMotorista=identificadorMotorista(resultado);
   ultimoAssignedAtPassageiro=resultado.assigned_at||"";
+
   iniciarContadorPassageiro();
 
   telaSolicitacao.classList.add("escondido");
   telaCorrida.classList.remove("escondido");
 
   statusCorrida.innerHTML='<span class="destaque">Corrida solicitada!</span><br>Estamos aguardando a confirmação do motorista.';
+
   atualizarEtapas("pending");
 
   if(resultado.driver_name)mostrarMotorista(resultado);
 
   notificar("Corrida solicitada!","Seu pedido foi enviado. Aguarde a resposta do motorista.","sucesso");
+
   iniciarAcompanhamento();
 
  }catch(error){
   console.error("Erro ao solicitar corrida:",error);
-  document.getElementById("mensagemInicial").innerHTML='<span class="erro">Não foi possível solicitar: '+escaparHTML(error.message||"Erro desconhecido")+'</span>';
+
+  document.getElementById("mensagemInicial").innerHTML=
+   '<span class="erro">Não foi possível solicitar: '+escaparHTML(error.message||"Erro desconhecido")+'</span>';
+
   notificar("Não foi possível solicitar",error.message||"Tente novamente.","erro",false);
+
  }finally{
   btnSolicitar.disabled=false;
   btnSolicitar.textContent="SOLICITAR CORRIDA";
@@ -1106,6 +1309,7 @@ function identificadorMotorista(dados){
 
 function mostrarMotorista(dados){
  dadosMotorista.classList.remove("escondido");
+
  dadosMotorista.innerHTML=`
   <strong class="destaque">Motorista da sua corrida</strong><br>
   <strong>Nome:</strong> ${escaparHTML(dados.driver_name||"Aguardando")}<br>
@@ -1120,8 +1324,10 @@ function mostrarMotorista(dados){
 function iniciarAcompanhamento(){
  if(intervaloAcompanhamento)clearInterval(intervaloAcompanhamento);
  if(intervaloMensagens)clearInterval(intervaloMensagens);
+
  acompanharCorrida();
  carregarMensagens();
+
  intervaloAcompanhamento=setInterval(acompanharCorrida,4000);
  intervaloMensagens=setInterval(carregarMensagens,3000);
 }
@@ -1133,6 +1339,7 @@ async function cancelarCorridaPassageiro(){
  if(!confirm("Deseja realmente cancelar esta corrida?"))return;
 
  const botao=document.getElementById("btnCancelarCorrida");
+
  cancelandoCorrida=true;
  botao.disabled=true;
  botao.textContent="CANCELANDO...";
@@ -1167,6 +1374,7 @@ async function cancelarCorridaPassageiro(){
    });
 
    if(resposta.error)throw resposta.error;
+
    resultado=primeiroRegistro(resposta.data);
   }
 
@@ -1185,14 +1393,17 @@ async function cancelarCorridaPassageiro(){
   }
 
   statusCorrida.innerHTML='<span class="erro">Você cancelou esta corrida.</span><br>Se desejar, poderá solicitar outra viagem.';
+
   areaChat.classList.add("escondido");
   botao.classList.add("escondido");
   btnNovaCorrida.classList.remove("escondido");
+
   notificar("Corrida cancelada","O motorista foi avisado sobre o cancelamento.","normal");
 
  }catch(error){
   console.error("Erro ao cancelar corrida:",error);
   notificar("Não foi possível cancelar",error.message||"Tente novamente.","erro",false);
+
  }finally{
   cancelandoCorrida=false;
   botao.disabled=false;
@@ -1202,6 +1413,7 @@ async function cancelarCorridaPassageiro(){
 
 async function acompanharCorrida(){
  if(!corridaId||!passageiroToken||consultandoCorrida)return;
+
  consultandoCorrida=true;
 
  try{
@@ -1211,6 +1423,7 @@ async function acompanharCorrida(){
   });
 
   if(error)throw error;
+
   const corrida=primeiroRegistro(data);
 
   if(!corrida){
@@ -1220,7 +1433,9 @@ async function acompanharCorrida(){
 
   const status=String(corrida.status||"").toLowerCase();
   const motoristaAtual=identificadorMotorista(corrida);
+
   ultimoAssignedAtPassageiro=corrida.assigned_at||"";
+
   atualizarContadorPassageiro(corrida);
 
   const mudouMotorista=!!motoristaAtual&&!!ultimoMotorista&&motoristaAtual!==ultimoMotorista;
@@ -1230,6 +1445,7 @@ async function acompanharCorrida(){
 
   if(status==="pending"){
    statusCorrida.innerHTML='<span class="destaque">Motorista acionado!</span><br>Aguardando o motorista aceitar sua corrida.';
+
    areaChat.classList.remove("escondido");
 
    if(motoristaCancelou){
@@ -1240,6 +1456,7 @@ async function acompanharCorrida(){
 
   }else if(status==="accepted"){
    statusCorrida.innerHTML='<span class="sucesso">Motorista confirmou sua corrida!</span><br>Seu motorista está a caminho.';
+
    areaChat.classList.remove("escondido");
 
    if(ultimoStatus!=="accepted"){
@@ -1248,6 +1465,7 @@ async function acompanharCorrida(){
 
   }else if(status==="completed"){
    statusCorrida.innerHTML='<span class="sucesso">Corrida finalizada!</span><br>Obrigado por viajar com a Nerocar.';
+
    areaChat.classList.add("escondido");
    btnNovaCorrida.classList.remove("escondido");
    document.getElementById("btnCancelarCorrida").classList.add("escondido");
@@ -1261,6 +1479,7 @@ async function acompanharCorrida(){
 
   }else if(status==="cancelled"){
    statusCorrida.innerHTML='<span class="erro">Não foi possível concluir o atendimento desta corrida.</span><br>Você pode solicitar outra corrida.';
+
    areaChat.classList.add("escondido");
    btnNovaCorrida.classList.remove("escondido");
    document.getElementById("btnCancelarCorrida").classList.add("escondido");
@@ -1277,12 +1496,15 @@ async function acompanharCorrida(){
   }
 
   if(motoristaAtual)ultimoMotorista=motoristaAtual;
+
   if(!intervaloContadorPassageiro)iniciarContadorPassageiro();
+
   atualizarEtapas(status);
   ultimoStatus=status;
 
  }catch(error){
   console.error("Erro ao acompanhar corrida:",error);
+
  }finally{
   consultandoCorrida=false;
  }
@@ -1292,23 +1514,31 @@ async function acompanharCorrida(){
 
 function formatarMensagem(texto){
  const regex=/https:\/\/www\.google\.com\/maps\?q=-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?/g;
+
  let resultado="";
  let inicio=0;
  let encontrado;
+
  const conteudo=String(texto??"");
 
  while((encontrado=regex.exec(conteudo))!==null){
   resultado+=escaparHTML(conteudo.slice(inicio,encontrado.index));
+
   const link=encontrado[0];
+
   resultado+=`<a class="link-localizacao" href="${escaparHTML(link)}" target="_blank" rel="noopener noreferrer">📍 ABRIR LOCALIZAÇÃO NO GOOGLE MAPS</a>`;
+
   inicio=regex.lastIndex;
  }
+
  resultado+=escaparHTML(conteudo.slice(inicio));
+
  return resultado.replace(/\n/g,"<br>");
 }
 
 async function carregarMensagens(){
  if(!corridaId||!passageiroToken||areaChat.classList.contains("escondido")||consultandoMensagens)return;
+
  consultandoMensagens=true;
 
  try{
@@ -1318,6 +1548,7 @@ async function carregarMensagens(){
   });
 
   if(error)throw error;
+
   const lista=Array.isArray(data)?data:[];
   let indiceUltimaVista=-1;
 
@@ -1331,10 +1562,12 @@ async function carregarMensagens(){
 
   if(novasDoMotorista.length){
    const ultimaNova=novasDoMotorista[novasDoMotorista.length-1];
+
    notificar("Nova mensagem do motorista",String(ultimaNova.message||"Você recebeu uma mensagem."),"normal");
   }
 
   if(ultimaId)ultimaMensagemId=ultimaId;
+
   primeiraLeituraChat=false;
 
   const estavaNoFinal=mensagens.scrollHeight-mensagens.scrollTop-mensagens.clientHeight<50;
@@ -1342,6 +1575,7 @@ async function carregarMensagens(){
   mensagens.innerHTML=lista.map(item=>{
    const hora=item.created_at?new Date(item.created_at).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}):"";
    const minha=item.sender_role==="passenger";
+
    return `<div class="mensagem ${minha?"minha":"motorista-msg"}">
     <strong>${escaparHTML(minha?"Você":item.sender_name||"Motorista")}</strong><br>
     ${formatarMensagem(item.message)}
@@ -1353,6 +1587,7 @@ async function carregarMensagens(){
 
  }catch(error){
   console.error("Erro ao carregar mensagens:",error);
+
  }finally{
   consultandoMensagens=false;
  }
@@ -1376,6 +1611,7 @@ async function enviarMensagem(){
   });
 
   if(error)throw error;
+
   const resultado=primeiroRegistro(data);
 
   if(resultado&&resultado.success===false){
@@ -1384,12 +1620,16 @@ async function enviarMensagem(){
 
   campo.value="";
   document.getElementById("statusChat").textContent="Mensagem enviada.";
+
   await carregarMensagens();
 
  }catch(error){
   console.error("Erro ao enviar mensagem:",error);
+
   document.getElementById("statusChat").textContent="Não foi possível enviar: "+error.message;
+
   notificar("Falha ao enviar mensagem",error.message,"erro",false);
+
  }finally{
   enviandoMensagem=false;
   botao.disabled=false;
@@ -1420,6 +1660,7 @@ function enviarMinhaLocalizacao(){
    const link="https://www.google.com/maps?q="+latitude+","+longitude;
 
    document.getElementById("textoMensagem").value="Minha localização atual: "+link;
+
    await enviarMensagem();
 
    if(!document.getElementById("textoMensagem").value){
@@ -1432,17 +1673,20 @@ function enviarMinhaLocalizacao(){
   }catch(error){
    console.error("Erro ao compartilhar localização:",error);
    botao.textContent="TENTAR NOVAMENTE";
+
   }finally{
    botao.disabled=false;
   }
 
  },(erro)=>{
   let mensagem="Não foi possível obter sua localização.";
+
   if(erro.code===1)mensagem="Você precisa permitir o acesso à localização no celular.";
   if(erro.code===2)mensagem="O GPS não conseguiu identificar sua posição. Tente novamente.";
   if(erro.code===3)mensagem="A localização demorou demais. Tente novamente.";
 
   notificar("Erro na localização",mensagem,"erro",false);
+
   botao.disabled=false;
   botao.textContent="ENVIAR MINHA LOCALIZAÇÃO ATUAL";
 
@@ -1470,6 +1714,7 @@ function novaCorrida(){
 
  localStorage.removeItem("nerocar_corrida_id");
  localStorage.removeItem("nerocar_passageiro_token");
+
  sessionStorage.removeItem("nerocar_corrida_id");
  sessionStorage.removeItem("nerocar_passageiro_token");
  sessionStorage.removeItem("nerocar_nome_passageiro");
@@ -1477,6 +1722,7 @@ function novaCorrida(){
  corridaId=null;
  passageiroToken=null;
  nomePassageiro=perfilPassageiro?.full_name||"Passageiro";
+
  ultimoStatus="";
  ultimoMotorista="";
  ultimoAssignedAtPassageiro="";
@@ -1489,6 +1735,7 @@ function novaCorrida(){
 
  dadosMotorista.innerHTML="";
  dadosMotorista.classList.add("escondido");
+
  areaChat.classList.add("escondido");
  btnNovaCorrida.classList.add("escondido");
 
@@ -1500,6 +1747,7 @@ function novaCorrida(){
  document.getElementById("btnLocalizacao").textContent="ENVIAR MINHA LOCALIZAÇÃO ATUAL";
 
  canceladaPeloPassageiro=false;
+
  mensagens.innerHTML="";
  document.getElementById("statusChat").textContent="";
  document.getElementById("mensagemInicial").textContent="Informe o endereço de origem e solicite sua viagem.";
@@ -1508,6 +1756,7 @@ function novaCorrida(){
 }
 
 /* ENTER PARA ENVIAR MENSAGEM */
+
 document.getElementById("textoMensagem").addEventListener("keydown",function(event){
  if(event.key==="Enter"){
   event.preventDefault();
@@ -1516,15 +1765,19 @@ document.getElementById("textoMensagem").addEventListener("keydown",function(eve
 });
 
 /* MÁSCARA SIMPLES DO CPF */
+
 document.getElementById("cadCPF").addEventListener("input",function(){
  let v=this.value.replace(/\D/g,"").slice(0,11);
+
  v=v.replace(/(\d{3})(\d)/,"$1.$2");
  v=v.replace(/(\d{3})(\d)/,"$1.$2");
  v=v.replace(/(\d{3})(\d{1,2})$/,"$1-$2");
+
  this.value=v;
 });
 
 /* INICIAR */
+
 iniciarAplicacao();
 </script>
 </body>
