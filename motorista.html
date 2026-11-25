@@ -6,22 +6,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nerocar | Motorista</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
- 
-* {
-  box-sizing: border-box;
-}
+<style>
+
+/* =========================================
+   NEROCAR - NOVO VISUAL CENTRAL MOTORISTAS
+   Preto • Amarelo • Branco
+========================================= */
 
 :root {
-  --ouro: #f5c400;
-  --ouro-claro: #ffda38;
   --fundo: #090909;
-  --cartao: #171717;
-  --cartao-2: #202020;
+  --superficie: #151515;
+  --superficie2: #1d1d1d;
   --borda: #303030;
-  --texto: #ffffff;
-  --cinza: #a6a6a6;
-  --verde: #35c875;
-  --vermelho: #ed5555;
+  --amarelo: #f5c400;
+  --amarelo-claro: #ffdc45;
+  --branco: #ffffff;
+  --cinza: #a5a5a5;
+  --verde: #35c878;
+  --vermelho: #ef5555;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 html {
@@ -32,11 +38,13 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  padding: 22px 14px 40px;
+  padding: 22px 14px;
   background:
-    radial-gradient(ellipse at top, #292000 0%, #111 35%, #080808 75%);
-  color: var(--texto);
+    radial-gradient(ellipse at top, #28200a 0%, transparent 38%),
+    var(--fundo);
+  color: var(--branco);
   font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 .container {
@@ -45,35 +53,44 @@ body {
   margin: 0 auto;
 }
 
+/* CABEÇALHO */
+
 header {
+  position: relative;
   text-align: center;
-  margin: 12px 0 26px;
+  padding: 24px 12px 27px;
+  margin: 0 0 20px;
 }
 
 .logo {
   display: inline-block;
-  font-size: 37px;
-  font-weight: 900;
+  font-size: 39px;
+  font-weight: 1000;
   letter-spacing: 2px;
-  color: var(--ouro);
-  text-shadow: 0 0 22px #f5c40035;
+  color: var(--amarelo);
+  text-shadow: 0 0 25px #f5c40030;
 }
 
 header h2 {
-  font-size: 21px;
-  margin: 9px 0 5px;
+  margin: 12px 0 7px;
+  font-size: 22px;
   font-weight: 800;
+  letter-spacing: .2px;
 }
 
 .small {
   color: var(--cinza);
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
+/* CARTÕES */
+
 .card {
-  background: linear-gradient(145deg, #1d1d1d, #141414);
-  border: 1px solid #353535;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(145deg, #1c1c1c, #121212);
+  border: 1px solid #343434;
   border-radius: 19px;
   padding: 21px;
   margin-bottom: 17px;
@@ -81,18 +98,33 @@ header h2 {
 }
 
 .card h3 {
-  margin: 0 0 18px;
+  margin: 0 0 17px;
   font-size: 19px;
   font-weight: 800;
 }
 
+.card h3::first-letter {
+  color: var(--amarelo);
+}
+
+#conta > .card:first-child {
+  border-top: 3px solid var(--amarelo);
+}
+
+#painelCorrida {
+  border-top: 3px solid var(--amarelo);
+}
+
+/* CAMPOS */
+
 input {
   display: block;
   width: 100%;
+  min-width: 0;
   padding: 15px;
   margin: 10px 0;
-  border: 1px solid #3c3c3c;
   border-radius: 11px;
+  border: 1px solid #3b3b3b;
   outline: none;
   background: #101010;
   color: white;
@@ -100,28 +132,29 @@ input {
   transition: border .2s, box-shadow .2s;
 }
 
+input::placeholder {
+  color: #777;
+}
+
 input:focus {
-  border-color: var(--ouro);
+  border-color: var(--amarelo);
   box-shadow: 0 0 0 3px #f5c40020;
 }
 
-input::placeholder {
-  color: #858585;
-}
+/* BOTÕES */
 
 button {
-  display: block;
   width: 100%;
   min-height: 49px;
   padding: 14px 16px;
-  margin-top: 11px;
   border: 0;
   border-radius: 11px;
+  margin-top: 10px;
   font-size: 14px;
   font-weight: 900;
-  letter-spacing: .4px;
+  letter-spacing: .35px;
   cursor: pointer;
-  transition: transform .15s, filter .15s;
+  transition: transform .15s, filter .15s, opacity .15s;
 }
 
 button:active {
@@ -134,9 +167,9 @@ button:disabled {
 }
 
 .primary {
-  background: linear-gradient(135deg, #ffda38, #e9b900);
+  background: linear-gradient(135deg, #ffdc45, #eab900);
   color: #111;
-  box-shadow: 0 5px 17px #f5c40020;
+  box-shadow: 0 5px 17px #f5c40025;
 }
 
 .primary:hover {
@@ -144,193 +177,151 @@ button:disabled {
 }
 
 .secondary {
-  background: #303030;
+  background: #292929;
   color: white;
-  border: 1px solid #484848;
+  border: 1px solid #414141;
+}
+
+.secondary:hover {
+  background: #353535;
 }
 
 .danger {
-  background: #8f2929;
+  background: linear-gradient(135deg, #c83b3b, #962626);
   color: white;
 }
 
-.hidden {
-  display: none !important;
+/* SEPARADOR */
+
+hr {
+  opacity: .6;
 }
 
-#conta > .card:first-child {
-  border-top: 3px solid var(--ouro);
-}
-
-#conta > .card:first-child > h3 {
-  color: var(--ouro);
-}
-
-#conta > .card:first-child > p strong {
-  color: white;
-  font-size: 18px;
-}
-
-#veiculoMotorista {
-  background: #101010;
-  border: 1px solid #303030;
-  border-radius: 10px;
-  padding: 12px;
-  margin-top: 10px;
-}
-
-#btnAlerta {
-  min-height: 55px;
-  font-size: 15px;
-  background: linear-gradient(135deg, #ffdc45, #e8b600);
-}
-
-#statusAlerta {
-  text-align: center;
-  margin: 9px 0 18px;
-}
+/* SITUAÇÃO DO MOTORISTA */
 
 .status {
   padding: 15px;
-  margin: 18px 0 10px;
+  margin: 16px 0 10px;
+  border: 1px solid #51451b;
   border-radius: 12px;
-  background: #28230e;
-  border: 1px solid #796100;
-  color: var(--ouro-claro);
+  background: #29230f;
+  color: var(--amarelo-claro);
   font-size: 17px;
   font-weight: 900;
+  line-height: 1.4;
 }
 
 .status.green {
-  background: #10291c;
-  border-color: #287b49;
-  color: #65e69a;
+  color: #70e6a0;
+  background: #10291b;
+  border-color: #286b43;
 }
 
 .status.red {
-  background: #301515;
-  border-color: #803333;
   color: #ff8585;
+  background: #321818;
+  border-color: #873535;
 }
 
-.status.yellow {
-  background: #30280d;
-  border-color: #806600;
-  color: var(--ouro-claro);
+.yellow {
+  color: var(--amarelo);
 }
 
-#posicaoFila {
-  padding: 19px;
-  margin: 17px 0;
-  text-align: center;
-  background: linear-gradient(145deg, #332900, #211b08);
-  border: 1px solid #a98700;
-  border-radius: 15px;
+.green {
+  color: var(--verde);
 }
 
-#posicaoFila .small:first-child {
-  color: #ffdf50;
-  font-weight: 900;
-  letter-spacing: 1px;
+.red {
+  color: var(--vermelho);
 }
 
-.posicao-numero {
-  margin: 8px 0;
-  font-size: 47px;
-  font-weight: 900;
-  color: var(--ouro);
-  text-shadow: 0 0 20px #f5c40035;
-}
-
-#detalhePosicao {
-  color: #ddd;
-}
-
-#mensagemFila,
-#mensagemCorrida {
-  line-height: 1.5;
-  overflow-wrap: anywhere;
-}
-
-#painelCorrida {
-  border: 1px solid #8d7100;
-  border-top: 4px solid var(--ouro);
-  background: linear-gradient(150deg, #211d0e, #151515 45%);
-}
-
-#painelCorrida > h3 {
-  color: var(--ouro);
-  font-size: 21px;
-}
-
-#avisoCorrida {
-  text-align: center;
-}
+/* INFORMAÇÕES */
 
 .info {
-  background: #101010;
-  border: 1px solid #363636;
-  border-radius: 12px;
   padding: 15px;
-  margin: 14px 0;
+  margin: 12px 0;
+  border: 1px solid #373737;
+  border-radius: 12px;
+  background: #101010;
+  line-height: 1.6;
   overflow-wrap: anywhere;
 }
 
 .info p {
-  margin: 8px 0;
-  line-height: 1.5;
+  margin: 7px 0;
 }
 
 .info strong {
-  color: var(--ouro);
+  color: var(--amarelo-claro);
 }
 
-#tempoChegadaBox {
-  margin: 17px 0;
-  padding: 15px;
-  background: #29220c;
-  border: 1px solid #796100;
-  border-radius: 12px;
+/* POSIÇÃO NA FILA */
+
+#posicaoFila {
+  padding: 19px;
+  text-align: center;
+  background: linear-gradient(145deg, #302800, #171400);
+  border: 1px solid #927500;
+  border-radius: 15px;
+  margin: 15px 0;
 }
 
-#tempoChegadaBox label {
-  display: block;
-  color: #ffdc45;
-  font-weight: bold;
+.posicao-numero {
+  margin: 8px 0;
+  font-size: 48px;
+  line-height: 1.1;
+  font-weight: 1000;
+  color: var(--amarelo);
+  text-shadow: 0 0 20px #f5c40030;
 }
+
+/* ALERTA SONORO */
+
+#btnAlerta {
+  min-height: 55px;
+  font-size: 14px;
+}
+
+#statusAlerta {
+  text-align: center;
+  margin: 9px 0 16px;
+}
+
+/* CONTADOR DA CORRIDA */
 
 .contador-prazo {
-  background: #332d12;
-  border: 1px solid #9b7c00;
-  border-radius: 14px;
-  padding: 17px;
+  padding: 19px 14px;
+  margin: 16px 0;
   text-align: center;
-  margin: 14px 0;
+  border: 1px solid #927500;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #332b0e, #1e1908);
 }
 
 .contador-legenda {
+  color: #ffe477;
   font-size: 12px;
-  color: #f5d95d;
-  font-weight: bold;
-  letter-spacing: .5px;
+  font-weight: 900;
+  letter-spacing: 1px;
 }
 
 .contador-tempo {
-  font-size: 46px;
-  font-weight: 900;
-  color: var(--ouro);
+  margin: 8px 0;
+  color: var(--amarelo);
+  font-size: 49px;
   line-height: 1.2;
-  margin: 7px 0;
+  font-weight: 1000;
   font-variant-numeric: tabular-nums;
 }
 
 .contador-detalhe {
-  font-size: 13px;
   color: #ddd;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .contador-prazo.aceita {
-  background: #123321;
+  background: #10291b;
   border-color: #287447;
 }
 
@@ -349,36 +340,69 @@ button:disabled {
   color: #ff8585;
 }
 
+/* PAINEL DE CORRIDA */
+
+#avisoCorrida {
+  padding: 13px;
+  border-radius: 11px;
+  background: #29230f;
+  border: 1px solid #65530c;
+}
+
 #btnAceitar,
 #btnFinalizar {
-  min-height: 57px;
-  font-size: 16px;
+  min-height: 55px;
+  font-size: 15px;
 }
 
-#btnRecusar,
-#btnCancelarCorrida {
-  min-height: 50px;
+/* LOCALIZAÇÃO GOOGLE MAPS */
+
+.link-localizacao {
+  display: inline-block;
+  position: relative;
+  z-index: 20;
+  pointer-events: auto;
+  cursor: pointer;
+  margin-top: 7px;
+  padding: 12px 14px;
+  background: #176b3a;
+  color: white !important;
+  border-radius: 9px;
+  font-weight: bold;
+  text-decoration: none !important;
 }
+
+.link-localizacao:hover {
+  background: #21894b;
+}
+
+.chat-mensagem a {
+  position: relative;
+  z-index: 20;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* CHAT */
 
 .chat-area {
-  border-top: 1px solid #444;
+  border-top: 1px solid #393939;
   margin-top: 22px;
-  padding-top: 18px;
+  padding-top: 19px;
 }
 
 .chat-area h3 {
-  color: var(--ouro);
-  margin-top: 0;
+  color: var(--amarelo);
 }
 
 .chat-lista {
-  height: 260px;
+  height: 270px;
   overflow-y: auto;
-  background: #0b0b0b;
-  border: 1px solid #383838;
-  border-radius: 12px;
+  background: #0c0c0c;
+  border: 1px solid #353535;
+  border-radius: 13px;
   padding: 12px;
-  margin: 12px 0;
+  margin: 13px 0;
 }
 
 .chat-vazio {
@@ -392,7 +416,7 @@ button:disabled {
   max-width: 88%;
   padding: 11px 13px;
   border-radius: 13px;
-  margin: 8px 0;
+  margin: 9px 0;
   overflow-wrap: anywhere;
   font-size: 14px;
   line-height: 1.5;
@@ -408,22 +432,22 @@ button:disabled {
 }
 
 .chat-mensagem.passageiro {
-  background: #303030;
+  background: #292929;
   margin-right: auto;
   color: white;
 }
 
 .chat-autor {
   font-size: 11px;
-  color: var(--ouro);
+  color: var(--amarelo);
   font-weight: bold;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 
 .chat-hora {
   font-size: 10px;
   color: #aaa;
-  margin-top: 5px;
+  margin-top: 6px;
   text-align: right;
 }
 
@@ -446,31 +470,7 @@ button:disabled {
   padding: 14px 10px;
 }
 
-.link-localizacao {
-  display: inline-block;
-  position: relative;
-  z-index: 20;
-  pointer-events: auto;
-  cursor: pointer;
-  margin-top: 6px;
-  padding: 10px 12px;
-  background: #176b3a;
-  color: #fff !important;
-  border-radius: 7px;
-  font-weight: bold;
-  text-decoration: none !important;
-}
-
-.link-localizacao:hover {
-  background: #21894b;
-}
-
-.chat-mensagem a {
-  position: relative;
-  z-index: 20;
-  pointer-events: auto;
-  cursor: pointer;
-}
+/* NOTIFICAÇÕES */
 
 #toastContainer {
   position: fixed;
@@ -483,10 +483,10 @@ button:disabled {
 }
 
 .toast {
-  background: #242424;
+  background: #202020;
   color: #fff;
-  border: 1px solid var(--ouro);
-  border-left: 5px solid var(--ouro);
+  border: 1px solid var(--amarelo);
+  border-left: 5px solid var(--amarelo);
   border-radius: 12px;
   padding: 14px 16px;
   margin-bottom: 9px;
@@ -506,7 +506,7 @@ button:disabled {
 
 .toast strong {
   display: block;
-  color: var(--ouro);
+  color: var(--amarelo);
   margin-bottom: 3px;
 }
 
@@ -521,10 +521,19 @@ button:disabled {
   }
 }
 
+/* ELEMENTOS OCULTOS */
+
+.hidden {
+  display: none !important;
+}
+
+/* MODO FOCO DA CORRIDA
+   Mantido para preservar o funcionamento atual.
+*/
+
 body.modo-corrida {
   padding: 0;
   overflow: hidden;
-  background: #090909;
 }
 
 body.modo-corrida .container {
@@ -556,8 +565,9 @@ body.modo-corrida #painelCorrida {
   height: 100dvh;
   overflow-y: auto;
   margin: 0 auto;
-  padding: 22px 18px 32px;
+  padding: 24px 18px 35px;
   border: 0;
+  border-top: 3px solid var(--amarelo);
   border-radius: 0;
   box-shadow: 0 0 35px #0009;
 }
@@ -566,17 +576,24 @@ body.modo-corrida #toastContainer {
   z-index: 10000;
 }
 
+/* CELULAR */
+
 @media (max-width: 480px) {
   body {
-    padding: 12px 10px 30px;
+    padding: 12px 10px;
   }
 
   header {
-    margin: 15px 0 22px;
+    padding: 18px 10px 22px;
+    margin-bottom: 13px;
   }
 
   .logo {
-    font-size: 34px;
+    font-size: 35px;
+  }
+
+  header h2 {
+    font-size: 20px;
   }
 
   .card {
@@ -585,7 +602,7 @@ body.modo-corrida #toastContainer {
   }
 
   .contador-tempo {
-    font-size: 42px;
+    font-size: 44px;
   }
 
   #toastContainer {
@@ -593,102 +610,6 @@ body.modo-corrida #toastContainer {
   }
 }
 
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:#101010;color:white;font-family:Arial,sans-serif;padding:20px}
-.container{max-width:520px;margin:auto}
-header{text-align:center;margin:25px 0}
-.logo{font-size:34px;font-weight:bold;color:#f5c400}
-.card{background:#1d1d1d;border:1px solid #333;border-radius:16px;padding:20px;margin-bottom:16px}
-input{width:100%;padding:14px;margin:8px 0;border-radius:9px;border:1px solid #444;background:#292929;color:white;font-size:16px}
-button{width:100%;padding:15px;border:0;border-radius:9px;font-weight:bold;font-size:16px;cursor:pointer;margin-top:10px}
-button:disabled{opacity:.5}
-.primary{background:#f5c400;color:#111}
-.secondary{background:#333;color:white}
-.danger{background:#a93232;color:white}
-.hidden{display:none!important}
-.small{font-size:13px;color:#aaa}
-.status{font-size:19px;font-weight:bold;margin:15px 0}
-.yellow{color:#f5c400}
-.green{color:#43d17a}
-.red{color:#ff6969}
-.info{background:#292929;padding:12px;border-radius:9px;margin:10px 0;overflow-wrap:anywhere}
-.contador-prazo{background:#332d12;border:1px solid #9b7c00;border-radius:14px;padding:15px;text-align:center;margin:14px 0}
-.contador-legenda{font-size:12px;color:#f5d95d;font-weight:bold;letter-spacing:.5px}
-.contador-tempo{font-size:44px;font-weight:900;color:#f5c400;line-height:1.2;margin:5px 0;font-variant-numeric:tabular-nums}
-.contador-detalhe{font-size:13px;color:#ddd}
-.contador-prazo.aceita{background:#123321;border-color:#287447}
-.contador-prazo.aceita .contador-legenda,.contador-prazo.aceita .contador-tempo{color:#79dfa0}
-.contador-prazo.encerrado{background:#351d1d;border-color:#8e3333}
-.contador-prazo.encerrado .contador-legenda,.contador-prazo.encerrado .contador-tempo{color:#ff8585}
-#posicaoFila{border:1px solid #6f5b00;background:#292400}
-.posicao-numero{font-size:30px;font-weight:900;color:#f5c400}
-#toastContainer{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;width:min(92%,480px);pointer-events:none}
-.toast{background:#242424;color:#fff;border:1px solid #f5c400;border-left:5px solid #f5c400;border-radius:12px;padding:14px 16px;margin-bottom:9px;box-shadow:0 8px 28px #0009;font-size:14px;line-height:1.45;animation:toastIn .25s ease-out}
-.toast.sucesso{border-color:#43d17a}
-.toast.erro{border-color:#ff6969}
-.toast strong{display:block;color:#f5c400;margin-bottom:3px}
-@keyframes toastIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
-@media(max-width:480px){body{padding:12px}#toastContainer{top:8px}}
-.chat-area{border-top:1px solid #444;margin-top:20px;padding-top:16px}
-.chat-area h3{color:#f5c400;margin-top:0}
-.chat-lista{height:260px;overflow-y:auto;background:#111;border:1px solid #383838;border-radius:10px;padding:12px;margin:12px 0}
-.chat-vazio{text-align:center;color:#888;font-size:13px;padding:25px 5px}
-.chat-mensagem{max-width:88%;padding:10px 12px;border-radius:12px;margin:8px 0;overflow-wrap:anywhere;font-size:14px;line-height:1.4;position:relative;z-index:2;pointer-events:auto}
-.chat-mensagem.motorista{background:#514400;margin-left:auto;color:white}
-.chat-mensagem.passageiro{background:#303030;margin-right:auto;color:white}
-.chat-autor{font-size:11px;color:#f5c400;font-weight:bold;margin-bottom:4px}
-.chat-hora{font-size:10px;color:#aaa;margin-top:5px;text-align:right}
-.chat-envio{display:flex;gap:8px;align-items:center}
-.chat-envio input{margin:0;min-width:0;flex:1}
-.chat-envio button{width:auto;min-width:90px;margin:0;padding:14px 10px}
-
-/* BOTÃO DE LOCALIZAÇÃO DO GOOGLE MAPS */
-.link-localizacao{
- display:inline-block;
- position:relative;
- z-index:20;
- pointer-events:auto;
- cursor:pointer;
- margin-top:6px;
- padding:10px 12px;
- background:#176b3a;
- color:#fff!important;
- border-radius:7px;
- font-weight:bold;
- text-decoration:none!important;
-}
-.link-localizacao:hover{background:#21894b}
-.chat-mensagem a{
- position:relative;
- z-index:20;
- pointer-events:auto;
- cursor:pointer;
-}
-
-/* MODO FOCO */
-body.modo-corrida{padding:0;overflow:hidden}
-body.modo-corrida .container{width:100%;max-width:none;margin:0}
-body.modo-corrida header{display:none!important}
-body.modo-corrida #conta{display:block!important}
-body.modo-corrida #conta>.card:first-child{display:none!important}
-body.modo-corrida #painelCorrida{
-  display:block!important;
-  position:fixed;
-  inset:0;
-  z-index:9998;
-  width:100%;
-  max-width:620px;
-  height:100vh;
-  height:100dvh;
-  overflow-y:auto;
-  margin:0 auto;
-  padding:22px 18px 32px;
-  border:0;
-  border-radius:0;
-  box-shadow:0 0 35px #0009;
-}
-body.modo-corrida #toastContainer{z-index:10000}
 </style>
 </head>
 <body>
