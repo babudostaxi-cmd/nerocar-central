@@ -533,35 +533,71 @@ m.textContent=data;
 await atualizarStatus();
 }
 
+
 function atualizarContadorMotorista(){
 const caixa=document.getElementById("contadorPrazoMotorista");
 if(!corridaAtual){caixa.classList.add("hidden");return;}
 const legenda=document.getElementById("legendaPrazoMotorista");
 const tempo=document.getElementById("tempoRestanteMotorista");
 const detalhe=document.getElementById("textoPrazoMotorista");
+
 if(corridaAtual.status==="accepted"){
 caixa.classList.remove("hidden","encerrado");
 caixa.classList.add("aceita");
-legenda.textContent="ATENDIMENTO CONFIRMADO";
-tempo.textContent="ACEITA";
-detalhe.textContent="Você aceitou esta corrida.";
+legenda.textContent="PREVISÃO DE CHEGADA";
+
+const prazo=corridaAtual.arrival_deadline_at;
+if(!prazo){
+tempo.textContent="--:--";
+detalhe.textContent="Aguardando previsão de chegada.";
 return;
 }
+
+const restante=Math.max(0,Math.ceil((new Date(prazo).getTime()-Date.now())/1000));
+const minutos=Math.floor(restante/60);
+const segundos=restante%60;
+
+tempo.textContent=String(minutos).padStart(2,"0")+":"+String(segundos).padStart(2,"0");
+
+if(restante>0){
+detalhe.textContent="Estamos acompanhando seu tempo de chegada ao passageiro.";
+}else{
+caixa.classList.add("encerrado");
+legenda.textContent="TEMPO DE CHEGADA ESGOTADO";
+tempo.textContent="00:00";
+detalhe.textContent="ATENÇÃO: sua previsão de chegada foi ultrapassada!";
+}
+return;
+}
+
 caixa.classList.remove("aceita");
 if(corridaAtual.status!=="pending"){
 caixa.classList.add("hidden");
 return;
 }
+
 caixa.classList.remove("hidden");
+caixa.classList.remove("encerrado");
 legenda.textContent="TEMPO PARA ACEITAR A CORRIDA";
+
 const atribuidoEm=corridaAtual.assigned_at;
-if(!atribuidoEm){tempo.textContent="--:--";detalhe.textContent="Aguardando atualização do prazo.";return;}
+if(!atribuidoEm){
+tempo.textContent="--:--";
+detalhe.textContent="Aguardando atualização do prazo.";
+return;
+}
+
 const inicio=new Date(atribuidoEm).getTime();
-if(!Number.isFinite(inicio)){tempo.textContent="--:--";detalhe.textContent="Aguardando atualização do prazo.";return;}
+if(!Number.isFinite(inicio)){
+tempo.textContent="--:--";
+detalhe.textContent="Aguardando atualização do prazo.";
+return;
+}
+
 const restante=Math.max(0,30-Math.floor((Date.now()-inicio)/1000));
 tempo.textContent="00:"+String(restante).padStart(2,"0");
+
 if(restante>0){
-caixa.classList.remove("encerrado");
 detalhe.textContent="Aceite a corrida antes que o prazo termine.";
 }else{
 caixa.classList.add("encerrado");
@@ -601,7 +637,7 @@ const aceita=c.status==="accepted";
 document.getElementById("avisoCorrida").textContent=pendente?"Nova corrida aguardando sua resposta!":"Corrida aceita. Boa viagem!";
 document.getElementById("btnAceitar").classList.toggle("hidden",!pendente);
 document.getElementById("btnRecusar").classList.toggle("hidden",!pendente);
- document.getElementById("tempoChegadaBox").classList.toggle("hidden",!pendente);
+document.getElementById("tempoChegadaBox").classList.toggle("hidden",!pendente);
 if(mudou) document.getElementById("tempoChegada").value="";
 document.getElementById("btnFinalizar").classList.toggle("hidden",!aceita);
 document.getElementById("btnCancelarCorrida").classList.toggle("hidden",!aceita);
