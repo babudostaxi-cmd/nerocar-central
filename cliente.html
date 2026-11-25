@@ -31,9 +31,7 @@ body{
  box-shadow:none;
 }
 
-.logo,.subtitulo{
- display:none;
-}
+.logo,.subtitulo{display:none}
 
 h2{font-size:20px;margin-top:0}
 label{display:block;margin:15px 0 7px;font-weight:bold;font-size:14px}
@@ -156,13 +154,17 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .botao-localizacao{background:#267344;color:white;margin-top:12px}
 .link-localizacao{display:inline-block;margin-top:6px;padding:9px 12px;background:#176b3a;color:#fff!important;border-radius:7px;font-weight:bold;text-decoration:none}
 
-/* =========================================
-   TELA DE LOGIN NEROCAR - NOVO VISUAL
-========================================= */
+/* TELA DE LOGIN NEROCAR - BANNER COM BOTOES FUNCIONAIS */
 
 #telaAuth{
  padding:0;
  background:#080808;
+}
+
+.auth-banner-wrap{
+ position:relative;
+ width:100%;
+ overflow:hidden;
 }
 
 .banner-auth{
@@ -172,67 +174,101 @@ button:disabled{opacity:.5;cursor:not-allowed}
  margin:0;
 }
 
-.login{
- margin:15px;
- padding:25px 18px;
- border:1px solid #b18c00;
- border-radius:30px;
- background:linear-gradient(145deg,#202020,#050505);
- box-shadow:0 0 20px #ffcc0030;
+.auth-hit{
+ position:absolute;
+ top:38.5%;
+ height:6.2%;
+ margin:0;
+ padding:0 5px;
+ border-radius:45px;
+ z-index:5;
+ font-size:clamp(12px,3.5vw,16px);
+ font-weight:900;
+ cursor:pointer;
+}
+
+.auth-hit-login{
+ left:6.4%;
+ width:43.6%;
+ background:linear-gradient(90deg,#ffdf00,#f4b500);
+ color:#000;
+ border:0;
+}
+
+.auth-hit-cadastro{
+ left:50%;
+ width:43.6%;
+ background:#292929;
+ color:#eee;
+ border:0;
+}
+
+.auth-mask{
+ position:absolute;
+ top:45.2%;
+ left:5%;
+ width:90%;
+ height:38.8%;
+ z-index:4;
+ background:linear-gradient(180deg,#080808,#090909);
+ border-radius:0 0 25px 25px;
+ overflow:hidden;
+}
+
+.auth-inicio{
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ height:100%;
+ padding:20px;
+ text-align:center;
+ color:#ccc;
+ font-size:14px;
+ line-height:1.6;
+}
+
+.auth-form-content{
+ width:100%;
+ height:100%;
+ overflow-y:auto;
+ padding:12px 10px 18px;
+}
+
+.auth-form-content .login{
+ margin:0;
+ padding:0;
+ border:0;
+ border-radius:0;
+ background:transparent;
+ box-shadow:none;
 }
 
 #telaAuth h2{
- font-size:27px;
- margin:0 0 25px;
+ font-size:22px;
+ margin:0 0 15px;
  color:white;
 }
 
-#telaAuth h2 span{
- color:#ffd000;
-}
+#telaAuth h2 span{color:#ffd000}
 
-.auth-tabs{
- display:flex;
- gap:0;
- padding:3px;
- background:#292929;
- border-radius:50px;
- margin-bottom:25px;
-}
-
-.auth-tabs button{
- width:50%;
- padding:17px 5px;
- margin:0;
- border:0;
- border-radius:50px;
- background:transparent;
- color:#aaa;
- font-weight:bold;
- font-size:14px;
-}
-
-.auth-tabs button.ativo{
- background:#ffd000;
- color:#000;
-}
+.auth-tabs{display:none!important}
 
 #telaAuth label{
  display:block;
- font-size:16px;
- margin:0 0 10px;
+ font-size:14px;
+ margin:0 0 6px;
 }
 
 #telaAuth input{
  width:100%;
- height:65px;
- padding:15px;
- margin:0 0 22px;
+ height:48px;
+ padding:10px 13px;
+ margin:0 0 12px;
  border:1px solid #444;
- border-radius:20px;
+ border-radius:12px;
  background:#252525;
  color:white;
- font-size:16px;
+ font-size:15px;
  outline:none;
 }
 
@@ -246,38 +282,38 @@ button:disabled{opacity:.5;cursor:not-allowed}
 #telaAuth #btnLogin,
 #telaAuth #btnCadastro{
  width:100%;
- padding:22px 10px;
- margin-top:0;
+ padding:15px 10px;
+ margin-top:5px;
  border:2px solid #ffe77a;
- border-radius:45px;
+ border-radius:35px;
  background:linear-gradient(90deg,#ffdf00,#f4b500);
  color:#000;
- font-size:17px;
+ font-size:15px;
  font-weight:bold;
 }
 
 #telaAuth #btnLogin:disabled,
-#telaAuth #btnCadastro:disabled{
- opacity:.5;
-}
+#telaAuth #btnCadastro:disabled{opacity:.5}
 
 #telaAuth .aviso{
- padding:25px 10px 0;
+ padding:8px 0 0;
  text-align:center;
  color:#ccc;
- font-size:13px;
+ font-size:12px;
 }
 
 #telaAuth .auth-info{
  background:#292929;
  border:1px solid #444;
- border-radius:15px;
- padding:13px;
- margin:15px 0;
+ border-radius:12px;
+ padding:10px;
+ margin:10px 0;
  color:#bbb;
- font-size:13px;
+ font-size:12px;
  line-height:1.5;
 }
+
+#telaAuth #formCadastro{padding-bottom:12px}
 
 .usuario-barra{
  display:flex;
@@ -327,16 +363,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .pagamento-valor{text-align:center;font-size:34px;font-weight:900;color:#f5c400;margin:15px 0}
 .pagamento-pago{color:#79dfa0;font-weight:bold;text-align:center;padding:15px}
 
-#areaPassageiro{
- padding:20px 18px;
-}
-
-@media(max-width:400px){
- .login{
-  margin:12px;
-  padding:22px 15px;
- }
-}
+#areaPassageiro{padding:20px 18px}
 
 @media(min-width:600px){
  .container{max-width:500px}
@@ -356,59 +383,85 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
  <section id="telaAuth">
 
-  <img
-   class="banner-auth"
-   src="https://i.ibb.co/qM4wnWbK/tela-login-cliente.png"
-   alt="Nerocar - Sua viagem começa aqui"
-  >
+  <div class="auth-banner-wrap">
 
-  <div class="login">
+   <img
+    class="banner-auth"
+    src="https://i.ibb.co/qM4wnWbK/tela-login-cliente.png"
+    alt="Nerocar - Sua viagem começa aqui"
+   >
 
-   <h2 id="tituloAuth">Acesse <span>sua conta</span></h2>
+   <button
+    type="button"
+    class="auth-hit auth-hit-login"
+    onclick="mostrarFormularioAuth('login')"
+   >ENTRAR</button>
 
-   <div class="auth-tabs">
-    <button type="button" id="tabLogin" class="ativo" onclick="mostrarFormularioAuth('login')">ENTRAR</button>
-    <button type="button" id="tabCadastro" onclick="mostrarFormularioAuth('cadastro')">CADASTRAR</button>
+   <button
+    type="button"
+    class="auth-hit auth-hit-cadastro"
+    onclick="mostrarFormularioAuth('cadastro')"
+   >CADASTRAR</button>
+
+   <div class="auth-mask">
+
+    <div id="authInicio" class="auth-inicio">
+     Escolha uma opção acima para acessar sua conta ou realizar seu cadastro.
+    </div>
+
+    <div id="authFormArea" class="auth-form-content escondido">
+
+     <div class="login">
+
+      <h2 id="tituloAuth">Acesse <span>sua conta</span></h2>
+
+      <!-- Mantidos ocultos para compatibilidade com o JavaScript -->
+      <div class="auth-tabs escondido">
+       <button type="button" id="tabLogin" class="ativo">ENTRAR</button>
+       <button type="button" id="tabCadastro">CADASTRAR</button>
+      </div>
+
+      <div id="formLogin">
+
+       <label for="loginEmail">E-mail</label>
+       <input id="loginEmail" type="email" placeholder="seuemail@exemplo.com" autocomplete="email">
+
+       <label for="loginSenha">Senha</label>
+       <input id="loginSenha" type="password" placeholder="Digite sua senha" autocomplete="current-password">
+
+       <button id="btnLogin" onclick="entrarConta()">ENTRAR NA MINHA CONTA</button>
+
+       <div class="aviso">Entre para solicitar e acompanhar suas corridas.</div>
+      </div>
+
+      <div id="formCadastro" class="escondido">
+
+       <label for="cadNome">Nome completo</label>
+       <input id="cadNome" type="text" maxlength="100" placeholder="Seu nome completo" autocomplete="name">
+
+       <label for="cadTelefone">Telefone com DDD</label>
+       <input id="cadTelefone" type="tel" maxlength="20" placeholder="Ex.: (62) 99999-9999" autocomplete="tel">
+
+       <label for="cadCPF">CPF</label>
+       <input id="cadCPF" type="text" maxlength="14" placeholder="000.000.000-00" inputmode="numeric">
+
+       <label for="cadEmail">E-mail</label>
+       <input id="cadEmail" type="email" placeholder="seuemail@exemplo.com" autocomplete="email">
+
+       <label for="cadSenha">Criar senha</label>
+       <input id="cadSenha" type="password" minlength="6" placeholder="Mínimo de 6 caracteres" autocomplete="new-password">
+
+       <label for="cadConfirmarSenha">Confirmar senha</label>
+       <input id="cadConfirmarSenha" type="password" minlength="6" placeholder="Digite a senha novamente" autocomplete="new-password">
+
+       <button id="btnCadastro" onclick="cadastrarConta()">CRIAR MINHA CONTA</button>
+
+       <div class="auth-info">Seus dados serão usados para identificar sua conta e suas solicitações de corrida. O acesso é feito por e-mail e senha. Não utilizamos código por SMS nesta etapa.</div>
+      </div>
+
+     </div>
+    </div>
    </div>
-
-   <div id="formLogin">
-
-    <label for="loginEmail">E-mail</label>
-    <input id="loginEmail" type="email" placeholder="seuemail@exemplo.com" autocomplete="email">
-
-    <label for="loginSenha">Senha</label>
-    <input id="loginSenha" type="password" placeholder="Digite sua senha" autocomplete="current-password">
-
-    <button id="btnLogin" onclick="entrarConta()">ENTRAR NA MINHA CONTA</button>
-
-    <div class="aviso">Entre para solicitar e acompanhar suas corridas.</div>
-   </div>
-
-   <div id="formCadastro" class="escondido">
-
-    <label for="cadNome">Nome completo</label>
-    <input id="cadNome" type="text" maxlength="100" placeholder="Seu nome completo" autocomplete="name">
-
-    <label for="cadTelefone">Telefone com DDD</label>
-    <input id="cadTelefone" type="tel" maxlength="20" placeholder="Ex.: (62) 99999-9999" autocomplete="tel">
-
-    <label for="cadCPF">CPF</label>
-    <input id="cadCPF" type="text" maxlength="14" placeholder="000.000.000-00" inputmode="numeric">
-
-    <label for="cadEmail">E-mail</label>
-    <input id="cadEmail" type="email" placeholder="seuemail@exemplo.com" autocomplete="email">
-
-    <label for="cadSenha">Criar senha</label>
-    <input id="cadSenha" type="password" minlength="6" placeholder="Mínimo de 6 caracteres" autocomplete="new-password">
-
-    <label for="cadConfirmarSenha">Confirmar senha</label>
-    <input id="cadConfirmarSenha" type="password" minlength="6" placeholder="Digite a senha novamente" autocomplete="new-password">
-
-    <button id="btnCadastro" onclick="cadastrarConta()">CRIAR MINHA CONTA</button>
-
-    <div class="auth-info">Seus dados serão usados para identificar sua conta e suas solicitações de corrida. O acesso é feito por e-mail e senha. Não utilizamos código por SMS nesta etapa.</div>
-   </div>
-
   </div>
  </section>
 
@@ -418,8 +471,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
    <span>Olá, <strong id="nomeUsuarioBarra" class="destaque">Passageiro</strong></span>
    <button onclick="sairConta()">SAIR DA CONTA</button>
   </div>
-
-  <!-- TELA PIX -->
 
   <section id="telaPagamento" class="escondido">
    <h2>Pagamento pendente</h2>
@@ -593,13 +644,19 @@ function escaparHTML(valor){
 function mostrarFormularioAuth(tipo){
  const cadastro=tipo==="cadastro";
 
+ document.getElementById("authInicio").classList.add("escondido");
+ document.getElementById("authFormArea").classList.remove("escondido");
+
  document.getElementById("formLogin").classList.toggle("escondido",cadastro);
  document.getElementById("formCadastro").classList.toggle("escondido",!cadastro);
+
  document.getElementById("tabLogin").classList.toggle("ativo",!cadastro);
  document.getElementById("tabCadastro").classList.toggle("ativo",cadastro);
 
  document.getElementById("tituloAuth").innerHTML=
   cadastro?"Criar <span>minha conta</span>":"Acesse <span>sua conta</span>";
+
+ document.getElementById("authFormArea").scrollTop=0;
 }
 
 function mostrarAreaAutenticada(){
