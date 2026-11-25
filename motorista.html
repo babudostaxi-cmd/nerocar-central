@@ -64,6 +64,169 @@ body.modo-corrida{padding:0;overflow:hidden}body.modo-corrida .container{width:1
 body.modo-corrida #painelCorrida{display:block!important;position:fixed;inset:0;z-index:9998;width:100%;max-width:620px;height:100vh;height:100dvh;overflow-y:auto;margin:0 auto;padding:22px 18px 32px;border:0;border-radius:0;box-shadow:0 0 35px #0009}
 body.modo-corrida #toastContainer{z-index:10000}
 @media(max-width:380px){body{padding:16px 12px 26px}.logo{font-size:28px}header h2{font-size:18px}.profile-greeting{font-size:19px}.card,.profile-card,.alert-card,.queue-card{padding:15px}}
+  /* =====================================
+   NEROCAR - PAINEL DE RECEBIMENTO
+   ===================================== */
+
+#painelCorrida {
+  background: #050507;
+  border: 0;
+  border-radius: 0;
+  padding: 20px;
+  box-shadow: none;
+}
+
+#painelCorrida > h3:first-child {
+  color: #fff;
+  font-size: 21px;
+  text-align: center;
+  margin: 5px 0 22px;
+}
+
+#avisoCorrida {
+  background: #211900;
+  border: 1px solid #b58a00;
+  border-radius: 15px;
+  padding: 15px;
+  color: #ffd000;
+  font-size: 15px;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+#contadorPrazoMotorista {
+  background: linear-gradient(120deg, #202127, #08090c);
+  border: 1px solid #333;
+  border-radius: 25px;
+  padding: 22px;
+  margin: 0 0 15px;
+}
+
+#contadorPrazoMotorista .contador-legenda {
+  color: #ffd000;
+  font-size: 12px;
+  letter-spacing: .8px;
+}
+
+#contadorPrazoMotorista .contador-tempo {
+  font-size: 76px;
+  font-weight: 900;
+  color: #ffcc00;
+  line-height: 1.1;
+  margin: 8px 0;
+}
+
+#contadorPrazoMotorista .contador-detalhe {
+  color: #c5c5ce;
+  font-size: 13px;
+}
+
+#painelCorrida > .info {
+  background: linear-gradient(120deg, #1c1d24, #101115);
+  border: 1px solid #30313a;
+  border-left: 7px solid #ffcf00;
+  border-radius: 22px;
+  padding: 20px;
+  margin: 0 0 15px;
+}
+
+#painelCorrida > .info p {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 10px 0;
+  overflow-wrap: anywhere;
+}
+
+#tempoChegadaBox {
+  margin: 18px 0;
+}
+
+#tempoChegadaBox label {
+  display: block;
+  color: #ddd;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+#tempoChegada {
+  background: #191a21;
+  border: 1px solid #393b45;
+  border-radius: 16px;
+  padding: 17px;
+}
+
+#painelCorrida #btnAceitar,
+#painelCorrida #btnRecusar,
+#painelCorrida #btnFinalizar,
+#painelCorrida #btnCancelarCorrida {
+  min-height: 58px;
+  border-radius: 25px;
+  font-size: 16px;
+  margin: 7px 0;
+}
+
+#painelCorrida #btnAceitar,
+#painelCorrida #btnFinalizar {
+  background: linear-gradient(90deg, #ffd000, #ffbd00);
+  color: #000;
+}
+
+#painelCorrida #btnRecusar,
+#painelCorrida #btnCancelarCorrida {
+  background: #220d0e;
+  border: 1px solid #ff2929;
+  color: #fff;
+}
+
+#mensagemCorrida {
+  color: #bbbcc5;
+  font-size: 13px;
+  margin: 12px 0 18px;
+}
+
+#painelCorrida .chat-area {
+  border-top: 1px solid #383941;
+  margin-top: 22px;
+  padding-top: 20px;
+}
+
+#painelCorrida .chat-area h3 {
+  color: #fff;
+  font-size: 20px;
+}
+
+#painelCorrida .chat-area > p {
+  color: #aeb0bb;
+  font-size: 14px;
+}
+
+#painelCorrida .chat-lista {
+  height: 180px;
+  background: #101115;
+  border: 1px solid #353640;
+  border-radius: 17px;
+}
+
+#painelCorrida .chat-envio input {
+  border-radius: 18px;
+  padding: 16px;
+}
+
+#painelCorrida .chat-envio button {
+  background: #ffca00;
+  color: #000;
+  border-radius: 18px;
+}
+
+@media(max-width: 380px) {
+  #painelCorrida {
+    padding: 16px;
+  }
+
+  #contadorPrazoMotorista .contador-tempo {
+    font-size: 62px;
+  }
+}
 </style>
 </head>
 <body>
