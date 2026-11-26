@@ -6,138 +6,134 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nerocar | Motorista</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
-:root{--bg:#080808;--card:#171717;--card2:#1d1d1d;--line:#303030;--yellow:#ffc107;--muted:#a6a6a6;--green:#43d17a;--red:#ff6969}
+
+:root{
+  --bg:#08090b;--surface:#15171b;--surface-2:#1c1f24;--line:#2c3038;
+  --yellow:#ffc629;--yellow-soft:#332a12;--text:#f7f7f8;--muted:#a5aab3;
+  --green:#45d483;--red:#ff6969
+}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:var(--bg);color:#fff;font-family:Arial,Helvetica,sans-serif;padding:20px 16px 32px}
-.container{width:100%;max-width:430px;margin:0 auto}
-header{text-align:center;margin:12px 0 22px;padding:8px 0 16px}
-.logo{font-size:31px;font-weight:900;letter-spacing:2px;color:var(--yellow);line-height:1.1}
-header h2{font-size:19px;letter-spacing:.2px;margin:10px 0 6px;color:#fff}
+html{min-height:100%;background:var(--bg)}
+body{
+  margin:0;min-height:100vh;padding:28px 22px 48px;
+  background:radial-gradient(ellipse at 50% -15%,#29220f 0,transparent 42%),var(--bg);
+  color:var(--text);font-family:Arial,Helvetica,sans-serif
+}
+.container{width:100%;max-width:1000px;margin:0 auto}
+header{
+  text-align:center;margin:8px 0 28px;padding:22px 16px 24px;
+  border-bottom:1px solid #25282e
+}
+.logo{font-size:clamp(30px,5vw,43px);font-weight:900;letter-spacing:3px;color:var(--yellow);line-height:1}
+header h2{font-size:21px;letter-spacing:.2px;margin:12px 0 7px}
 header .small{margin:0;color:var(--muted)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 8px 24px #0005}
+.card,.profile-card,.alert-card,.queue-card{
+  background:linear-gradient(145deg,#1a1c21,#131519);
+  border:1px solid var(--line);border-radius:20px;padding:24px;
+  margin-bottom:17px;box-shadow:0 14px 35px #0006
+}
+#acesso{max-width:560px;margin:0 auto 20px}
 #conta>.driver-shell{background:transparent;border:0;box-shadow:none;padding:0;margin:0}
-.driver-shell h3{font-size:15px;letter-spacing:.5px;margin:0 0 13px;color:#fff}
-.profile-card,.alert-card,.queue-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:13px;box-shadow:0 8px 24px #0005}
-.profile-card{border-top:3px solid var(--yellow)}
-.profile-eyebrow{font-size:10px;letter-spacing:1.6px;color:var(--yellow);font-weight:800;margin-bottom:9px}
-.profile-greeting{font-size:21px;font-weight:800;margin:0 0 7px}
-#veiculoMotorista{margin:0;color:var(--muted);font-size:13px}
-.alert-card{background:#19170f;border-color:#5a480c}
+.driver-shell h3{font-size:16px;letter-spacing:.4px;margin:0 0 14px}
+.profile-card{border-top:3px solid var(--yellow);margin-bottom:15px}
+.profile-eyebrow{font-size:11px;letter-spacing:1.7px;color:var(--yellow);font-weight:800;margin-bottom:11px}
+.profile-greeting{font-size:clamp(21px,3vw,28px);font-weight:800;margin:0 0 8px}
+#veiculoMotorista{margin:0;color:var(--muted);font-size:14px}
+.alert-card{background:linear-gradient(135deg,#211d11,#17160f);border-color:#665019}
 .alert-card h3{color:var(--yellow);margin-bottom:8px}
-#statusAlerta{margin:10px 0 0;color:#c9bd91;line-height:1.4}
-.queue-card h3{margin-bottom:12px}
-input{width:100%;padding:14px 13px;margin:8px 0;border-radius:11px;border:1px solid #414141;background:#101010;color:#fff;font-size:16px;outline:none}
-input:focus{border-color:var(--yellow);box-shadow:0 0 0 2px #ffc10722}
-button{width:100%;padding:15px 14px;border:0;border-radius:12px;font-weight:800;font-size:14px;letter-spacing:.35px;cursor:pointer;margin-top:10px;transition:filter .15s,transform .15s}
+#statusAlerta{margin:12px 0 0;color:#d4c89e;line-height:1.5}
+.queue-card h3{margin-bottom:14px}
+input{
+  display:block;width:100%;padding:15px 14px;margin:9px 0;
+  border-radius:12px;border:1px solid #3a3e47;background:#0e1013;
+  color:#fff;font-size:16px;outline:none
+}
+input:focus{border-color:var(--yellow);box-shadow:0 0 0 3px #ffc62920}
+button{
+  width:100%;padding:15px 16px;border:0;border-radius:12px;
+  font-weight:800;font-size:14px;letter-spacing:.45px;cursor:pointer;
+  margin-top:10px;transition:filter .15s,transform .15s
+}
 button:active{transform:scale(.99)}
 button:hover{filter:brightness(1.08)}
 button:disabled{opacity:.5;cursor:not-allowed}
-.primary{background:var(--yellow);color:#111}
-.secondary{background:#292929;color:#fff;border:1px solid #3a3a3a}
+.primary{background:linear-gradient(135deg,#ffd34e,#f4b900);color:#17130a}
+.secondary{background:#292d34;color:#f5f5f5;border:1px solid #414650}
 .danger{background:#8f2929;color:#fff}
 .hidden{display:none!important}
-.small{font-size:12px;color:var(--muted);line-height:1.45}
-.status{font-size:17px;font-weight:800;margin:13px 0 6px;padding:12px 13px;border-radius:12px;background:#222;line-height:1.35}
-.yellow{color:var(--yellow)}
-.green{color:var(--green)}
-.red{color:var(--red)}
-.info{background:#101010;border:1px solid #343434;padding:13px;border-radius:12px;margin:10px 0;overflow-wrap:anywhere}
-#posicaoFila{border:1px solid #8c6b08;background:#29220c;padding:15px;border-radius:14px;margin:13px 0}
+.small{font-size:13px;color:var(--muted);line-height:1.5}
+.status{
+  font-size:18px;font-weight:800;margin:14px 0 7px;padding:15px;
+  border-radius:13px;background:#242830;line-height:1.35
+}
+.yellow{color:var(--yellow)}.green{color:var(--green)}.red{color:var(--red)}
+.info{background:#101216;border:1px solid #343943;padding:15px;border-radius:13px;margin:12px 0;overflow-wrap:anywhere}
+#posicaoFila{border:1px solid #94700e;background:#29220e;padding:17px;border-radius:15px;margin:14px 0}
 #posicaoFila .small:first-child{color:var(--yellow);font-weight:800;letter-spacing:1px}
-.posicao-numero{font-size:42px;line-height:1.1;font-weight:900;color:var(--yellow);margin:6px 0}
-#mensagemFila{margin:10px 0 0}
-.contador-prazo{background:#332d12;border:1px solid #9b7c00;border-radius:14px;padding:15px;text-align:center;margin:14px 0}
-.contador-legenda{font-size:11px;color:#f5d95d;font-weight:bold;letter-spacing:.8px}
-.contador-tempo{font-size:44px;font-weight:900;color:var(--yellow);line-height:1.2;margin:5px 0;font-variant-numeric:tabular-nums}
-.contador-detalhe{font-size:12px;color:#ddd;line-height:1.4}
+.posicao-numero{font-size:48px;line-height:1.1;font-weight:900;color:var(--yellow);margin:7px 0}
+#mensagemFila{margin:12px 0 0}
+.contador-prazo{background:#332d12;border:1px solid #9b7c00;border-radius:15px;padding:17px;text-align:center;margin:15px 0}
+.contador-legenda{font-size:11px;color:#f5d95d;font-weight:bold;letter-spacing:.9px}
+.contador-tempo{font-size:46px;font-weight:900;color:var(--yellow);line-height:1.2;margin:6px 0;font-variant-numeric:tabular-nums}
+.contador-detalhe{font-size:13px;color:#ddd;line-height:1.45}
 .contador-prazo.aceita{background:#123321;border-color:#287447}
 .contador-prazo.aceita .contador-legenda,.contador-prazo.aceita .contador-tempo{color:#79dfa0}
 .contador-prazo.encerrado{background:#351d1d;border-color:#8e3333}
 .contador-prazo.encerrado .contador-legenda,.contador-prazo.encerrado .contador-tempo{color:#ff8585}
-#toastContainer{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;width:min(92%,430px);pointer-events:none}
+#toastContainer{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;width:min(92%,500px);pointer-events:none}
 .toast{background:#242424;color:#fff;border:1px solid var(--yellow);border-left:5px solid var(--yellow);border-radius:12px;padding:14px 16px;margin-bottom:9px;box-shadow:0 8px 28px #0009;font-size:13px;line-height:1.45;animation:toastIn .25s ease-out}
-.toast.sucesso{border-color:var(--green)}
-.toast.erro{border-color:var(--red)}
+.toast.sucesso{border-color:var(--green)}.toast.erro{border-color:var(--red)}
 .toast strong{display:block;color:var(--yellow);margin-bottom:3px}
 @keyframes toastIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
-.chat-area{border-top:1px solid #3a3a3a;margin-top:20px;padding-top:17px}
+.chat-area{border-top:1px solid #3a3a3a;margin-top:21px;padding-top:18px}
 .chat-area h3{color:var(--yellow);margin:0 0 8px}
-.chat-lista{height:260px;overflow-y:auto;background:#101010;border:1px solid #383838;border-radius:12px;padding:12px;margin:12px 0}
-.chat-vazio{text-align:center;color:#888;font-size:12px;padding:25px 5px}
-.chat-mensagem{max-width:88%;padding:10px 12px;border-radius:12px;margin:8px 0;overflow-wrap:anywhere;font-size:13px;line-height:1.4;position:relative;z-index:2;pointer-events:auto}
+.chat-lista{height:280px;overflow-y:auto;background:#101216;border:1px solid #383d46;border-radius:13px;padding:12px;margin:13px 0}
+.chat-vazio{text-align:center;color:#888;font-size:13px;padding:25px 5px}
+.chat-mensagem{max-width:88%;padding:10px 12px;border-radius:12px;margin:8px 0;overflow-wrap:anywhere;font-size:14px;line-height:1.4;position:relative;z-index:2;pointer-events:auto}
 .chat-mensagem.motorista{background:#514400;margin-left:auto;color:white}
 .chat-mensagem.passageiro{background:#303030;margin-right:auto;color:white}
-.chat-autor{font-size:10px;color:var(--yellow);font-weight:bold;margin-bottom:4px}
+.chat-autor{font-size:11px;color:var(--yellow);font-weight:bold;margin-bottom:4px}
 .chat-hora{font-size:10px;color:#aaa;margin-top:5px;text-align:right}
 .chat-envio{display:flex;gap:8px;align-items:center}
 .chat-envio input{margin:0;min-width:0;flex:1}
-.chat-envio button{width:auto;min-width:90px;margin:0;padding:14px 10px}
+.chat-envio button{width:auto;min-width:100px;margin:0;padding:14px 12px}
 .link-localizacao{display:inline-block;position:relative;z-index:20;pointer-events:auto;cursor:pointer;margin-top:6px;padding:10px 12px;background:#176b3a;color:#fff!important;border-radius:8px;font-weight:bold;text-decoration:none!important}
 .link-localizacao:hover{background:#21894b}
 .chat-mensagem a{position:relative;z-index:20;pointer-events:auto;cursor:pointer}
-#painelCorrida{border-top:3px solid var(--yellow);background:#050507;border:0;border-radius:0;padding:20px;box-shadow:none}
+#painelCorrida{border-top:3px solid var(--yellow)}
 #painelCorrida h3{color:var(--yellow)}
-#painelCorrida>h3:first-child{color:#fff;font-size:21px;text-align:center;margin:5px 0 22px}
-#avisoCorrida{background:#211900;border:1px solid #b58a00;border-radius:15px;padding:15px;color:#ffd000;font-size:15px;text-align:center;margin-bottom:15px}
-#contadorPrazoMotorista{background:linear-gradient(120deg,#202127,#08090c);border:1px solid #333;border-radius:25px;padding:22px;margin:0 0 15px}
-#contadorPrazoMotorista .contador-legenda{color:#ffd000;font-size:12px;letter-spacing:.8px}
-#contadorPrazoMotorista .contador-tempo{font-size:76px;font-weight:900;color:#ffcc00;line-height:1.1;margin:8px 0}
-#contadorPrazoMotorista .contador-detalhe{color:#c5c5ce;font-size:13px}
-#painelCorrida>.info{background:linear-gradient(120deg,#1c1d24,#101115);border:1px solid #30313a;border-left:7px solid #ffcf00;border-radius:22px;padding:20px;margin:0 0 15px}
-#painelCorrida>.info p{font-size:15px;line-height:1.5;margin:10px 0;overflow-wrap:anywhere}
-#tempoChegadaBox{margin:18px 0}
-#tempoChegadaBox label{display:block;color:#ddd;font-size:14px;font-weight:bold}
-#tempoChegada{background:#191a21;border:1px solid #393b45;border-radius:16px;padding:17px}
-#painelCorrida #btnAceitar,#painelCorrida #btnRecusar,#painelCorrida #btnFinalizar,#painelCorrida #btnCancelarCorrida{min-height:58px;border-radius:25px;font-size:16px;margin:7px 0}
-#painelCorrida #btnAceitar,#painelCorrida #btnFinalizar{background:linear-gradient(90deg,#ffd000,#ffbd00);color:#000}
-#painelCorrida #btnRecusar,#painelCorrida #btnCancelarCorrida{background:#220d0e;border:1px solid #ff2929;color:#fff}
-#mensagemCorrida{color:#bbbcc5;font-size:13px;margin:12px 0 18px}
-#painelCorrida .chat-area{border-top:1px solid #383941;margin-top:22px;padding-top:20px}
-#painelCorrida .chat-area h3{color:#fff;font-size:20px}
-#painelCorrida .chat-area>p{color:#aeb0bb;font-size:14px}
-#painelCorrida .chat-lista{height:180px;background:#101115;border:1px solid #353640;border-radius:17px}
-#painelCorrida .chat-envio input{border-radius:18px;padding:16px}
-#painelCorrida .chat-envio button{background:#ffca00;color:#000;border-radius:18px}
-#conta{color:#fff}
-#conta .card:not(#painelCorrida){background:linear-gradient(145deg,#191919,#0d0d0d);border:1px solid #303030;border-radius:24px;padding:22px 18px;margin-bottom:18px;box-shadow:0 8px 25px rgba(0,0,0,.25)}
-#conta h2,#conta h3{color:#fff;font-weight:800}
-#conta .yellow{color:#ffca05}
-#conta .small{color:#aaa;line-height:1.6}
-#conta .card:first-child{border-top:3px solid #ffca05}
-#conta .status{background:#202020;border:1px solid #383838;border-radius:16px;padding:15px;margin:12px 0;color:#fff}
-#conta .status.yellow{background:#2a2208;border:1px solid #806400;color:#ffda36}
-#conta button.primary{background:linear-gradient(90deg,#ffda05,#ffb900);color:#080808;border:none;border-radius:30px;min-height:54px;font-weight:900;font-size:15px;box-shadow:0 5px 15px rgba(255,196,0,.15)}
-#conta button:not(.primary):not(.danger){border-radius:25px;min-height:48px}
-#conta button.danger{background:#260d0d;border:1px solid #a83232;color:#fff;border-radius:25px;min-height:50px}
-#conta input,#conta select{background:#151515;color:#fff;border:1px solid #3a3a3a;border-radius:15px;padding:15px}
-#conta button{margin-top:8px;margin-bottom:8px}
 body.modo-corrida{padding:0;overflow:hidden}
 body.modo-corrida .container{width:100%;max-width:none;margin:0}
 body.modo-corrida header{display:none!important}
 body.modo-corrida #conta{display:block!important}
 body.modo-corrida #conta>.card:first-child{display:none!important}
-body.modo-corrida #painelCorrida{display:block!important;position:fixed;inset:0;z-index:9998;width:100%;max-width:620px;height:100vh;height:100dvh;overflow-y:auto;margin:0 auto;padding:22px 18px 32px;border:0;border-radius:0;box-shadow:0 0 35px #0009}
+body.modo-corrida #conta>.driver-shell{display:none!important}
+body.modo-corrida #painelCorrida{
+  display:block!important;position:fixed;inset:0;z-index:9998;width:100%;
+  max-width:680px;height:100vh;height:100dvh;overflow-y:auto;margin:0 auto;
+  padding:24px 20px 36px;border:0;border-radius:0;box-shadow:0 0 35px #0009
+}
 body.modo-corrida #toastContainer{z-index:10000}
-@media(max-width:480px){
-#conta .card:not(#painelCorrida){padding:19px 15px;border-radius:21px}
-#conta h2{font-size:21px}
-#conta h3{font-size:18px}
+@media(min-width:760px){
+  #conta>.driver-shell{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch}
+  #conta>.driver-shell>.profile-card{grid-column:1/-1;margin:0}
+  #conta>.driver-shell>.alert-card,#conta>.driver-shell>.queue-card{margin:0}
+  #conta>.driver-shell>.queue-card{grid-column:1/-1}
+  #conta>.driver-shell>.queue-card button{max-width:calc(50% - 7px);display:inline-block}
 }
-@media(max-width:380px){
-body{padding:16px 12px 26px}
-.logo{font-size:28px}
-header h2{font-size:18px}
-.profile-greeting{font-size:19px}
-.card,.profile-card,.alert-card,.queue-card{padding:15px}
-#painelCorrida{padding:16px}
-#contadorPrazoMotorista .contador-tempo{font-size:62px}
+@media(max-width:600px){
+  body{padding:15px 12px 30px}
+  header{margin:3px 0 18px;padding:15px 8px 20px}
+  .card,.profile-card,.alert-card,.queue-card{padding:17px;border-radius:16px}
+  .profile-greeting{font-size:21px}
+  .chat-envio button{min-width:82px}
 }
+
 </style>
 </head>
-
 <body>
+
 <div class="container">
 
 <header>
@@ -169,43 +165,42 @@ header h2{font-size:18px}
 
 <section id="conta" class="hidden">
 
-<div class="card driver-shell">
-<div class="profile-card">
-<div class="profile-eyebrow">NEROCAR • CENTRAL DO MOTORISTA</div>
-<h3 class="profile-greeting">Olá, <strong id="nomeMotorista"></strong></h3>
-<p id="veiculoMotorista" class="small"></p>
-</div>
+<div class="driver-shell">
+  <div class="profile-card">
+    <div class="profile-eyebrow">NEROCAR • CENTRAL DO MOTORISTA</div>
+    <h3 class="profile-greeting">Olá, <strong id="nomeMotorista"></strong></h3>
+    <p id="veiculoMotorista" class="small"></p>
+  </div>
 
-<div class="alert-card">
-<h3>Alerta de novas corridas</h3>
-<p class="small">Mantenha o alerta ativado para não perder chamadas.</p>
-<button id="btnAlerta" class="primary" onclick="ativarAlertaSonoro()">ATIVAR ALERTA SONORO</button>
-<p id="statusAlerta" class="small">Alerta sonoro ainda não ativado.</p>
-</div>
+  <div class="alert-card">
+    <h3>Alerta de novas corridas</h3>
+    <p class="small">Mantenha o alerta ativado para não perder chamadas.</p>
+    <button id="btnAlerta" class="primary" onclick="ativarAlertaSonoro()">ATIVAR ALERTA SONORO</button>
+    <p id="statusAlerta" class="small">Alerta sonoro ainda não ativado.</p>
+  </div>
 
-<div class="queue-card">
-<h3>Situação na fila</h3>
-<div id="status" class="status">Verificando situação...</div>
-<p id="explicacao" class="small"></p>
+  <div class="queue-card">
+    <h3>Situação na fila</h3>
+    <div id="status" class="status">Verificando situação...</div>
+    <p id="explicacao" class="small"></p>
 
-<div id="posicaoFila" class="info hidden">
-<div class="small">SUA POSIÇÃO NA FILA</div>
-<div class="posicao-numero" id="numeroPosicao">—</div>
-<div id="detalhePosicao" class="small"></div>
-</div>
+    <div id="posicaoFila" class="info hidden">
+      <div class="small">SUA POSIÇÃO NA FILA</div>
+      <div class="posicao-numero" id="numeroPosicao">—</div>
+      <div id="detalhePosicao" class="small"></div>
+    </div>
 
-<button id="btnEntrarFila" class="primary hidden" onclick="entrarFila()">Entrar na fila</button>
-<button id="btnSairFila" class="danger hidden" onclick="sairFila()">Sair da fila</button>
-<button class="secondary" onclick="atualizarStatus()">Atualizar situação</button>
-<button class="secondary" onclick="sairConta()">Sair da conta</button>
-<p id="mensagemFila" class="small"></p>
-</div>
+    <button id="btnEntrarFila" class="primary hidden" onclick="entrarFila()">Entrar na fila</button>
+    <button id="btnSairFila" class="danger hidden" onclick="sairFila()">Sair da fila</button>
+    <button class="secondary" onclick="atualizarStatus()">Atualizar situação</button>
+    <button class="secondary" onclick="sairConta()">Sair da conta</button>
+    <p id="mensagemFila" class="small"></p>
+  </div>
 </div>
 
 <div id="painelCorrida" class="card hidden">
 <h3 class="yellow">Atendimento de corrida</h3>
 <div id="avisoCorrida" class="status yellow">Verificando chamadas...</div>
-
 <div id="contadorPrazoMotorista" class="contador-prazo hidden" aria-live="polite">
 <div class="contador-legenda" id="legendaPrazoMotorista">TEMPO PARA ACEITAR A CORRIDA</div>
 <div class="contador-tempo" id="tempoRestanteMotorista">00:30</div>
@@ -219,9 +214,19 @@ header h2{font-size:18px}
 <p><strong>Valor:</strong> <span id="valorCorrida"></span></p>
 </div>
 
+ 
 <div id="tempoChegadaBox" class="hidden">
-<label for="tempoChegada" class="small">Em quantos minutos você chega ao passageiro?</label>
-<input id="tempoChegada" type="number" min="1" max="60" step="1" placeholder="Informe de 1 a 60 minutos">
+  <label for="tempoChegada" class="small">
+    Em quantos minutos você chega ao passageiro?
+  </label>
+  <input
+    id="tempoChegada"
+    type="number"
+    min="1"
+    max="60"
+    step="1"
+    placeholder="Informe de 1 a 60 minutos"
+  >
 </div>
 
 <button id="btnAceitar" class="primary hidden" onclick="aceitarCorrida()">ACEITAR CORRIDA</button>
@@ -243,18 +248,14 @@ header h2{font-size:18px}
 </div>
 <p id="statusChat" class="small"></p>
 </div>
+
 </div>
 </section>
 </div>
 
 <script>
-/* =========================================
-   CONFIGURAÇÃO SUPABASE
-========================================= */
-
 const SUPABASE_URL="https://xfwkwcpnyvhvmreidqck.supabase.co";
 const SUPABASE_KEY="sb_publishable_S9Ztcv3nh0EhzUl8VMeLmg_nQuBJ1hR";
-
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
   auth:{
     storageKey:"nerocar-motorista-auth",
@@ -264,11 +265,59 @@ const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
   }
 });
 
-/* =========================================
-   VARIÁVEIS GERAIS
-========================================= */
+async function testarNotificacaoNerocar() {
+  const { data, error } = await db.functions.invoke(
+    "enviar-notificacao-fcm",
+    { body: {} }
+  );
 
-let tokenFirebaseRecebido="";
+  if (error) {
+    alert("Erro no teste: " + error.message);
+    console.error(error);
+    return;
+  }
+
+  alert(JSON.stringify(data));
+}
+
+let tokenFirebaseRecebido = "";
+
+async function registrarTokenFirebase(token) {
+  if (!token || token === tokenFirebaseRecebido) return;
+
+  tokenFirebaseRecebido = token;
+
+  const { data, error } = await db.rpc("registrar_fcm_token", {
+    p_fcm_token: token
+  });
+
+  if (error) {
+    console.error("Erro ao registrar token Firebase:", error.message);
+    tokenFirebaseRecebido = "";
+    return;
+  }
+
+  console.log("Token Firebase registrado com sucesso!");
+}
+
+function verificarTokenKodular() {
+  try {
+    if (!window.Kodular ||
+        typeof window.Kodular.getWebViewString !== "function") return;
+
+    const mensagem = window.Kodular.getWebViewString();
+
+    if (mensagem && mensagem.startsWith("NEROCAR_TOKEN:")) {
+      const token = mensagem.substring("NEROCAR_TOKEN:".length).trim();
+
+      if (token) registrarTokenFirebase(token);
+    }
+  } catch (erro) {
+    console.error("Erro ao receber token:", erro);
+  }
+}
+
+setInterval(verificarTokenKodular, 1000);
 let corridaAtual=null;
 let verificacaoTimer=null;
 let chatTimer=null;
@@ -280,1186 +329,745 @@ let enviandoChat=false;
 let ultimoConteudoChat="";
 let audioContext=null;
 let alertaAtivado=false;
-
-/* Controle do alerta repetido */
-let intervaloAlertaCorrida=null;
-let corridaComAlerta=null;
 let ultimaCorridaAlertada=null;
 let ultimaCorridaCanceladaNotificada=null;
 
 let ultimaCorridaMonitorada=sessionStorage.getItem("nerocar_ultima_corrida_monitorada")||null;
 let ultimaCorridaEncaminhadaNotificada=sessionStorage.getItem("nerocar_ultima_corrida_encaminhada_notificada")||null;
 
-/* =========================================
-   NOTIFICAÇÕES
-========================================= */
-
 function mensagem(texto){
-  document.getElementById("mensagemAcesso").textContent=texto;
+document.getElementById("mensagemAcesso").textContent=texto;
 }
 
 function mostrarNotificacao(titulo,texto,tipo=""){
-  const area=document.getElementById("toastContainer");
-  const aviso=document.createElement("div");
-  aviso.className="toast "+tipo;
-
-  const forte=document.createElement("strong");
-  const detalhe=document.createElement("div");
-
-  forte.textContent=titulo;
-  detalhe.textContent=texto;
-
-  aviso.append(forte,detalhe);
-  area.appendChild(aviso);
-
-  setTimeout(()=>{
-    aviso.style.opacity="0";
-    aviso.style.transform="translateY(-8px)";
-    aviso.style.transition="opacity .25s, transform .25s";
-    setTimeout(()=>aviso.remove(),280);
-  },5500);
+const area=document.getElementById("toastContainer");
+const aviso=document.createElement("div");
+aviso.className="toast "+tipo;
+const forte=document.createElement("strong");
+const detalhe=document.createElement("div");
+forte.textContent=titulo;
+detalhe.textContent=texto;
+aviso.append(forte,detalhe);
+area.appendChild(aviso);
+setTimeout(()=>{
+aviso.style.opacity="0";
+aviso.style.transform="translateY(-8px)";
+aviso.style.transition="opacity .25s, transform .25s";
+setTimeout(()=>aviso.remove(),280);
+},5500);
 }
 
-/* =========================================
-   ALERTA SONORO E VIBRAÇÃO
-========================================= */
-
-
-
-/* =========================================
-   ALERTA SONORO E VIBRAÇÃO - SIRENE
-========================================= */
-
 async function ativarAlertaSonoro(){
-  const btn=document.getElementById("btnAlerta");
-  const status=document.getElementById("statusAlerta");
-
-  try{
-    const C=window.AudioContext||window.webkitAudioContext;
-
-    if(!C){
-      status.textContent="Este navegador não suporta alerta sonoro.";
-      return;
-    }
-
-    if(!audioContext){
-      audioContext=new C();
-    }
-
-    if(audioContext.state==="suspended"){
-      await audioContext.resume();
-    }
-
-    if(audioContext.state!=="running"){
-      status.textContent="Não foi possível iniciar o áudio. Toque novamente.";
-      return;
-    }
-
-    alertaAtivado=true;
-    btn.textContent="SIRENE ATIVADA";
-    btn.style.background="#25884b";
-    btn.style.color="white";
-
-    status.textContent="Sirene ativada! Alertas repetidos a cada 15 segundos.";
-
-    tocarBipes();
-
-    if(corridaAtual&&corridaAtual.status==="pending"){
-      iniciarRepeticaoAlerta(corridaAtual);
-    }
-
-  }catch(e){
-    alertaAtivado=false;
-    status.textContent="Erro ao ativar a sirene. Tente novamente.";
-    console.error("Erro ao ativar áudio:",e);
-  }
+const btn=document.getElementById("btnAlerta");
+const status=document.getElementById("statusAlerta");
+try{
+const C=window.AudioContext||window.webkitAudioContext;
+if(!C){
+status.textContent="Este navegador não suporta alerta sonoro.";
+return;
+}
+if(!audioContext)audioContext=new C();
+if(audioContext.state==="suspended")await audioContext.resume();
+alertaAtivado=true;
+btn.textContent="ALERTA SONORO ATIVADO";
+btn.style.background="#25884b";
+btn.style.color="white";
+status.textContent="Alerta ativado! Você ouvirá quando chegar uma nova corrida.";
+tocarBipes();
+}catch(e){
+alertaAtivado=false;
+status.textContent="Não foi possível ativar o som. Tente novamente.";
+}
 }
 
 function tocarBipes(){
-  if(!alertaAtivado||!audioContext||audioContext.state!=="running")return;
-
-  const agora=audioContext.currentTime;
-  const master=audioContext.createGain();
-  const compressor=audioContext.createDynamicsCompressor();
-
-  master.gain.setValueAtTime(0.9,agora);
-
-  compressor.threshold.setValueAtTime(-12,agora);
-  compressor.knee.setValueAtTime(10,agora);
-  compressor.ratio.setValueAtTime(12,agora);
-  compressor.attack.setValueAtTime(0.003,agora);
-  compressor.release.setValueAtTime(0.15,agora);
-
-  master.connect(compressor);
-  compressor.connect(audioContext.destination);
-
-  const duracao=4.5;
-  const passo=0.18;
-  const quantidade=Math.floor(duracao/passo);
-
-  for(let i=0;i<quantidade;i++){
-    const inicio=agora+i*passo;
-    const oscilador=audioContext.createOscillator();
-    const volume=audioContext.createGain();
-
-    oscilador.type="sawtooth";
-
-    const baixa=650;
-    const alta=1450;
-    const alterna=i%2===0;
-
-    oscilador.frequency.setValueAtTime(
-      alterna?baixa:alta,inicio
-    );
-
-    oscilador.frequency.linearRampToValueAtTime(
-      alterna?alta:baixa,inicio+passo
-    );
-
-    volume.gain.setValueAtTime(0.001,inicio);
-    volume.gain.linearRampToValueAtTime(0.8,inicio+0.025);
-    volume.gain.setValueAtTime(0.8,inicio+passo-0.035);
-    volume.gain.linearRampToValueAtTime(0.001,inicio+passo);
-
-    oscilador.connect(volume);
-    volume.connect(master);
-
-    oscilador.start(inicio);
-    oscilador.stop(inicio+passo+0.01);
-  }
-
-  master.gain.setValueAtTime(0.9,agora+duracao);
-  master.gain.linearRampToValueAtTime(0.001,agora+duracao+0.1);
-
-  if(typeof navigator.vibrate==="function"){
-    navigator.vibrate([500,150,500,150,800,200,500]);
-  }
+if(!audioContext||audioContext.state!=="running")return;
+const agora=audioContext.currentTime;
+for(let i=0;i<3;i++){
+const o=audioContext.createOscillator();
+const g=audioContext.createGain();
+o.type="sine";
+o.frequency.value=i===1?1050:850;
+g.gain.setValueAtTime(0,agora+i*.32);
+g.gain.linearRampToValueAtTime(.22,agora+i*.32+.025);
+g.gain.exponentialRampToValueAtTime(.001,agora+i*.32+.20);
+o.connect(g);
+g.connect(audioContext.destination);
+o.start(agora+i*.32);
+o.stop(agora+i*.32+.22);
 }
-
-function iniciarRepeticaoAlerta(c){
-  if(!c||!c.ride_id||c.status!=="pending")return;
-
-  const id=String(c.ride_id);
-
-  if(intervaloAlertaCorrida&&corridaComAlerta===id)return;
-
-  pararRepeticaoAlerta();
-  corridaComAlerta=id;
-
-  if(alertaAtivado){
-    tocarBipes();
-  }
-
-  intervaloAlertaCorrida=setInterval(()=>{
-    if(
-      !corridaAtual||
-      String(corridaAtual.ride_id)!==id||
-      corridaAtual.status!=="pending"
-    ){
-      pararRepeticaoAlerta();
-      return;
-    }
-
-    if(alertaAtivado){
-      tocarBipes();
-    }
-  },5000);
-}
-
-function pararRepeticaoAlerta(){
-  if(intervaloAlertaCorrida){
-    clearInterval(intervaloAlertaCorrida);
-    intervaloAlertaCorrida=null;
-  }
-
-  corridaComAlerta=null;
-
-  if(typeof navigator.vibrate==="function"){
-    navigator.vibrate(0);
-  }
 }
 
 function alertarNovaCorrida(c){
-  if(!c||c.status!=="pending")return;
-
-  const id=String(c.ride_id);
-
-  if(ultimaCorridaAlertada!==id){
-    ultimaCorridaAlertada=id;
-
-    mostrarNotificacao(
-      "NOVA CORRIDA",
-      "Chegou uma solicitação. Confira os dados e aceite ou recuse."
-    );
-
-    if(!alertaAtivado){
-      document.getElementById("statusAlerta").textContent=
-        "Nova corrida recebida! Ative a sirene para ouvir os avisos.";
-    }
-  }
-
-  iniciarRepeticaoAlerta(c);
+if(!c||c.status!=="pending"||ultimaCorridaAlertada===c.ride_id)return;
+ultimaCorridaAlertada=c.ride_id;
+mostrarNotificacao("NOVA CORRIDA","Chegou uma solicitação. Confira os dados e aceite ou recuse.");
+if(alertaAtivado)tocarBipes();
+else document.getElementById("statusAlerta").textContent="Nova corrida recebida! Ative o alerta sonoro para ouvir as próximas chamadas.";
 }
-
-/* =========================================
-   FIREBASE / KODULAR
-========================================= */
-
-/* =========================================
-   FIREBASE / KODULAR
-========================================= */
-
-async function testarNotificacaoNerocar(){
-  const {data,error}=await db.functions.invoke(
-    "enviar-notificacao-fcm",
-    {body:{}}
-  );
-
-  if(error){
-    alert("Erro no teste: "+error.message);
-    console.error(error);
-    return;
-  }
-
-  alert(JSON.stringify(data));
-}
-
-async function registrarTokenFirebase(token){
-  if(!token||token===tokenFirebaseRecebido)return;
-
-  tokenFirebaseRecebido=token;
-
-  const {data,error}=await db.rpc("registrar_fcm_token",{
-    p_fcm_token:token
-  });
-
-  if(error){
-    console.error("Erro ao registrar token Firebase:",error.message);
-    tokenFirebaseRecebido="";
-    return;
-  }
-
-  console.log("Token Firebase registrado com sucesso!");
-}
-
-function verificarTokenKodular(){
-  try{
-    if(!window.Kodular||
-       typeof window.Kodular.getWebViewString!=="function")return;
-
-    const mensagemKodular=window.Kodular.getWebViewString();
-
-    if(mensagemKodular&&mensagemKodular.startsWith("NEROCAR_TOKEN:")){
-      const token=mensagemKodular.substring("NEROCAR_TOKEN:".length).trim();
-
-      if(token)registrarTokenFirebase(token);
-    }
-
-  }catch(erro){
-    console.error("Erro ao receber token:",erro);
-  }
-}
-
-setInterval(verificarTokenKodular,1000);
-
-/* =========================================
-   CADASTRO E LOGIN
-========================================= */
 
 async function cadastrar(){
-  const name=document.getElementById("nome").value.trim();
-  const email=document.getElementById("cadEmail").value.trim();
-  const password=document.getElementById("cadSenha").value;
-  const vehicle_model=document.getElementById("modelo").value.trim();
-  const vehicle_color=document.getElementById("cor").value.trim();
-  const vehicle_plate=document.getElementById("placa").value.trim().toUpperCase();
+const name=document.getElementById("nome").value.trim();
+const email=document.getElementById("cadEmail").value.trim();
+const password=document.getElementById("cadSenha").value;
+const vehicle_model=document.getElementById("modelo").value.trim();
+const vehicle_color=document.getElementById("cor").value.trim();
+const vehicle_plate=document.getElementById("placa").value.trim().toUpperCase();
 
-  if(!name||!email||!password||!vehicle_model||!vehicle_color||!vehicle_plate){
-    mensagem("Preencha todos os campos.");
-    return;
-  }
-
-  if(password.length<6){
-    mensagem("A senha precisa ter pelo menos 6 caracteres.");
-    return;
-  }
-
-  mensagem("Criando sua conta...");
-
-  try{
-    const {data,error}=await db.auth.signUp({
-      email,
-      password,
-      options:{
-        data:{name,vehicle_model,vehicle_color,vehicle_plate}
-      }
-    });
-
-    if(error){
-      mensagem("Não foi possível cadastrar: "+error.message);
-      return;
-    }
-
-    if(data.session){
-      mensagem("Cadastro realizado! Entrando na sua conta...");
-      await carregarConta(data.session.user);
-    }else{
-      mensagem("Conta criada. Verifique seu e-mail para confirmar o cadastro e depois faça login.");
-    }
-
-  }catch(e){
-    mensagem("Erro no cadastro: "+e.message);
-  }
+if(!name||!email||!password||!vehicle_model||!vehicle_color||!vehicle_plate){
+mensagem("Preencha todos os campos.");
+return;
+}
+if(password.length<6){
+mensagem("A senha precisa ter pelo menos 6 caracteres.");
+return;
+}
+mensagem("Criando sua conta...");
+const {data,error}=await db.auth.signUp({
+email,password,
+options:{data:{name,vehicle_model,vehicle_color,vehicle_plate}}
+});
+if(error){
+mensagem("Não foi possível cadastrar: "+error.message);
+return;
+}
+if(data.session){
+mensagem("Cadastro realizado! Entrando na sua conta...");
+await carregarConta(data.session.user);
+}else{
+mensagem("Conta criada. Verifique seu e-mail para confirmar o cadastro e depois faça login.");
+}
 }
 
 async function entrar(){
-  const email=document.getElementById("loginEmail").value.trim();
-  const password=document.getElementById("loginSenha").value;
-
-  if(!email||!password){
-    mensagem("Informe seu e-mail e sua senha.");
-    return;
-  }
-
-  mensagem("Entrando...");
-
-  try{
-    const {data,error}=await db.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    if(error){
-      mensagem("Erro ao entrar: "+error.message);
-      return;
-    }
-
-    await carregarConta(data.user);
-
-  }catch(e){
-    mensagem("Erro ao entrar: "+e.message);
-  }
+const email=document.getElementById("loginEmail").value.trim();
+const password=document.getElementById("loginSenha").value;
+if(!email||!password){
+mensagem("Informe seu e-mail e sua senha.");
+return;
 }
-
-/* =========================================
-   CARREGAR CONTA DO MOTORISTA
-========================================= */
+mensagem("Entrando...");
+const {data,error}=await db.auth.signInWithPassword({email,password});
+if(error){
+mensagem("Erro ao entrar: "+error.message);
+return;
+}
+await carregarConta(data.user);
+}
 
 async function carregarConta(user){
-  document.getElementById("acesso").classList.add("hidden");
-  document.getElementById("conta").classList.remove("hidden");
+document.getElementById("acesso").classList.add("hidden");
+document.getElementById("conta").classList.remove("hidden");
+const {data,error}=await db.from("drivers")
+.select("name,vehicle_model,vehicle_color,vehicle_plate")
+.eq("user_id",user.id).single();
 
-  const {data,error}=await db.from("drivers")
-    .select("name,vehicle_model,vehicle_color,vehicle_plate")
-    .eq("user_id",user.id)
-    .single();
-
-  if(error){
-    document.getElementById("status").textContent="Não foi possível carregar seu cadastro.";
-    document.getElementById("explicacao").textContent=error.message;
-    return;
-  }
-
-  document.getElementById("nomeMotorista").textContent=data.name;
-  document.getElementById("veiculoMotorista").textContent=
-    data.vehicle_model+" • "+data.vehicle_color+" • "+data.vehicle_plate;
-
-  await atualizarStatus();
-  iniciarVerificacao();
+if(error){
+document.getElementById("status").textContent="Não foi possível carregar seu cadastro.";
+document.getElementById("explicacao").textContent=error.message;
+return;
 }
 
-/* =========================================
-   SITUAÇÃO NA FILA
-========================================= */
+document.getElementById("nomeMotorista").textContent=data.name;
+document.getElementById("veiculoMotorista").textContent=data.vehicle_model+" • "+data.vehicle_color+" • "+data.vehicle_plate;
+await atualizarStatus();
+iniciarVerificacao();
+}
 
 async function atualizarStatus(){
-  const status=document.getElementById("status");
-  const exp=document.getElementById("explicacao");
-  const entrar=document.getElementById("btnEntrarFila");
-  const sair=document.getElementById("btnSairFila");
+const status=document.getElementById("status");
+const exp=document.getElementById("explicacao");
+const entrar=document.getElementById("btnEntrarFila");
+const sair=document.getElementById("btnSairFila");
 
-  entrar.classList.add("hidden");
-  sair.classList.add("hidden");
+entrar.classList.add("hidden");
+sair.classList.add("hidden");
+status.className="status yellow";
+status.textContent="Verificando...";
+exp.textContent="";
 
-  status.className="status yellow";
-  status.textContent="Verificando...";
-  exp.textContent="";
+const {data,error}=await db.rpc("meu_status_fila");
+if(error){
+status.textContent="Erro ao consultar situação";
+exp.textContent=error.message;
+return;
+}
 
-  const {data,error}=await db.rpc("meu_status_fila");
-
-  if(error){
-    status.textContent="Erro ao consultar situação";
-    exp.textContent=error.message;
-    return;
-  }
-
-  if(data==="pending"){
-    status.textContent="Aguardando aprovação";
-    exp.textContent="Seu cadastro foi recebido. Aguarde a aprovação do administrador.";
-
-  }else if(data==="rejected"){
-    status.className="status red";
-    status.textContent="Cadastro reprovado";
-    exp.textContent="Entre em contato com a administração da Nerocar.";
-
-  }else if(data==="waiting"){
-    status.className="status green";
-    status.textContent="Você está na fila!";
-    exp.textContent="Aguarde sua vez para receber uma corrida.";
-    sair.classList.remove("hidden");
-
-  }else if(data==="busy"){
-    status.className="status yellow";
-    status.textContent="Você está ocupado";
-    exp.textContent="Você possui uma corrida em andamento.";
-
-  }else if(data==="outside"){
-    status.textContent="Fora da fila";
-    exp.textContent="Quando quiser receber corridas, clique no botão abaixo.";
-    entrar.classList.remove("hidden");
-
-  }else{
-    status.textContent="Cadastro não encontrado";
-    exp.textContent="Entre em contato com a administração.";
-  }
-
-  await atualizarPosicaoFila();
+if(data==="pending"){
+status.textContent="Aguardando aprovação";
+exp.textContent="Seu cadastro foi recebido. Aguarde a aprovação do administrador.";
+}else if(data==="rejected"){
+status.className="status red";
+status.textContent="Cadastro reprovado";
+exp.textContent="Entre em contato com a administração da Nerocar.";
+}else if(data==="waiting"){
+status.className="status green";
+status.textContent="Você está na fila!";
+exp.textContent="Aguarde sua vez para receber uma corrida.";
+sair.classList.remove("hidden");
+}else if(data==="busy"){
+status.className="status yellow";
+status.textContent="Você está ocupado";
+exp.textContent="Você possui uma corrida em andamento.";
+}else if(data==="outside"){
+status.textContent="Fora da fila";
+exp.textContent="Quando quiser receber corridas, clique no botão abaixo.";
+entrar.classList.remove("hidden");
+}else{
+status.textContent="Cadastro não encontrado";
+exp.textContent="Entre em contato com a administração.";
+}
+await atualizarPosicaoFila();
 }
 
 async function atualizarPosicaoFila(){
-  const bloco=document.getElementById("posicaoFila");
-
-  try{
-    const {data,error}=await db.rpc("minha_posicao_fila");
-
-    if(error)throw error;
-
-    const item=Array.isArray(data)?data[0]:data;
-
-    if(!item||item.situacao!=="waiting"||item.posicao==null){
-      bloco.classList.add("hidden");
-      return;
-    }
-
-    bloco.classList.remove("hidden");
-
-    document.getElementById("numeroPosicao").textContent=item.posicao+"º";
-    document.getElementById("detalhePosicao").textContent=
-      "Você está na posição "+item.posicao+" de "+item.total+" motorista(s) na fila.";
-
-  }catch(e){
-    bloco.classList.add("hidden");
-    console.error(e);
-
-    document.getElementById("mensagemFila").textContent=
-      "Não foi possível atualizar sua posição na fila: "+e.message;
-  }
+const bloco=document.getElementById("posicaoFila");
+try{
+const {data,error}=await db.rpc("minha_posicao_fila");
+if(error)throw error;
+const item=Array.isArray(data)?data[0]:data;
+if(!item||item.situacao!=="waiting"||item.posicao==null){
+bloco.classList.add("hidden");
+return;
+}
+bloco.classList.remove("hidden");
+document.getElementById("numeroPosicao").textContent=item.posicao+"º";
+document.getElementById("detalhePosicao").textContent="Você está na posição "+item.posicao+" de "+item.total+" motorista(s) na fila.";
+}catch(e){
+bloco.classList.add("hidden");
+console.error(e);
+document.getElementById("mensagemFila").textContent="Não foi possível atualizar sua posição na fila: "+e.message;
+}
 }
 
 async function entrarFila(){
-  const b=document.getElementById("btnEntrarFila");
-  const m=document.getElementById("mensagemFila");
-
-  b.disabled=true;
-  m.textContent="Entrando na fila...";
-
-  const {data,error}=await db.rpc("entrar_na_fila");
-
-  b.disabled=false;
-
-  if(error){
-    m.textContent="Não foi possível entrar: "+error.message;
-    return;
-  }
-
-  m.textContent=data;
-  await atualizarStatus();
+const b=document.getElementById("btnEntrarFila");
+const m=document.getElementById("mensagemFila");
+b.disabled=true;
+m.textContent="Entrando na fila...";
+const {data,error}=await db.rpc("entrar_na_fila");
+b.disabled=false;
+if(error){
+m.textContent="Não foi possível entrar: "+error.message;
+return;
+}
+m.textContent=data;
+await atualizarStatus();
 }
 
 async function sairFila(){
-  const b=document.getElementById("btnSairFila");
-  const m=document.getElementById("mensagemFila");
-
-  b.disabled=true;
-  m.textContent="Saindo da fila...";
-
-  const {data,error}=await db.rpc("sair_da_fila");
-
-  b.disabled=false;
-
-  if(error){
-    m.textContent="Não foi possível sair: "+error.message;
-    return;
-  }
-
-  m.textContent=data;
-  await atualizarStatus();
+const b=document.getElementById("btnSairFila");
+const m=document.getElementById("mensagemFila");
+b.disabled=true;
+m.textContent="Saindo da fila...";
+const {data,error}=await db.rpc("sair_da_fila");
+b.disabled=false;
+if(error){
+m.textContent="Não foi possível sair: "+error.message;
+return;
+}
+m.textContent=data;
+await atualizarStatus();
 }
 
-/* =========================================
-   CONTADOR DO PRAZO DA CORRIDA
-========================================= */
 
 function atualizarContadorMotorista(){
-  const caixa=document.getElementById("contadorPrazoMotorista");
+const caixa=document.getElementById("contadorPrazoMotorista");
+if(!corridaAtual){caixa.classList.add("hidden");return;}
+const legenda=document.getElementById("legendaPrazoMotorista");
+const tempo=document.getElementById("tempoRestanteMotorista");
+const detalhe=document.getElementById("textoPrazoMotorista");
 
-  if(!corridaAtual){
-    caixa.classList.add("hidden");
-    return;
-  }
+if(corridaAtual.status==="accepted"){
+caixa.classList.remove("hidden","encerrado");
+caixa.classList.add("aceita");
+legenda.textContent="PREVISÃO DE CHEGADA";
 
-  const legenda=document.getElementById("legendaPrazoMotorista");
-  const tempo=document.getElementById("tempoRestanteMotorista");
-  const detalhe=document.getElementById("textoPrazoMotorista");
+const prazo=corridaAtual.arrival_deadline_at;
+if(!prazo){
+tempo.textContent="--:--";
+detalhe.textContent="Aguardando previsão de chegada.";
+return;
+}
 
-  if(corridaAtual.status==="accepted"){
-    caixa.classList.remove("hidden","encerrado");
-    caixa.classList.add("aceita");
+const restante=Math.max(0,Math.ceil((new Date(prazo).getTime()-Date.now())/1000));
+const minutos=Math.floor(restante/60);
+const segundos=restante%60;
 
-    legenda.textContent="PREVISÃO DE CHEGADA";
+tempo.textContent=String(minutos).padStart(2,"0")+":"+String(segundos).padStart(2,"0");
 
-    const prazo=corridaAtual.arrival_deadline_at;
+if(restante>0){
+detalhe.textContent="Estamos acompanhando seu tempo de chegada ao passageiro.";
+}else{
+caixa.classList.add("encerrado");
+legenda.textContent="TEMPO DE CHEGADA ESGOTADO";
+tempo.textContent="00:00";
+detalhe.textContent="ATENÇÃO: sua previsão de chegada foi ultrapassada!";
+}
+return;
+}
 
-    if(!prazo){
-      tempo.textContent="--:--";
-      detalhe.textContent="Aguardando previsão de chegada.";
-      return;
-    }
+caixa.classList.remove("aceita");
+if(corridaAtual.status!=="pending"){
+caixa.classList.add("hidden");
+return;
+}
 
-    const restante=Math.max(0,Math.ceil((new Date(prazo).getTime()-Date.now())/1000));
-    const minutos=Math.floor(restante/60);
-    const segundos=restante%60;
+caixa.classList.remove("hidden");
+caixa.classList.remove("encerrado");
+legenda.textContent="TEMPO PARA ACEITAR A CORRIDA";
 
-    tempo.textContent=String(minutos).padStart(2,"0")+":"+String(segundos).padStart(2,"0");
+const atribuidoEm=corridaAtual.assigned_at;
+if(!atribuidoEm){
+tempo.textContent="--:--";
+detalhe.textContent="Aguardando atualização do prazo.";
+return;
+}
 
-    if(restante>0){
-      detalhe.textContent="Estamos acompanhando seu tempo de chegada ao passageiro.";
-    }else{
-      caixa.classList.add("encerrado");
-      legenda.textContent="TEMPO DE CHEGADA ESGOTADO";
-      tempo.textContent="00:00";
-      detalhe.textContent="ATENÇÃO: sua previsão de chegada foi ultrapassada!";
-    }
+const inicio=new Date(atribuidoEm).getTime();
+if(!Number.isFinite(inicio)){
+tempo.textContent="--:--";
+detalhe.textContent="Aguardando atualização do prazo.";
+return;
+}
 
-    return;
-  }
+const restante=Math.max(0,30-Math.floor((Date.now()-inicio)/1000));
+tempo.textContent="00:"+String(restante).padStart(2,"0");
 
-  caixa.classList.remove("aceita");
-
-  if(corridaAtual.status!=="pending"){
-    caixa.classList.add("hidden");
-    return;
-  }
-
-  caixa.classList.remove("hidden","encerrado");
-  legenda.textContent="TEMPO PARA ACEITAR A CORRIDA";
-
-  const atribuidoEm=corridaAtual.assigned_at;
-
-  if(!atribuidoEm){
-    tempo.textContent="--:--";
-    detalhe.textContent="Aguardando atualização do prazo.";
-    return;
-  }
-
-  const inicio=new Date(atribuidoEm).getTime();
-
-  if(!Number.isFinite(inicio)){
-    tempo.textContent="--:--";
-    detalhe.textContent="Aguardando atualização do prazo.";
-    return;
-  }
-
-  const restante=Math.max(0,30-Math.floor((Date.now()-inicio)/1000));
-
-  tempo.textContent="00:"+String(restante).padStart(2,"0");
-
-  if(restante>0){
-    detalhe.textContent="Aceite a corrida antes que o prazo termine.";
-  }else{
-    caixa.classList.add("encerrado");
-    legenda.textContent="PRAZO ENCERRADO";
-    detalhe.textContent="Aguarde o encaminhamento automático ao próximo motorista.";
-  }
+if(restante>0){
+detalhe.textContent="Aceite a corrida antes que o prazo termine.";
+}else{
+caixa.classList.add("encerrado");
+legenda.textContent="PRAZO ENCERRADO";
+detalhe.textContent="Aguarde o encaminhamento automático ao próximo motorista.";
+}
 }
 
 function iniciarContadorMotorista(){
-  if(intervaloContadorMotorista)clearInterval(intervaloContadorMotorista);
-
-  atualizarContadorMotorista();
-
-  intervaloContadorMotorista=setInterval(atualizarContadorMotorista,250);
+if(intervaloContadorMotorista)clearInterval(intervaloContadorMotorista);
+atualizarContadorMotorista();
+intervaloContadorMotorista=setInterval(atualizarContadorMotorista,250);
 }
 
-/* =========================================
-   EXIBIR CORRIDA
-========================================= */
-
 function mostrarCorrida(c){
-  const mudou=!corridaAtual||String(corridaAtual.ride_id)!==String(c.ride_id);
+const mudou=!corridaAtual||corridaAtual.ride_id!==c.ride_id;
+if(mudou)alertarNovaCorrida(c);
+corridaAtual=c;
+atualizarContadorMotorista();
 
-  corridaAtual=c;
+if(c.ride_id){
+ultimaCorridaMonitorada=String(c.ride_id);
+sessionStorage.setItem("nerocar_ultima_corrida_monitorada",String(c.ride_id));
+}
 
-  /* Mantém o alerta ativo enquanto a corrida estiver pendente */
-  if(c.status==="pending"){
-    alertarNovaCorrida(c);
-  }else{
-    pararRepeticaoAlerta(c);
-  }
+document.getElementById("painelCorrida").classList.remove("hidden");
+document.body.classList.add("modo-corrida");
+if(!intervaloContadorMotorista)iniciarContadorMotorista();
+document.getElementById("passageiro").textContent=c.passenger_name||"Não informado";
+document.getElementById("origem").textContent=c.pickup_address||"Não informado";
+document.getElementById("referencia").textContent=c.reference_point||"Não informada";
+document.getElementById("valorCorrida").textContent=Number(c.fare||18).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 
-  atualizarContadorMotorista();
+const pendente=c.status==="pending";
+const aceita=c.status==="accepted";
 
-  if(c.ride_id){
-    ultimaCorridaMonitorada=String(c.ride_id);
-    sessionStorage.setItem("nerocar_ultima_corrida_monitorada",String(c.ride_id));
-  }
+document.getElementById("avisoCorrida").textContent=pendente?"Nova corrida aguardando sua resposta!":"Corrida aceita. Boa viagem!";
+document.getElementById("btnAceitar").classList.toggle("hidden",!pendente);
+document.getElementById("btnRecusar").classList.toggle("hidden",!pendente);
+document.getElementById("tempoChegadaBox").classList.toggle("hidden",!pendente);
+if(mudou) document.getElementById("tempoChegada").value="";
+document.getElementById("btnFinalizar").classList.toggle("hidden",!aceita);
+document.getElementById("btnCancelarCorrida").classList.toggle("hidden",!aceita);
+document.getElementById("chatArea").classList.remove("hidden");
 
-  document.getElementById("painelCorrida").classList.remove("hidden");
-  document.body.classList.add("modo-corrida");
-
-  if(!intervaloContadorMotorista)iniciarContadorMotorista();
-
-  document.getElementById("passageiro").textContent=c.passenger_name||"Não informado";
-  document.getElementById("origem").textContent=c.pickup_address||"Não informado";
-  document.getElementById("referencia").textContent=c.reference_point||"Não informada";
-
-  document.getElementById("valorCorrida").textContent=
-    Number(c.fare||18).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
-
-  const pendente=c.status==="pending";
-  const aceita=c.status==="accepted";
-
-  document.getElementById("avisoCorrida").textContent=
-    pendente?"Nova corrida aguardando sua resposta!":"Corrida aceita. Boa viagem!";
-
-  document.getElementById("btnAceitar").classList.toggle("hidden",!pendente);
-  document.getElementById("btnRecusar").classList.toggle("hidden",!pendente);
-  document.getElementById("tempoChegadaBox").classList.toggle("hidden",!pendente);
-
-  if(mudou)document.getElementById("tempoChegada").value="";
-
-  document.getElementById("btnFinalizar").classList.toggle("hidden",!aceita);
-  document.getElementById("btnCancelarCorrida").classList.toggle("hidden",!aceita);
-
-  document.getElementById("chatArea").classList.remove("hidden");
-
-  if(mudou){
-    ultimoConteudoChat="";
-    document.getElementById("listaMensagens").innerHTML=
-      '<div class="chat-vazio">Carregando mensagens...</div>';
-
-    carregarMensagens();
-  }
+if(mudou){
+ultimoConteudoChat="";
+document.getElementById("listaMensagens").innerHTML='<div class="chat-vazio">Carregando mensagens...</div>';
+carregarMensagens();
+}
 }
 
 function esconderCorrida(){
-  pararRepeticaoAlerta();
-
-  corridaAtual=null;
-
-  document.body.classList.remove("modo-corrida");
-
-  document.getElementById("painelCorrida").classList.add("hidden");
-  document.getElementById("contadorPrazoMotorista").classList.add("hidden");
-
-  if(intervaloContadorMotorista){
-    clearInterval(intervaloContadorMotorista);
-    intervaloContadorMotorista=null;
-  }
-
-  document.getElementById("chatArea").classList.add("hidden");
-  document.getElementById("btnCancelarCorrida").classList.add("hidden");
-
-  ultimoConteudoChat="";
+corridaAtual=null;
+document.body.classList.remove("modo-corrida");
+document.getElementById("painelCorrida").classList.add("hidden");
+document.getElementById("contadorPrazoMotorista").classList.add("hidden");
+if(intervaloContadorMotorista){clearInterval(intervaloContadorMotorista);intervaloContadorMotorista=null;}
+document.getElementById("chatArea").classList.add("hidden");
+document.getElementById("btnCancelarCorrida").classList.add("hidden");
+ultimoConteudoChat="";
 }
 
-/* =========================================
-   VERIFICAÇÃO DA CORRIDA, PRAZO E ENCAMINHAMENTO
-========================================= */
-
+/* VERIFICAÇÃO DA CORRIDA, PRAZO E ENCAMINHAMENTO */
 async function verificarCorrida(){
-  if(consultando)return;
+if(consultando)return;
+consultando=true;
 
-  consultando=true;
+try{
+const corridaAnterior=corridaAtual;
+const idAnterior=(corridaAnterior&&corridaAnterior.ride_id)
+  ?String(corridaAnterior.ride_id)
+  :(ultimaCorridaMonitorada||sessionStorage.getItem("nerocar_ultima_corrida_monitorada"));
 
-  try{
-    const corridaAnterior=corridaAtual;
+const {data,error}=await db.rpc("minha_corrida_ativa");
+if(error)throw error;
 
-    const idAnterior=(corridaAnterior&&corridaAnterior.ride_id)
-      ?String(corridaAnterior.ride_id)
-      :(ultimaCorridaMonitorada||sessionStorage.getItem("nerocar_ultima_corrida_monitorada"));
-
-    const {data,error}=await db.rpc("minha_corrida_ativa");
-
-    if(error)throw error;
-
-    if(data&&data.success&&data.ride_id){
-
-      if(data.status==="cancelled"){
-        pararRepeticaoAlerta();
-
-        if(ultimaCorridaCanceladaNotificada!==data.ride_id){
-          ultimaCorridaCanceladaNotificada=data.ride_id;
-
-          mostrarNotificacao(
-            "CORRIDA CANCELADA",
-            "O passageiro cancelou esta corrida.",
-            "erro"
-          );
-        }
-
-        document.getElementById("mensagemCorrida").textContent=
-          "O passageiro cancelou a corrida.";
-
-        esconderCorrida();
-
-        ultimaCorridaMonitorada=null;
-        sessionStorage.removeItem("nerocar_ultima_corrida_monitorada");
-
-        await atualizarStatus();
-        return;
-      }
-
-      mostrarCorrida(data);
-
-    }else{
-
-      if(idAnterior){
-        const {data:resultadoEncaminhamento,error:erroEncaminhamento}=await db.rpc(
-          "verificar_encaminhamento_corrida_motorista",
-          {p_corrida_id:idAnterior}
-        );
-
-        if(erroEncaminhamento){
-          document.getElementById("mensagemFila").textContent=
-            "Erro ao verificar o encaminhamento: "+erroEncaminhamento.message;
-
-        }else if(resultadoEncaminhamento&&resultadoEncaminhamento.success&&resultadoEncaminhamento.forwarded){
-
-          if(ultimaCorridaEncaminhadaNotificada!==idAnterior){
-            mostrarNotificacao(
-              "PRAZO ENCERRADO",
-              "O tempo para aceitar terminou. A corrida foi encaminhada ao próximo motorista da fila.",
-              "erro"
-            );
-
-            ultimaCorridaEncaminhadaNotificada=idAnterior;
-
-            sessionStorage.setItem(
-              "nerocar_ultima_corrida_encaminhada_notificada",
-              idAnterior
-            );
-          }
-
-          document.getElementById("mensagemFila").textContent=
-            "O prazo para aceitar terminou. A corrida foi encaminhada ao próximo motorista.";
-
-          ultimaCorridaMonitorada=null;
-          sessionStorage.removeItem("nerocar_ultima_corrida_monitorada");
-
-          await atualizarStatus();
-
-        }else{
-
-          const {data:resultado,error:erroStatus}=await db.rpc(
-            "verificar_cancelamento_corrida_motorista",
-            {p_corrida_id:idAnterior}
-          );
-
-          if(erroStatus){
-            document.getElementById("mensagemFila").textContent=
-              "Erro ao verificar cancelamento: "+erroStatus.message;
-
-          }else if(resultado&&resultado.success&&resultado.status==="cancelled"){
-
-            if(ultimaCorridaCanceladaNotificada!==idAnterior){
-              ultimaCorridaCanceladaNotificada=idAnterior;
-
-              mostrarNotificacao(
-                "CORRIDA CANCELADA",
-                "O passageiro cancelou esta corrida.",
-                "erro"
-              );
-            }
-
-            document.getElementById("mensagemFila").textContent=
-              "O passageiro cancelou a corrida.";
-
-            ultimaCorridaMonitorada=null;
-            sessionStorage.removeItem("nerocar_ultima_corrida_monitorada");
-
-            await atualizarStatus();
-          }
-        }
-      }
-
-      esconderCorrida();
-    }
-
-  }catch(e){
-    document.getElementById("mensagemCorrida").textContent=
-      "Erro ao verificar corrida: "+e.message;
-
-  }finally{
-    consultando=false;
-  }
+if(data&&data.success&&data.ride_id){
+if(data.status==="cancelled"){
+if(ultimaCorridaCanceladaNotificada!==data.ride_id){
+ultimaCorridaCanceladaNotificada=data.ride_id;
+mostrarNotificacao("CORRIDA CANCELADA","O passageiro cancelou esta corrida.","erro");
+}
+document.getElementById("mensagemCorrida").textContent="O passageiro cancelou a corrida.";
+esconderCorrida();
+ultimaCorridaMonitorada=null;
+sessionStorage.removeItem("nerocar_ultima_corrida_monitorada");
+await atualizarStatus();
+return;
 }
 
-/* =========================================
-   TRATAMENTO SEGURO DE MENSAGENS E LINKS
-========================================= */
+mostrarCorrida(data);
+}else{
+if(idAnterior){
+const {data:resultadoEncaminhamento,error:erroEncaminhamento}=await db.rpc(
+"verificar_encaminhamento_corrida_motorista",
+{p_corrida_id:idAnterior}
+);
 
+if(erroEncaminhamento){
+document.getElementById("mensagemFila").textContent=
+"Erro ao verificar o encaminhamento: "+erroEncaminhamento.message;
+}else if(resultadoEncaminhamento&&resultadoEncaminhamento.success&&resultadoEncaminhamento.forwarded){
+if(ultimaCorridaEncaminhadaNotificada!==idAnterior){
+mostrarNotificacao(
+"PRAZO ENCERRADO",
+"O tempo para aceitar terminou. A corrida foi encaminhada ao próximo motorista da fila.",
+"erro"
+);
+ultimaCorridaEncaminhadaNotificada=idAnterior;
+sessionStorage.setItem("nerocar_ultima_corrida_encaminhada_notificada",idAnterior);
+}
+document.getElementById("mensagemFila").textContent=
+"O prazo para aceitar terminou. A corrida foi encaminhada ao próximo motorista.";
+ultimaCorridaMonitorada=null;
+sessionStorage.removeItem("nerocar_ultima_corrida_monitorada");
+await atualizarStatus();
+}else{
+const {data:resultado,error:erroStatus}=await db.rpc(
+"verificar_cancelamento_corrida_motorista",
+{p_corrida_id:idAnterior}
+);
+
+if(erroStatus){
+document.getElementById("mensagemFila").textContent=
+"Erro ao verificar cancelamento: "+erroStatus.message;
+}else if(resultado&&resultado.success&&resultado.status==="cancelled"){
+if(ultimaCorridaCanceladaNotificada!==idAnterior){
+ultimaCorridaCanceladaNotificada=idAnterior;
+mostrarNotificacao(
+"CORRIDA CANCELADA",
+"O passageiro cancelou esta corrida.",
+"erro"
+);
+}
+document.getElementById("mensagemFila").textContent="O passageiro cancelou a corrida.";
+ultimaCorridaMonitorada=null;
+sessionStorage.removeItem("nerocar_ultima_corrida_monitorada");
+await atualizarStatus();
+}
+}
+}
+esconderCorrida();
+}
+}catch(e){
+document.getElementById("mensagemCorrida").textContent="Erro ao verificar corrida: "+e.message;
+}finally{
+consultando=false;
+}
+}
+
+/* TRATAMENTO SEGURO DE MENSAGENS E LINKS DO GOOGLE MAPS */
 function escaparHTML(texto){
-  return String(texto??"").replace(/[&<>"']/g,function(caractere){
-    return {
-      "&":"&amp;",
-      "<":"&lt;",
-      ">":"&gt;",
-      '"':"&quot;",
-      "'":"&#039;"
-    }[caractere];
-  });
+return String(texto??"").replace(/[&<>"']/g,function(caractere){
+return {
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#039;"
+}[caractere];
+});
 }
 
 function formatarMensagem(texto){
-  let conteudo=String(texto??"");
+let conteudo=String(texto??"");
 
-  conteudo=conteudo
-    .replace(/&amp;/gi,"&")
-    .replace(/&quot;/gi,'"')
-    .replace(/&#39;|&apos;/gi,"'");
+/* Decodifica entidades comuns que podem chegar na mensagem */
+conteudo=conteudo
+.replace(/&amp;/gi,"&")
+.replace(/&quot;/gi,'"')
+.replace(/&#39;|&apos;/gi,"'");
 
-  conteudo=conteudo.replace(
-    /<a\b[^>]*href\s*=\s*["'](https?:\/\/[^"']+)["'][^>]*>/gi,
-    "$1"
-  );
+/*
+Se o passageiro enviou uma âncora HTML como texto,
+extrai somente o endereço e descarta a marcação.
+*/
+conteudo=conteudo.replace(
+/<a\b[^>]*href\s*=\s*["'](https?:\/\/[^"']+)["'][^>]*>/gi,
+"$1"
+);
 
-  conteudo=conteudo.replace(/<\/?a\b[^>]*>/gi," ");
+/* Remove tags HTML que tenham sobrado como texto */
+conteudo=conteudo.replace(/<\/?a\b[^>]*>/gi," ");
 
-  const regex=/(?:https?:\/\/)?(?:www\.)?google\.com\/maps[^\s"'<>]*|https?:\/\/maps\.app\.goo\.gl\/[^\s"'<>]*|https?:\/\/goo\.gl\/maps\/[^\s"'<>]*/gi;
+/* Reconhece links completos e formatos comuns do Google Maps */
+const regex=/(?:https?:\/\/)?(?:www\.)?google\.com\/maps[^\s"'<>]*|https?:\/\/maps\.app\.goo\.gl\/[^\s"'<>]*|https?:\/\/goo\.gl\/maps\/[^\s"'<>]*/gi;
 
-  let resultado="";
-  let inicio=0;
-  let encontrado;
+let resultado="";
+let inicio=0;
+let encontrado;
 
-  while((encontrado=regex.exec(conteudo))!==null){
-    let antes=conteudo.slice(inicio,encontrado.index);
+while((encontrado=regex.exec(conteudo))!==null){
 
-    antes=antes
-      .replace(/\b(?:href|target|rel|aria-label)\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]*)/gi,"")
-      .replace(/[<>]/g,"");
+let antes=conteudo.slice(inicio,encontrado.index);
 
-    resultado+=escaparHTML(antes);
+/* Limpa atributos soltos que possam ter vindo junto do link */
+antes=antes
+.replace(/\b(?:href|target|rel|aria-label)\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]*)/gi,"")
+.replace(/[<>]/g,"");
 
-    let link=encontrado[0];
-    let pontuacao="";
+resultado+=escaparHTML(antes);
 
-    while(/[.,!?;:)\]]$/.test(link)){
-      pontuacao=link.slice(-1)+pontuacao;
-      link=link.slice(0,-1);
-    }
+let link=encontrado[0];
+let pontuacao="";
 
-    let href=link;
-
-    if(!/^https?:\/\//i.test(href)){
-      href="https://"+href;
-    }
-
-    try{
-      const url=new URL(href);
-      const host=url.hostname.toLowerCase();
-
-      const dominioPermitido=
-        url.protocol==="https:"&&(
-          host==="google.com"||
-          host.endsWith(".google.com")||
-          host==="maps.app.goo.gl"||
-          host==="goo.gl"
-        );
-
-      const caminhoPermitido=
-        host==="maps.app.goo.gl"||
-        host==="goo.gl"||
-        url.pathname.startsWith("/maps");
-
-      if(dominioPermitido&&caminhoPermitido){
-        resultado+=
-          '<a class="link-localizacao" href="'+
-          escaparHTML(url.href)+
-          '" target="_blank" rel="noopener noreferrer">'+
-          '📍 ABRIR LOCALIZAÇÃO NO GOOGLE MAPS'+
-          '</a>';
-      }else{
-        resultado+=escaparHTML(link);
-      }
-
-    }catch(e){
-      resultado+=escaparHTML(link);
-    }
-
-    resultado+=escaparHTML(pontuacao);
-    inicio=regex.lastIndex;
-  }
-
-  let restante=conteudo.slice(inicio);
-
-  restante=restante
-    .replace(/\b(?:href|target|rel|aria-label)\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]*)/gi,"")
-    .replace(/[<>]/g,"");
-
-  resultado+=escaparHTML(restante);
-
-  return resultado.replace(/\r?\n/g,"<br>");
+/* Retira pontuação que não faz parte do endereço */
+while(/[.,!?;:)\]]$/.test(link)){
+pontuacao=link.slice(-1)+pontuacao;
+link=link.slice(0,-1);
 }
 
-/* =========================================
-   CHAT
-========================================= */
+let href=link;
+
+if(!/^https?:\/\//i.test(href)){
+href="https://"+href;
+}
+
+try{
+const url=new URL(href);
+const host=url.hostname.toLowerCase();
+
+const dominioPermitido=
+url.protocol==="https:"&&(
+host==="google.com"||
+host.endsWith(".google.com")||
+host==="maps.app.goo.gl"||
+host==="goo.gl"
+);
+
+const caminhoPermitido=
+host==="maps.app.goo.gl"||
+host==="goo.gl"||
+url.pathname.startsWith("/maps");
+
+if(dominioPermitido&&caminhoPermitido){
+
+resultado+=
+'<a class="link-localizacao" href="'+
+escaparHTML(url.href)+
+'" target="_blank" rel="noopener noreferrer">'+
+'📍 ABRIR LOCALIZAÇÃO NO GOOGLE MAPS'+
+'</a>';
+
+}else{
+resultado+=escaparHTML(link);
+}
+
+}catch(e){
+resultado+=escaparHTML(link);
+}
+
+resultado+=escaparHTML(pontuacao);
+inicio=regex.lastIndex;
+}
+
+/* Trata o restante do texto sem executar HTML */
+let restante=conteudo.slice(inicio);
+restante=restante
+.replace(/\b(?:href|target|rel|aria-label)\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]*)/gi,"")
+.replace(/[<>]/g,"");
+
+resultado+=escaparHTML(restante);
+
+return resultado.replace(/\r?\n/g,"<br>");
+}
 
 async function carregarMensagens(){
-  if(!corridaAtual||carregandoChat)return;
+if(!corridaAtual||carregandoChat)return;
+const id=corridaAtual.ride_id;
+carregandoChat=true;
 
-  const id=corridaAtual.ride_id;
-  carregandoChat=true;
+try{
+const {data,error}=await db.rpc("listar_mensagens_corrida",{p_corrida_id:id});
+if(error)throw error;
+if(!corridaAtual||corridaAtual.ride_id!==id)return;
 
-  try{
-    const {data,error}=await db.rpc(
-      "listar_mensagens_corrida",
-      {p_corrida_id:id}
-    );
+const msgs=Array.isArray(data)?data:[];
+const assinatura=msgs.map(m=>[m.id,m.sender_role,m.message,m.created_at].join("|")).join("||");
+if(assinatura===ultimoConteudoChat)return;
+ultimoConteudoChat=assinatura;
 
-    if(error)throw error;
+const lista=document.getElementById("listaMensagens");
+lista.innerHTML="";
 
-    if(!corridaAtual||corridaAtual.ride_id!==id)return;
+if(!msgs.length){
+const v=document.createElement("div");
+v.className="chat-vazio";
+v.textContent="Nenhuma mensagem ainda. Você pode iniciar a conversa.";
+lista.appendChild(v);
+return;
+}
 
-    const msgs=Array.isArray(data)?data:[];
+msgs.forEach(m=>{
+const item=document.createElement("div");
+const sou=m.sender_role==="driver";
+item.className="chat-mensagem "+(sou?"motorista":"passageiro");
 
-    const assinatura=msgs.map(m=>
-      [m.id,m.sender_role,m.message,m.created_at].join("|")
-    ).join("||");
+const autor=document.createElement("div");
+autor.className="chat-autor";
+autor.textContent=sou?"Você":"Passageiro";
 
-    if(assinatura===ultimoConteudoChat)return;
+const txt=document.createElement("div");
+txt.innerHTML=formatarMensagem(m.message||"");
 
-    ultimoConteudoChat=assinatura;
+const hora=document.createElement("div");
+hora.className="chat-hora";
+hora.textContent=m.created_at?new Date(m.created_at).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}):"";
 
-    const lista=document.getElementById("listaMensagens");
-    lista.innerHTML="";
+item.append(autor,txt,hora);
+lista.appendChild(item);
+});
+lista.scrollTop=lista.scrollHeight;
 
-    if(!msgs.length){
-      const v=document.createElement("div");
-      v.className="chat-vazio";
-      v.textContent="Nenhuma mensagem ainda. Você pode iniciar a conversa.";
-      lista.appendChild(v);
-      return;
-    }
+}catch(e){
+const erroMensagem=String(e?.message||e);
 
-    msgs.forEach(m=>{
-      const item=document.createElement("div");
-      const sou=m.sender_role==="driver";
+if(erroMensagem.toLowerCase().includes("motorista não autorizado")){
+try{
+const {data:resultadoEncaminhamento,error:erroEncaminhamento}=await db.rpc(
+"verificar_encaminhamento_corrida_motorista",
+{p_corrida_id:id}
+);
 
-      item.className="chat-mensagem "+(sou?"motorista":"passageiro");
-
-      const autor=document.createElement("div");
-      autor.className="chat-autor";
-      autor.textContent=sou?"Você":"Passageiro";
-
-      const txt=document.createElement("div");
-      txt.innerHTML=formatarMensagem(m.message||"");
-
-      const hora=document.createElement("div");
-      hora.className="chat-hora";
-
-      hora.textContent=m.created_at
-        ?new Date(m.created_at).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})
-        :"";
-
-      item.append(autor,txt,hora);
-      lista.appendChild(item);
-    });
-
-    lista.scrollTop=lista.scrollHeight;
-
-  }catch(e){
-    const erroMensagem=String(e?.message||e);
-
-    if(erroMensagem.toLowerCase().includes("motorista não autorizado")){
-      try{
-        const {data:resultadoEncaminhamento,error:erroEncaminhamento}=await db.rpc(
-          "verificar_encaminhamento_corrida_motorista",
-          {p_corrida_id:id}
-        );
-
-        if(!erroEncaminhamento&&resultadoEncaminhamento&&resultadoEncaminhamento.success&&resultadoEncaminhamento.forwarded){
-
-          if(ultimaCorridaEncaminhadaNotificada!==String(id)){
-            mostrarNotificacao(
-              "PRAZO ENCERRADO",
-              "O tempo para aceitar terminou. A corrida foi encaminhada ao próximo motorista da fila.",
-              "erro"
-            );
-
-            ultimaCorridaEncaminhadaNotificada=String(id);
-
-            sessionStorage.setItem(
-              "nerocar_ultima_corrida_encaminhada_notificada",
-              String(id)
-            );
-          }
-
-          document.getElementById("mensagemFila").textContent=
-            "O prazo para aceitar terminou. A corrida foi encaminhada ao próximo motorista.";
-
-          ultimaCorridaMonitorada=null;
-          sessionStorage.removeItem("nerocar_ultima_corrida_monitorada");
-
-          esconderCorrida();
-          await atualizarStatus();
-
-        }else{
-          document.getElementById("statusChat").textContent=
-            "Esta corrida não está mais atribuída à sua conta.";
-        }
-
-      }catch(erroVerificacao){
-        document.getElementById("statusChat").textContent=
-          "Não foi possível confirmar o encaminhamento: "+erroVerificacao.message;
-      }
-
-    }else{
-      document.getElementById("statusChat").textContent=
-        "Erro ao carregar mensagens: "+erroMensagem;
-    }
-
-  }finally{
-    carregandoChat=false;
-  }
+if(!erroEncaminhamento&&resultadoEncaminhamento&&resultadoEncaminhamento.success&&resultadoEncaminhamento.forwarded){
+if(ultimaCorridaEncaminhadaNotificada!==String(id)){
+mostrarNotificacao(
+"PRAZO ENCERRADO",
+"O tempo para aceitar terminou. A corrida foi encaminhada ao próximo motorista da fila.",
+"erro"
+);
+ultimaCorridaEncaminhadaNotificada=String(id);
+sessionStorage.setItem("nerocar_ultima_corrida_encaminhada_notificada",String(id));
+}
+document.getElementById("mensagemFila").textContent=
+"O prazo para aceitar terminou. A corrida foi encaminhada ao próximo motorista.";
+ultimaCorridaMonitorada=null;
+sessionStorage.removeItem("nerocar_ultima_corrida_monitorada");
+esconderCorrida();
+await atualizarStatus();
+}else{
+document.getElementById("statusChat").textContent=
+"Esta corrida não está mais atribuída à sua conta.";
+}
+}catch(erroVerificacao){
+document.getElementById("statusChat").textContent=
+"Não foi possível confirmar o encaminhamento: "+erroVerificacao.message;
+}
+}else{
+document.getElementById("statusChat").textContent="Erro ao carregar mensagens: "+erroMensagem;
+}
+}finally{
+carregandoChat=false;
+}
 }
 
 async function enviarMensagem(){
-  if(!corridaAtual||enviandoChat)return;
+if(!corridaAtual||enviandoChat)return;
 
-  const campo=document.getElementById("textoMensagem");
-  const btn=document.getElementById("btnEnviarMensagem");
-  const status=document.getElementById("statusChat");
-  const texto=campo.value.trim();
+const campo=document.getElementById("textoMensagem");
+const btn=document.getElementById("btnEnviarMensagem");
+const status=document.getElementById("statusChat");
+const texto=campo.value.trim();
 
-  if(!texto){
-    status.textContent="Digite uma mensagem antes de enviar.";
-    return;
-  }
-
-  const id=corridaAtual.ride_id;
-
-  enviandoChat=true;
-  btn.disabled=true;
-  status.textContent="Enviando mensagem...";
-
-  try{
-    const {data,error}=await db.rpc("enviar_mensagem_corrida",{
-      p_corrida_id:id,
-      p_mensagem:texto
-    });
-
-    if(error)throw error;
-
-    if(!data||!data.success){
-      throw new Error(data?.message||"Não foi possível enviar a mensagem.");
-    }
-
-    campo.value="";
-    status.textContent="Mensagem enviada.";
-
-    ultimoConteudoChat="";
-    await carregarMensagens();
-
-  }catch(e){
-    status.textContent="Erro ao enviar: "+e.message;
-
-  }finally{
-    enviandoChat=false;
-    btn.disabled=false;
-  }
+if(!texto){
+status.textContent="Digite uma mensagem antes de enviar.";
+return;
 }
 
-/* =========================================
-   RECUSAR CORRIDA
-========================================= */
+const id=corridaAtual.ride_id;
+enviandoChat=true;
+btn.disabled=true;
+status.textContent="Enviando mensagem...";
+
+try{
+const {data,error}=await db.rpc("enviar_mensagem_corrida",{
+p_corrida_id:id,
+p_mensagem:texto
+});
+if(error)throw error;
+if(!data||!data.success)throw new Error(data?.message||"Não foi possível enviar a mensagem.");
+
+campo.value="";
+status.textContent="Mensagem enviada.";
+ultimoConteudoChat="";
+await carregarMensagens();
+
+}catch(e){
+status.textContent="Erro ao enviar: "+e.message;
+}finally{
+enviandoChat=false;
+btn.disabled=false;
+}
+}
 
 async function responderCorrida(funcao){
-  if(!corridaAtual)return;
+if(!corridaAtual)return;
 
-  const id=corridaAtual.ride_id;
+const id=corridaAtual.ride_id;
+const b1=document.getElementById("btnAceitar");
+const b2=document.getElementById("btnRecusar");
+const mf=document.getElementById("mensagemFila");
+const mc=document.getElementById("mensagemCorrida");
 
-  const b1=document.getElementById("btnAceitar");
-  const b2=document.getElementById("btnRecusar");
-  const mf=document.getElementById("mensagemFila");
-  const mc=document.getElementById("mensagemCorrida");
+b1.disabled=true;
+b2.disabled=true;
+mc.textContent="Enviando resposta...";
 
-  b1.disabled=true;
-  b2.disabled=true;
+try{
+const {data,error}=await db.rpc(funcao,{p_corrida_id:id});
+if(error)throw error;
+if(!data||!data.success)throw new Error(data?.message||"Não foi possível responder.");
 
-  mc.textContent="Enviando resposta...";
-
-  try{
-    const {data,error}=await db.rpc(funcao,{
-      p_corrida_id:id
-    });
-
-    if(error)throw error;
-
-    if(!data||!data.success){
-      throw new Error(data?.message||"Não foi possível responder.");
-    }
-
-    if(funcao==="recusar_corrida"){
-      pararRepeticaoAlerta();
-
-      mf.textContent=data.reassigned
-        ?"Corrida recusada. Chamada encaminhada ao próximo motorista da fila."
-        :"Corrida recusada. Não há outro motorista disponível no momento.";
-
-      mostrarNotificacao(
-        "CORRIDA RECUSADA",
-        data.reassigned
-          ?"Chamada encaminhada ao próximo motorista da fila."
-          :"Não há outro motorista disponível no momento.",
-        "erro"
-      );
-
-      esconderCorrida();
-      await atualizarStatus();
-
-    }else{
-      mc.textContent=data.message||"Corrida aceita com sucesso.";
-
-      mostrarNotificacao(
-        "CORRIDA ACEITA",
-        "Você confirmou o atendimento. Boa viagem!",
-        "sucesso"
-      );
-
-      await verificarCorrida();
-      await atualizarStatus();
-    }
-
-  }catch(e){
-    mc.textContent="Erro: "+e.message;
-
-    mostrarNotificacao(
-      "NÃO FOI POSSÍVEL RESPONDER",
-      e.message,
-      "erro"
-    );
-
-  }finally{
-    b1.disabled=false;
-    b2.disabled=false;
-  }
+if(funcao==="recusar_corrida"){
+mf.textContent=data.reassigned?"Corrida recusada. Chamada encaminhada ao próximo motorista da fila.":"Corrida recusada. Não há outro motorista disponível no momento.";
+mostrarNotificacao("CORRIDA RECUSADA",data.reassigned?"Chamada encaminhada ao próximo motorista da fila.":"Não há outro motorista disponível no momento.","erro");
+esconderCorrida();
+await atualizarStatus();
+}else{
+mc.textContent=data.message||"Corrida aceita com sucesso.";
+mostrarNotificacao("CORRIDA ACEITA","Você confirmou o atendimento. Boa viagem!","sucesso");
+await verificarCorrida();
+await atualizarStatus();
+}
+}catch(e){
+mc.textContent="Erro: "+e.message;
+mostrarNotificacao("NÃO FOI POSSÍVEL RESPONDER",e.message,"erro");
+}finally{
+b1.disabled=false;
+b2.disabled=false;
+}
 }
 
-/* =========================================
-   ACEITAR CORRIDA
-========================================= */
 
 async function aceitarCorrida(){
   if(!corridaAtual)return;
@@ -1473,20 +1081,17 @@ async function aceitarCorrida(){
       "Informe um tempo entre 1 e 60 minutos.",
       "erro"
     );
-
     campo.focus();
     return;
   }
 
   const id=corridaAtual.ride_id;
-
   const b1=document.getElementById("btnAceitar");
   const b2=document.getElementById("btnRecusar");
   const mc=document.getElementById("mensagemCorrida");
 
   b1.disabled=true;
   b2.disabled=true;
-
   mc.textContent="Confirmando corrida...";
 
   try{
@@ -1496,16 +1101,11 @@ async function aceitarCorrida(){
     });
 
     if(error)throw error;
-
     if(!data||!data.success){
       throw new Error(data?.message||"Não foi possível aceitar.");
     }
 
-    /* O alerta repetido para imediatamente após a aceitação */
-    pararRepeticaoAlerta();
-
     mc.textContent=data.message;
-
     mostrarNotificacao(
       "CORRIDA ACEITA",
       "Previsão de chegada: "+minutos+" minutos.",
@@ -1517,198 +1117,109 @@ async function aceitarCorrida(){
 
   }catch(e){
     mc.textContent="Erro: "+e.message;
-
-    mostrarNotificacao(
-      "NÃO FOI POSSÍVEL ACEITAR",
-      e.message,
-      "erro"
-    );
-
+    mostrarNotificacao("NÃO FOI POSSÍVEL ACEITAR",e.message,"erro");
   }finally{
     b1.disabled=false;
     b2.disabled=false;
   }
 }
 
-async function recusarCorrida(){
-  await responderCorrida("recusar_corrida");
-}
 
-/* =========================================
-   CANCELAR CORRIDA
-========================================= */
+async function recusarCorrida(){
+await responderCorrida("recusar_corrida");
+}
 
 async function cancelarCorridaMotorista(){
-  if(!corridaAtual||corridaAtual.status!=="accepted")return;
+if(!corridaAtual||corridaAtual.status!=="accepted")return;
 
-  const id=corridaAtual.ride_id;
+const id=corridaAtual.ride_id;
 
-  if(!confirm("Tem certeza que deseja cancelar esta corrida? Ela será encaminhada ao próximo motorista disponível na fila.")){
-    return;
-  }
+if(!confirm("Tem certeza que deseja cancelar esta corrida? Ela será encaminhada ao próximo motorista disponível na fila."))return;
 
-  const btn=document.getElementById("btnCancelarCorrida");
+const btn=document.getElementById("btnCancelarCorrida");
+btn.disabled=true;
+document.getElementById("mensagemCorrida").textContent="Cancelando e procurando o próximo motorista...";
 
-  btn.disabled=true;
+try{
+const {data,error}=await db.rpc("cancelar_corrida_motorista",{p_corrida_id:id});
+if(error)throw error;
+if(!data||!data.success)throw new Error(data?.message||"Não foi possível cancelar a corrida.");
 
-  document.getElementById("mensagemCorrida").textContent=
-    "Cancelando e procurando o próximo motorista...";
+esconderCorrida();
 
-  try{
-    const {data,error}=await db.rpc(
-      "cancelar_corrida_motorista",
-      {p_corrida_id:id}
-    );
-
-    if(error)throw error;
-
-    if(!data||!data.success){
-      throw new Error(data?.message||"Não foi possível cancelar a corrida.");
-    }
-
-    esconderCorrida();
-
-    if(data.reassigned){
-      mostrarNotificacao(
-        "CORRIDA ENCAMINHADA",
-        "Você cancelou o atendimento. A corrida foi enviada ao próximo motorista.",
-        "sucesso"
-      );
-
-      document.getElementById("mensagemFila").textContent=
-        "Corrida encaminhada ao próximo motorista da fila.";
-
-    }else{
-      mostrarNotificacao(
-        "CORRIDA CANCELADA",
-        data.message||"Não há outro motorista disponível.",
-        "erro"
-      );
-
-      document.getElementById("mensagemFila").textContent=
-        data.message||"Não há outro motorista disponível.";
-    }
-
-    await atualizarStatus();
-
-  }catch(e){
-    document.getElementById("mensagemCorrida").textContent=
-      "Erro ao cancelar: "+e.message;
-
-    mostrarNotificacao("ERRO AO CANCELAR",e.message,"erro");
-
-  }finally{
-    btn.disabled=false;
-  }
+if(data.reassigned){
+mostrarNotificacao("CORRIDA ENCAMINHADA","Você cancelou o atendimento. A corrida foi enviada ao próximo motorista.","sucesso");
+document.getElementById("mensagemFila").textContent="Corrida encaminhada ao próximo motorista da fila.";
+}else{
+mostrarNotificacao("CORRIDA CANCELADA",data.message||"Não há outro motorista disponível.","erro");
+document.getElementById("mensagemFila").textContent=data.message||"Não há outro motorista disponível.";
 }
 
-/* =========================================
-   FINALIZAR CORRIDA
-========================================= */
+await atualizarStatus();
+
+}catch(e){
+document.getElementById("mensagemCorrida").textContent="Erro ao cancelar: "+e.message;
+mostrarNotificacao("ERRO AO CANCELAR",e.message,"erro");
+}finally{
+btn.disabled=false;
+}
+}
 
 async function finalizarCorrida(){
-  if(!corridaAtual)return;
+if(!corridaAtual)return;
 
-  const btn=document.getElementById("btnFinalizar");
+const btn=document.getElementById("btnFinalizar");
+btn.disabled=true;
+document.getElementById("mensagemCorrida").textContent="Finalizando corrida...";
 
-  btn.disabled=true;
+try{
+const {data,error}=await db.rpc("finalizar_corrida",{p_corrida_id:corridaAtual.ride_id});
+if(error)throw error;
+if(!data||!data.success)throw new Error(data?.message||"Não foi possível finalizar.");
 
-  document.getElementById("mensagemCorrida").textContent=
-    "Finalizando corrida...";
+document.getElementById("mensagemCorrida").textContent=data.message;
+mostrarNotificacao("CORRIDA FINALIZADA","Atendimento concluído com sucesso.","sucesso");
+esconderCorrida();
+await atualizarStatus();
 
-  try{
-    const {data,error}=await db.rpc(
-      "finalizar_corrida",
-      {p_corrida_id:corridaAtual.ride_id}
-    );
-
-    if(error)throw error;
-
-    if(!data||!data.success){
-      throw new Error(data?.message||"Não foi possível finalizar.");
-    }
-
-    document.getElementById("mensagemCorrida").textContent=data.message;
-
-    mostrarNotificacao(
-      "CORRIDA FINALIZADA",
-      "Atendimento concluído com sucesso.",
-      "sucesso"
-    );
-
-    esconderCorrida();
-    await atualizarStatus();
-
-  }catch(e){
-    document.getElementById("mensagemCorrida").textContent=
-      "Erro: "+e.message;
-
-  }finally{
-    btn.disabled=false;
-  }
+}catch(e){
+document.getElementById("mensagemCorrida").textContent="Erro: "+e.message;
+}finally{
+btn.disabled=false;
 }
-
-/* =========================================
-   INICIAR MONITORAMENTO
-========================================= */
+}
 
 function iniciarVerificacao(){
-  if(verificacaoTimer)clearInterval(verificacaoTimer);
-  if(chatTimer)clearInterval(chatTimer);
-  if(filaTimer)clearInterval(filaTimer);
+if(verificacaoTimer)clearInterval(verificacaoTimer);
+if(chatTimer)clearInterval(chatTimer);
+if(filaTimer)clearInterval(filaTimer);
 
-  verificarCorrida();
-  atualizarPosicaoFila();
+verificarCorrida();
+atualizarPosicaoFila();
 
-  verificacaoTimer=setInterval(verificarCorrida,5000);
-  chatTimer=setInterval(carregarMensagens,4000);
-  filaTimer=setInterval(atualizarPosicaoFila,5000);
+verificacaoTimer=setInterval(verificarCorrida,5000);
+chatTimer=setInterval(carregarMensagens,4000);
+filaTimer=setInterval(atualizarPosicaoFila,5000);
 }
-
-/* =========================================
-   SAIR DA CONTA
-========================================= */
 
 async function sairConta(){
-  if(verificacaoTimer)clearInterval(verificacaoTimer);
-  if(chatTimer)clearInterval(chatTimer);
-  if(filaTimer)clearInterval(filaTimer);
+if(verificacaoTimer)clearInterval(verificacaoTimer);
+if(chatTimer)clearInterval(chatTimer);
+if(filaTimer)clearInterval(filaTimer);
 
-  pararRepeticaoAlerta();
-
-  if(intervaloContadorMotorista){
-    clearInterval(intervaloContadorMotorista);
-    intervaloContadorMotorista=null;
-  }
-
-  await db.auth.signOut();
-  location.reload();
+await db.auth.signOut();
+location.reload();
 }
 
-/* =========================================
-   ENVIO DO CHAT COM ENTER
-========================================= */
-
 document.getElementById("textoMensagem").addEventListener("keydown",e=>{
-  if(e.key==="Enter"){
-    e.preventDefault();
-    enviarMensagem();
-  }
+if(e.key==="Enter"){
+e.preventDefault();
+enviarMensagem();
+}
 });
 
-/* =========================================
-   RESTAURAR SESSÃO DO MOTORISTA
-========================================= */
-
-db.auth.getSession().then(async({data,error})=>{
-  if(error){
-    console.error("Erro ao recuperar sessão:",error);
-    return;
-  }
-
-  if(data.session){
-    await carregarConta(data.session.user);
-  }
+db.auth.getSession().then(async({data})=>{
+if(data.session)await carregarConta(data.session.user);
 });
 </script>
 
