@@ -115,6 +115,17 @@ body.modo-corrida #painelCorrida{
   padding:24px 20px 36px;border:0;border-radius:0;box-shadow:0 0 35px #0009
 }
 body.modo-corrida #toastContainer{z-index:10000}
+
+/* Janela flutuante para previsão de chegada */
+.modal-tempo-overlay{position:fixed;inset:0;z-index:10020;display:flex;align-items:center;justify-content:center;padding:20px;background:#000b;backdrop-filter:blur(5px)}
+.modal-tempo{width:100%;max-width:430px;background:linear-gradient(145deg,#202329,#111317);border:1px solid #806516;border-top:4px solid var(--yellow);border-radius:20px;padding:24px;box-shadow:0 20px 70px #000c;text-align:center}
+.modal-tempo h2{color:var(--yellow);font-size:21px;margin:0 0 9px}
+.modal-tempo p{color:#c3c6cc;font-size:14px;line-height:1.5;margin:0 0 18px}
+.tempos-opcoes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tempos-opcoes button{margin:0;min-height:62px;background:#2b2e35;color:#fff;border:1px solid #50545e;border-radius:13px;font-size:18px;font-weight:900}
+.tempos-opcoes button span{display:block;font-size:11px;color:#c5c7cc;font-weight:600;margin-top:3px}
+#statusModalTempo{min-height:20px;margin:14px 0 0;color:var(--yellow);font-size:13px}
+
 @media(min-width:760px){
   #conta>.driver-shell{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch}
   #conta>.driver-shell>.profile-card{grid-column:1/-1;margin:0}
@@ -214,20 +225,7 @@ body.modo-corrida #toastContainer{z-index:10000}
 <p><strong>Valor:</strong> <span id="valorCorrida"></span></p>
 </div>
 
- 
-<div id="tempoChegadaBox" class="hidden">
-  <label for="tempoChegada" class="small">
-    Em quantos minutos você chega ao passageiro?
-  </label>
-  <input
-    id="tempoChegada"
-    type="number"
-    min="1"
-    max="60"
-    step="1"
-    placeholder="Informe de 1 a 60 minutos"
-  >
-</div>
+
 
 <button id="btnAceitar" class="primary hidden" onclick="aceitarCorrida()">ACEITAR CORRIDA</button>
 <button id="btnRecusar" class="danger hidden" onclick="recusarCorrida()">RECUSAR CORRIDA</button>
@@ -251,6 +249,22 @@ body.modo-corrida #toastContainer{z-index:10000}
 
 </div>
 </section>
+</div>
+
+<div id="modalTempoChegada" class="modal-tempo-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="tituloModalTempo">
+  <div class="modal-tempo">
+    <h2 id="tituloModalTempo">Qual sua previsão de chegada?</h2>
+    <p>Corrida aceita! Escolha em quantos minutos você chega ao passageiro.</p>
+    <div class="tempos-opcoes">
+      <button type="button" onclick="selecionarTempoChegada(3)">3 <span>minutos</span></button>
+      <button type="button" onclick="selecionarTempoChegada(5)">5 <span>minutos</span></button>
+      <button type="button" onclick="selecionarTempoChegada(8)">8 <span>minutos</span></button>
+      <button type="button" onclick="selecionarTempoChegada(10)">10 <span>minutos</span></button>
+      <button type="button" onclick="selecionarTempoChegada(12)">12 <span>minutos</span></button>
+      <button type="button" onclick="selecionarTempoChegada(15)">15 <span>minutos</span></button>
+    </div>
+    <div id="statusModalTempo" aria-live="polite"></div>
+  </div>
 </div>
 
 <script>
@@ -323,6 +337,7 @@ let verificacaoTimer=null;
 let chatTimer=null;
 let filaTimer=null;
 let consultando=false;
+let salvandoTempoChegada=false;
 let intervaloContadorMotorista=null;
 let carregandoChat=false;
 let enviandoChat=false;
@@ -649,6 +664,46 @@ atualizarContadorMotorista();
 intervaloContadorMotorista=setInterval(atualizarContadorMotorista,250);
 }
 
+function abrirModalTempoChegada(){
+  if(salvandoTempoChegada)return;
+  document.getElementById("modalTempoChegada").classList.remove("hidden");
+}
+function fecharModalTempoChegada(){
+  document.getElementById("modalTempoChegada").classList.add("hidden");
+  document.getElementById("statusModalTempo").textContent="";
+}
+async function selecionarTempoChegada(minutos){
+  if(salvandoTempoChegada||!corridaAtual||corridaAtual.status!=="accepted")return;
+  const id=corridaAtual.ride_id;
+  const status=document.getElementById("statusModalTempo");
+  const botoes=document.querySelectorAll(".tempos-opcoes button");
+  salvandoTempoChegada=true;
+  botoes.forEach(botao=>botao.disabled=true);
+  status.textContent="Salvando sua previsão...";
+  try{
+    const {data,error}=await db.rpc("definir_tempo_chegada",{
+      p_corrida_id:id,
+      p_tempo_estimado_minutos:minutos
+    });
+    if(error)throw error;
+    if(!data||!data.success)throw new Error(data?.message||"Não foi possível registrar a previsão.");
+    corridaAtual.estimated_arrival_minutes=minutos;
+    corridaAtual.arrival_deadline_at=new Date(Date.now()+minutos*60000).toISOString();
+    fecharModalTempoChegada();
+    document.getElementById("mensagemCorrida").textContent=data.message||"Previsão registrada.";
+    mostrarNotificacao("PREVISÃO ENVIADA","Você informou que chegará em "+minutos+" minutos.","sucesso");
+    atualizarContadorMotorista();
+    await verificarCorrida();
+    await atualizarStatus();
+  }catch(e){
+    status.textContent="Erro: "+e.message+". Tente novamente.";
+    mostrarNotificacao("NÃO FOI POSSÍVEL SALVAR",e.message,"erro");
+  }finally{
+    salvandoTempoChegada=false;
+    botoes.forEach(botao=>botao.disabled=false);
+  }
+}
+
 function mostrarCorrida(c){
 const mudou=!corridaAtual||corridaAtual.ride_id!==c.ride_id;
 if(mudou)alertarNovaCorrida(c);
@@ -674,8 +729,11 @@ const aceita=c.status==="accepted";
 document.getElementById("avisoCorrida").textContent=pendente?"Nova corrida aguardando sua resposta!":"Corrida aceita. Boa viagem!";
 document.getElementById("btnAceitar").classList.toggle("hidden",!pendente);
 document.getElementById("btnRecusar").classList.toggle("hidden",!pendente);
-document.getElementById("tempoChegadaBox").classList.toggle("hidden",!pendente);
-if(mudou) document.getElementById("tempoChegada").value="";
+if(aceita && !c.arrival_deadline_at){
+  abrirModalTempoChegada();
+}else if(c.arrival_deadline_at || !aceita){
+  fecharModalTempoChegada();
+}
 document.getElementById("btnFinalizar").classList.toggle("hidden",!aceita);
 document.getElementById("btnCancelarCorrida").classList.toggle("hidden",!aceita);
 document.getElementById("chatArea").classList.remove("hidden");
@@ -689,6 +747,7 @@ carregarMensagens();
 
 function esconderCorrida(){
 corridaAtual=null;
+fecharModalTempoChegada();
 document.body.classList.remove("modo-corrida");
 document.getElementById("painelCorrida").classList.add("hidden");
 document.getElementById("contadorPrazoMotorista").classList.add("hidden");
@@ -1071,50 +1130,21 @@ b2.disabled=false;
 
 async function aceitarCorrida(){
   if(!corridaAtual)return;
-
-  const campo=document.getElementById("tempoChegada");
-  const minutos=Number(campo.value);
-
-  if(!Number.isInteger(minutos)||minutos<1||minutos>60){
-    mostrarNotificacao(
-      "TEMPO INVÁLIDO",
-      "Informe um tempo entre 1 e 60 minutos.",
-      "erro"
-    );
-    campo.focus();
-    return;
-  }
-
   const id=corridaAtual.ride_id;
   const b1=document.getElementById("btnAceitar");
   const b2=document.getElementById("btnRecusar");
   const mc=document.getElementById("mensagemCorrida");
-
   b1.disabled=true;
   b2.disabled=true;
-  mc.textContent="Confirmando corrida...";
-
+  mc.textContent="Aceitando corrida...";
   try{
-    const {data,error}=await db.rpc("aceitar_corrida",{
-      p_corrida_id:id,
-      p_tempo_estimado_minutos:minutos
-    });
-
+    const {data,error}=await db.rpc("aceitar_corrida",{p_corrida_id:id});
     if(error)throw error;
-    if(!data||!data.success){
-      throw new Error(data?.message||"Não foi possível aceitar.");
-    }
-
-    mc.textContent=data.message;
-    mostrarNotificacao(
-      "CORRIDA ACEITA",
-      "Previsão de chegada: "+minutos+" minutos.",
-      "sucesso"
-    );
-
+    if(!data||!data.success)throw new Error(data?.message||"Não foi possível aceitar.");
+    mc.textContent=data.message||"Corrida aceita com sucesso.";
+    mostrarNotificacao("CORRIDA ACEITA","Agora informe sua previsão de chegada.","sucesso");
     await verificarCorrida();
     await atualizarStatus();
-
   }catch(e){
     mc.textContent="Erro: "+e.message;
     mostrarNotificacao("NÃO FOI POSSÍVEL ACEITAR",e.message,"erro");
