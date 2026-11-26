@@ -388,7 +388,11 @@ btn.textContent="ALERTA SONORO ATIVADO";
 btn.style.background="#25884b";
 btn.style.color="white";
 status.textContent="Alerta ativado! Você ouvirá quando chegar uma nova corrida.";
-tocarBipes();
+if(corridaAtual && corridaAtual.status === "pending"){
+  iniciarRepeticaoAlerta(corridaAtual);
+}else{
+  tocarBipes();
+}
 }catch(e){
 alertaAtivado=false;
 status.textContent="Não foi possível ativar o som. Tente novamente.";
@@ -416,6 +420,11 @@ function tocarBipes(){
 }
 
 function alertarNovaCorrida(c){
+
+let intervaloAlertaCorrida = null;
+let corridaComAlerta = null;
+
+function alertarNovaCorrida(c){
   if(!c || c.status !== "pending" || ultimaCorridaAlertada === c.ride_id) return;
 
   ultimaCorridaAlertada = c.ride_id;
@@ -430,8 +439,8 @@ function alertarNovaCorrida(c){
   }else{
     document.getElementById("statusAlerta").textContent =
       "Nova corrida recebida! Ative o alerta sonoro para ouvir as próximas chamadas.";
-    let intervaloAlertaCorrida = null;
-let corridaComAlerta = null;
+  }
+}
 
 function iniciarRepeticaoAlerta(c){
   if(!c || !c.ride_id || c.status !== "pending") return;
@@ -472,9 +481,7 @@ function pararRepeticaoAlerta(){
     window.audioEmergencia.currentTime = 0;
   }
 }
-  }
-}
-}
+
 
 async function cadastrar(){
 const name=document.getElementById("nome").value.trim();
