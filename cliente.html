@@ -1341,18 +1341,19 @@ button:disabled{opacity:.5;cursor:not-allowed}
   <div id="sugestoesEndereco" class="sugestoes-endereco"></div>
 </div>
 
-    <label for="referencia">⚑ &nbsp; Ponto de referência (opcional)</label>
+<label for="referencia">📍 &nbsp; Quadra e lote (obrigatório)</label>
 
-    <div class="campo-nerocar">
-      <span class="campo-icone">★</span>
+<div class="campo-nerocar">
+  <span class="campo-icone">★</span>
 
-      <input
-        id="referencia"
-        type="text"
-        placeholder="Ex.: próximo à praça"
-        maxlength="300"
-      >
-    </div>
+  <input
+    id="referencia"
+    type="text"
+    placeholder="Ex.: Quadra 05, Lote 12"
+    maxlength="300"
+    required
+  >
+</div>
 
     <div class="tarifa-nerocar">
       <div class="tarifa-carro">🚘</div>
@@ -2224,7 +2225,10 @@ async function solicitarCorrida(){
   notificar("Endereço obrigatório","Informe o endereço de origem.","erro",false);
   return;
  }
-
+if(!referencia){
+  notificar("Quadra e lote obrigatório","Informe sua quadra e seu lote antes de solicitar a corrida.","erro",false);
+  return;
+}
  btnSolicitar.disabled=true;
  btnSolicitar.textContent="SOLICITANDO...";
 
