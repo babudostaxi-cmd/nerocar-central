@@ -425,6 +425,11 @@ let intervaloAlertaCorrida = null;
 let corridaComAlerta = null;
 
 function alertarNovaCorrida(c){
+
+let intervaloAlertaCorrida = null;
+let corridaComAlerta = null;
+
+function alertarNovaCorrida(c){
   if(!c || c.status !== "pending" || ultimaCorridaAlertada === c.ride_id) return;
 
   ultimaCorridaAlertada = c.ride_id;
@@ -481,6 +486,7 @@ function pararRepeticaoAlerta(){
     window.audioEmergencia.currentTime = 0;
   }
 }
+
 
 
 async function cadastrar(){
