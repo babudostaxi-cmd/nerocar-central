@@ -324,6 +324,11 @@ function mostrarNotificacao(titulo,texto,tipo=""){
    ALERTA SONORO E VIBRAÇÃO
 ========================================= */
 
+
+/* =========================================
+   ALERTA SONORO E VIBRAÇÃO - SIRENE FORTE
+========================================= */
+
 async function ativarAlertaSonoro(){
   const btn=document.getElementById("btnAlerta");
   const status=document.getElementById("statusAlerta");
@@ -336,86 +341,124 @@ async function ativarAlertaSonoro(){
       return;
     }
 
-    if(!audioContext)audioContext=new C();
+    if(!audioContext){
+      audioContext=new C();
+    }
 
     if(audioContext.state==="suspended"){
       await audioContext.resume();
     }
 
     if(audioContext.state!=="running"){
-      status.textContent="Não foi possível iniciar o áudio. Toque novamente no botão.";
+      status.textContent="Não foi possível iniciar o áudio. Toque novamente.";
       return;
     }
 
     alertaAtivado=true;
 
-    btn.textContent="ALERTA SONORO ATIVADO";
+    btn.textContent="SIRENE ATIVADA";
     btn.style.background="#25884b";
     btn.style.color="white";
 
-    status.textContent="Alerta ativado! O aviso será repetido a cada 15 segundos enquanto houver uma corrida pendente.";
+    status.textContent="Sirene ativada! Som e vibração serão repetidos a cada 15 segundos durante uma nova corrida.";
 
     tocarBipes();
 
-    /* Se já houver corrida pendente na tela, ativa a repetição imediatamente */
     if(corridaAtual&&corridaAtual.status==="pending"){
       iniciarRepeticaoAlerta(corridaAtual);
     }
 
   }catch(e){
     alertaAtivado=false;
-    status.textContent="Não foi possível ativar o som. Tente novamente.";
+    status.textContent="Erro ao ativar a sirene. Tente novamente.";
     console.error("Erro ao ativar áudio:",e);
   }
 }
 
+/* Sirene eletrônica alternando tons */
 function tocarBipes(){
   if(!alertaAtivado||!audioContext||audioContext.state!=="running")return;
 
   const agora=audioContext.currentTime;
 
-  for(let i=0;i<3;i++){
-    const o=audioContext.createOscillator();
-    const g=audioContext.createGain();
+  const master=audioContext.createGain();
+  const compressor=audioContext.createDynamicsCompressor();
 
-    o.type="sine";
-    o.frequency.value=i===1?1050:850;
+  master.gain.setValueAtTime(0.9,agora);
 
-    g.gain.setValueAtTime(0,agora+i*.32);
-    g.gain.linearRampToValueAtTime(.22,agora+i*.32+.025);
-    g.gain.exponentialRampToValueAtTime(.001,agora+i*.32+.20);
+  compressor.threshold.setValueAtTime(-12,agora);
+  compressor.knee.setValueAtTime(10,agora);
+  compressor.ratio.setValueAtTime(12,agora);
+  compressor.attack.setValueAtTime(0.003,agora);
+  compressor.release.setValueAtTime(0.15,agora);
 
-    o.connect(g);
-    g.connect(audioContext.destination);
+  master.connect(compressor);
+  compressor.connect(audioContext.destination);
 
-    o.start(agora+i*.32);
-    o.stop(agora+i*.32+.22);
+  const duracao=4.5;
+  const passo=0.18;
+  const quantidade=Math.floor(duracao/passo);
+
+  for(let i=0;i<quantidade;i++){
+    const inicio=agora+i*passo;
+
+    const oscilador=audioContext.createOscillator();
+    const volume=audioContext.createGain();
+
+    oscilador.type="sawtooth";
+
+    const frequenciaBaixa=650;
+    const frequenciaAlta=1450;
+
+    const alterna=i%2===0;
+
+    oscilador.frequency.setValueAtTime(
+      alterna?frequenciaBaixa:frequenciaAlta,
+      inicio
+    );
+
+    oscilador.frequency.linearRampToValueAtTime(
+      alterna?frequenciaAlta:frequenciaBaixa,
+      inicio+passo
+    );
+
+    volume.gain.setValueAtTime(0.001,inicio);
+    volume.gain.linearRampToValueAtTime(0.8,inicio+0.025);
+    volume.gain.setValueAtTime(0.8,inicio+passo-0.035);
+    volume.gain.linearRampToValueAtTime(0.001,inicio+passo);
+
+    oscilador.connect(volume);
+    volume.connect(master);
+
+    oscilador.start(inicio);
+    oscilador.stop(inicio+passo+0.01);
   }
 
-  if("vibrate" in navigator){
-    navigator.vibrate([250,120,250,120,400]);
+  master.gain.setValueAtTime(0.9,agora+duracao);
+  master.gain.linearRampToValueAtTime(0.001,agora+duracao+0.1);
+
+  /* Vibração forte junto com a sirene */
+  if(typeof navigator.vibrate==="function"){
+    navigator.vibrate([500,150,500,150,800,200,500]);
   }
 }
 
-/* Inicia a repetição do alerta para uma corrida específica */
+/* Repetição a cada 15 segundos */
 function iniciarRepeticaoAlerta(c){
   if(!c||!c.ride_id||c.status!=="pending")return;
 
   const id=String(c.ride_id);
 
-  /* Não cria outro intervalo para a mesma corrida */
   if(intervaloAlertaCorrida&&corridaComAlerta===id)return;
 
   pararRepeticaoAlerta();
 
   corridaComAlerta=id;
 
-  /* Primeiro alerta imediato */
   if(alertaAtivado){
     tocarBipes();
   }
 
-  /* Repetição a cada 15 segundos */
   intervaloAlertaCorrida=setInterval(()=>{
     if(!corridaAtual||
        String(corridaAtual.ride_id)!==id||
@@ -431,7 +474,7 @@ function iniciarRepeticaoAlerta(c){
   },15000);
 }
 
-/* Para completamente a repetição */
+/* Para som e vibração */
 function pararRepeticaoAlerta(){
   if(intervaloAlertaCorrida){
     clearInterval(intervaloAlertaCorrida);
@@ -440,8 +483,34 @@ function pararRepeticaoAlerta(){
 
   corridaComAlerta=null;
 
-  if("vibrate" in navigator){
+  if(typeof navigator.vibrate==="function"){
     navigator.vibrate(0);
+  }
+}
+
+/* Notificação de nova corrida */
+function alertarNovaCorrida(c){
+  if(!c||c.status!=="pending")return;
+
+  const id=String(c.ride_id);
+
+  if(ultimaCorridaAlertada!==id){
+    ultimaCorridaAlertada=id;
+
+    mostrarNotificacao(
+      "NOVA CORRIDA",
+      "Chegou uma solicitação. Confira os dados e aceite ou recuse."
+    );
+
+    if(!alertaAtivado){
+      document.getElementById("statusAlerta").textContent=
+        "Nova corrida recebida! Ative a sirene para ouvir os avisos.";
+    }
+  }
+
+  iniciarRepeticaoAlerta(c);
+}
+
   }
 }
 
