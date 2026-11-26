@@ -299,40 +299,51 @@ function mostrarNotificacao(titulo,texto,tipo=""){
 
 /* ALERTA SONORO E VIBRAÇÃO */
 
+/* ALERTA SONORO E VIBRAÇÃO - REPETIÇÃO A CADA 15 SEGUNDOS */
+
 async function ativarAlertaSonoro(){
   const btn=document.getElementById("btnAlerta");
   const status=document.getElementById("statusAlerta");
 
   try{
     const C=window.AudioContext||window.webkitAudioContext;
+
     if(!C){
       status.textContent="Este navegador não suporta alerta sonoro.";
       return;
     }
 
-    if(!audioContext)audioContext=new C();
-    if(audioContext.state==="suspended")await audioContext.resume();
+    if(!audioContext){
+      audioContext=new C();
+    }
+
+    if(audioContext.state==="suspended"){
+      await audioContext.resume();
+    }
 
     alertaAtivado=true;
+
     btn.textContent="ALERTA SONORO ATIVADO";
     btn.style.background="#25884b";
     btn.style.color="white";
-    status.textContent="Alerta ativado! Som e vibração para novas corridas.";
+
+    status.textContent="Alerta ativado. Novas corridas serão avisadas a cada 15 segundos.";
 
     tocarBipes();
 
-    if(corridaAtual&&corridaAtual.status==="pending"){
+    if(corridaAtual && corridaAtual.status==="pending"){
       iniciarRepeticaoAlerta(corridaAtual);
     }
+
   }catch(e){
     alertaAtivado=false;
-    status.textContent="Não foi possível ativar o som. Tente novamente.";
+    status.textContent="Não foi possível ativar o alerta.";
     console.error(e);
   }
 }
 
 function tocarBipes(){
-  if(!audioContext||audioContext.state!=="running")return;
+  if(!audioContext || audioContext.state!=="running")return;
 
   const agora=audioContext.currentTime;
 
@@ -350,6 +361,7 @@ function tocarBipes(){
 
     o.connect(g);
     g.connect(audioContext.destination);
+
     o.start(agora+i*0.25);
     o.stop(agora+i*0.25+0.22);
   }
@@ -362,26 +374,32 @@ function tocarBipes(){
 function iniciarRepeticaoAlerta(c){
   pararRepeticaoAlerta();
 
-  if(!c||c.status!=="pending"||!alertaAtivado)return;
+  if(!c || c.status!=="pending" || !alertaAtivado)return;
 
   corridaComAlerta=String(c.ride_id);
+
+  // Primeiro alerta imediato
   tocarBipes();
 
-  intervaloAlertaCorrida=setInterval(()=>{
+  // Repete a cada 15 segundos
+  intervaloAlertaCorrida=setInterval(function(){
+
     if(
-      !corridaAtual||
-      String(corridaAtual.ride_id)!==corridaComAlerta||
+      !corridaAtual ||
+      String(corridaAtual.ride_id)!==corridaComAlerta ||
       corridaAtual.status!=="pending"
     ){
       pararRepeticaoAlerta();
       return;
     }
+
     tocarBipes();
+
   },15000);
 }
 
 function pararRepeticaoAlerta(){
-  if(intervaloAlertaCorrida){
+  if(intervaloAlertaCorrida!==null){
     clearInterval(intervaloAlertaCorrida);
     intervaloAlertaCorrida=null;
   }
@@ -394,9 +412,10 @@ function pararRepeticaoAlerta(){
 }
 
 function alertarNovaCorrida(c){
-  if(!c||c.status!=="pending")return;
+  if(!c || c.status!=="pending")return;
 
   const id=String(c.ride_id);
+
   if(ultimaCorridaAlertada===id)return;
 
   ultimaCorridaAlertada=id;
