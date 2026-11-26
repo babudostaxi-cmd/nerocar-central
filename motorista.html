@@ -325,8 +325,9 @@ function mostrarNotificacao(titulo,texto,tipo=""){
 ========================================= */
 
 
+
 /* =========================================
-   ALERTA SONORO E VIBRAÇÃO - SIRENE FORTE
+   ALERTA SONORO E VIBRAÇÃO - SIRENE
 ========================================= */
 
 async function ativarAlertaSonoro(){
@@ -355,12 +356,11 @@ async function ativarAlertaSonoro(){
     }
 
     alertaAtivado=true;
-
     btn.textContent="SIRENE ATIVADA";
     btn.style.background="#25884b";
     btn.style.color="white";
 
-    status.textContent="Sirene ativada! Som e vibração serão repetidos a cada 15 segundos durante uma nova corrida.";
+    status.textContent="Sirene ativada! Alertas repetidos a cada 15 segundos.";
 
     tocarBipes();
 
@@ -375,12 +375,10 @@ async function ativarAlertaSonoro(){
   }
 }
 
-/* Sirene eletrônica alternando tons */
 function tocarBipes(){
   if(!alertaAtivado||!audioContext||audioContext.state!=="running")return;
 
   const agora=audioContext.currentTime;
-
   const master=audioContext.createGain();
   const compressor=audioContext.createDynamicsCompressor();
 
@@ -401,25 +399,21 @@ function tocarBipes(){
 
   for(let i=0;i<quantidade;i++){
     const inicio=agora+i*passo;
-
     const oscilador=audioContext.createOscillator();
     const volume=audioContext.createGain();
 
     oscilador.type="sawtooth";
 
-    const frequenciaBaixa=650;
-    const frequenciaAlta=1450;
-
+    const baixa=650;
+    const alta=1450;
     const alterna=i%2===0;
 
     oscilador.frequency.setValueAtTime(
-      alterna?frequenciaBaixa:frequenciaAlta,
-      inicio
+      alterna?baixa:alta,inicio
     );
 
     oscilador.frequency.linearRampToValueAtTime(
-      alterna?frequenciaAlta:frequenciaBaixa,
-      inicio+passo
+      alterna?alta:baixa,inicio+passo
     );
 
     volume.gain.setValueAtTime(0.001,inicio);
@@ -437,13 +431,11 @@ function tocarBipes(){
   master.gain.setValueAtTime(0.9,agora+duracao);
   master.gain.linearRampToValueAtTime(0.001,agora+duracao+0.1);
 
-  /* Vibração forte junto com a sirene */
   if(typeof navigator.vibrate==="function"){
     navigator.vibrate([500,150,500,150,800,200,500]);
   }
 }
 
-/* Repetição a cada 15 segundos */
 function iniciarRepeticaoAlerta(c){
   if(!c||!c.ride_id||c.status!=="pending")return;
 
@@ -452,7 +444,6 @@ function iniciarRepeticaoAlerta(c){
   if(intervaloAlertaCorrida&&corridaComAlerta===id)return;
 
   pararRepeticaoAlerta();
-
   corridaComAlerta=id;
 
   if(alertaAtivado){
@@ -460,9 +451,11 @@ function iniciarRepeticaoAlerta(c){
   }
 
   intervaloAlertaCorrida=setInterval(()=>{
-    if(!corridaAtual||
-       String(corridaAtual.ride_id)!==id||
-       corridaAtual.status!=="pending"){
+    if(
+      !corridaAtual||
+      String(corridaAtual.ride_id)!==id||
+      corridaAtual.status!=="pending"
+    ){
       pararRepeticaoAlerta();
       return;
     }
@@ -470,11 +463,9 @@ function iniciarRepeticaoAlerta(c){
     if(alertaAtivado){
       tocarBipes();
     }
-
   },15000);
 }
 
-/* Para som e vibração */
 function pararRepeticaoAlerta(){
   if(intervaloAlertaCorrida){
     clearInterval(intervaloAlertaCorrida);
@@ -488,7 +479,6 @@ function pararRepeticaoAlerta(){
   }
 }
 
-/* Notificação de nova corrida */
 function alertarNovaCorrida(c){
   if(!c||c.status!=="pending")return;
 
@@ -511,31 +501,9 @@ function alertarNovaCorrida(c){
   iniciarRepeticaoAlerta(c);
 }
 
-  }
-}
-
-/* Notifica uma nova corrida e inicia o alerta repetido */
-function alertarNovaCorrida(c){
-  if(!c||c.status!=="pending")return;
-
-  const id=String(c.ride_id);
-
-  if(ultimaCorridaAlertada!==id){
-    ultimaCorridaAlertada=id;
-
-    mostrarNotificacao(
-      "NOVA CORRIDA",
-      "Chegou uma solicitação. Confira os dados e aceite ou recuse."
-    );
-
-    if(!alertaAtivado){
-      document.getElementById("statusAlerta").textContent=
-        "Nova corrida recebida! Ative o alerta sonoro para ouvir os avisos repetidos.";
-    }
-  }
-
-  iniciarRepeticaoAlerta(c);
-}
+/* =========================================
+   FIREBASE / KODULAR
+========================================= */
 
 /* =========================================
    FIREBASE / KODULAR
