@@ -416,11 +416,64 @@ function tocarBipes(){
 }
 
 function alertarNovaCorrida(c){
-if(!c||c.status!=="pending"||ultimaCorridaAlertada===c.ride_id)return;
-ultimaCorridaAlertada=c.ride_id;
-mostrarNotificacao("NOVA CORRIDA","Chegou uma solicitação. Confira os dados e aceite ou recuse.");
-if(alertaAtivado)tocarBipes();
-else document.getElementById("statusAlerta").textContent="Nova corrida recebida! Ative o alerta sonoro para ouvir as próximas chamadas.";
+  if(!c || c.status !== "pending" || ultimaCorridaAlertada === c.ride_id) return;
+
+  ultimaCorridaAlertada = c.ride_id;
+
+  mostrarNotificacao(
+    "NOVA CORRIDA",
+    "Chegou uma solicitação. Confira os dados e aceite ou recuse."
+  );
+
+  if(alertaAtivado){
+    iniciarRepeticaoAlerta(c);
+  }else{
+    document.getElementById("statusAlerta").textContent =
+      "Nova corrida recebida! Ative o alerta sonoro para ouvir as próximas chamadas.";
+    let intervaloAlertaCorrida = null;
+let corridaComAlerta = null;
+
+function iniciarRepeticaoAlerta(c){
+  if(!c || !c.ride_id || c.status !== "pending") return;
+
+  const id = String(c.ride_id);
+
+  if(intervaloAlertaCorrida && corridaComAlerta === id) return;
+
+  pararRepeticaoAlerta();
+  corridaComAlerta = id;
+
+  tocarBipes();
+
+  intervaloAlertaCorrida = setInterval(()=>{
+    if(
+      !corridaAtual ||
+      String(corridaAtual.ride_id) !== id ||
+      corridaAtual.status !== "pending"
+    ){
+      pararRepeticaoAlerta();
+      return;
+    }
+
+    tocarBipes();
+  }, 5000);
+}
+
+function pararRepeticaoAlerta(){
+  if(intervaloAlertaCorrida){
+    clearInterval(intervaloAlertaCorrida);
+    intervaloAlertaCorrida = null;
+  }
+
+  corridaComAlerta = null;
+
+  if(window.audioEmergencia){
+    window.audioEmergencia.pause();
+    window.audioEmergencia.currentTime = 0;
+  }
+}
+  }
+}
 }
 
 async function cadastrar(){
