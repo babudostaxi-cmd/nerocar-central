@@ -396,21 +396,23 @@ status.textContent="Não foi possível ativar o som. Tente novamente.";
 }
 
 function tocarBipes(){
-if(!audioContext||audioContext.state!=="running")return;
-const agora=audioContext.currentTime;
-for(let i=0;i<3;i++){
-const o=audioContext.createOscillator();
-const g=audioContext.createGain();
-o.type="sine";
-o.frequency.value=i===1?1050:850;
-g.gain.setValueAtTime(0,agora+i*.32);
-g.gain.linearRampToValueAtTime(.22,agora+i*.32+.025);
-g.gain.exponentialRampToValueAtTime(.001,agora+i*.32+.20);
-o.connect(g);
-g.connect(audioContext.destination);
-o.start(agora+i*.32);
-o.stop(agora+i*.32+.22);
-}
+  if(!alertaAtivado)return;
+
+  try{
+    if(!window.audioEmergencia){
+      window.audioEmergencia=new Audio("emergencia.mp3");
+      window.audioEmergencia.preload="auto";
+    }
+
+    window.audioEmergencia.pause();
+    window.audioEmergencia.currentTime=0;
+
+    window.audioEmergencia.play().catch(e=>{
+      console.error("Erro ao reproduzir som de emergência:",e);
+    });
+  }catch(e){
+    console.error("Erro no alerta sonoro:",e);
+  }
 }
 
 function alertarNovaCorrida(c){
