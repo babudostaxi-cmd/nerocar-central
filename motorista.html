@@ -252,6 +252,7 @@ header h2{font-size:18px}
 
 <button id="btnAceitar" class="primary hidden" onclick="abrirModalTempo()">ESCOLHER TEMPO E ACEITAR</button>
 <button id="btnRecusar" class="danger hidden" onclick="recusarCorrida()">RECUSAR CORRIDA</button>
+<button id="btnAvisarChegada" class="primary hidden" onclick="avisarChegada()">🔔 AVISAR PASSAGEIRO: CHEGUEI</button>
 <button id="btnFinalizar" class="primary hidden" onclick="finalizarCorrida()">FINALIZAR CORRIDA</button>
 <button id="btnCancelarCorrida" class="danger hidden" onclick="cancelarCorridaMotorista()">CANCELAR CORRIDA</button>
 
@@ -834,6 +835,13 @@ function atualizarContadorMotorista(){
     return;
   }
 
+  // Ao avisar que chegou, a previsão deixa de ser necessária para os dois lados.
+  const chaveChegada="nerocar_cheguei_"+String(corridaAtual.ride_id);
+  if(sessionStorage.getItem(chaveChegada)==="1"){
+    caixa.classList.add("hidden");
+    return;
+  }
+
   const legenda=document.getElementById("legendaPrazoMotorista");
   const tempo=document.getElementById("tempoRestanteMotorista");
   const detalhe=document.getElementById("textoPrazoMotorista");
@@ -966,7 +974,13 @@ function mostrarCorrida(c){
   if(mudou)document.getElementById("tempoChegada").value="";
 
   document.getElementById("btnFinalizar").classList.toggle("hidden",!aceita);
+  document.getElementById("btnAvisarChegada").classList.toggle("hidden",!aceita);
   document.getElementById("btnCancelarCorrida").classList.toggle("hidden",!aceita);
+
+  const avisoJaEnviado=sessionStorage.getItem("nerocar_cheguei_"+String(c.ride_id))==="1";
+  const btnChegada=document.getElementById("btnAvisarChegada");
+  btnChegada.disabled=avisoJaEnviado;
+  btnChegada.textContent=avisoJaEnviado?"✓ PASSAGEIRO AVISADO":"🔔 AVISAR PASSAGEIRO: CHEGUEI";
 
   document.getElementById("chatArea").classList.remove("hidden");
 
@@ -1260,6 +1274,15 @@ async function carregarMensagens(){
     if(!corridaAtual||corridaAtual.ride_id!==id)return;
 
     const msgs=Array.isArray(data)?data:[];
+
+    // Também reconhece o aviso caso a página seja recarregada ou aberta novamente.
+    const avisoChegadaEncontrado=msgs.some(m=>
+      m.sender_role==="driver" && String(m.message||"").includes("NEROCAR_AVISO_CHEGUEI")
+    );
+    if(avisoChegadaEncontrado){
+      sessionStorage.setItem("nerocar_cheguei_"+String(id),"1");
+      atualizarContadorMotorista();
+    }
 
     const assinatura=msgs.map(m=>
       [m.id,m.sender_role,m.message,m.created_at].join("|")
@@ -1562,6 +1585,59 @@ async function aceitarCorrida(minutosEscolhidos){
 
 async function recusarCorrida(){
   await responderCorrida("recusar_corrida");
+}
+
+/* =========================================
+   AVISAR PASSAGEIRO QUE O MOTORISTA CHEGOU
+========================================= */
+
+async function avisarChegada(){
+  if(!corridaAtual || corridaAtual.status!=="accepted")return;
+
+  const id=String(corridaAtual.ride_id);
+  const btn=document.getElementById("btnAvisarChegada");
+  const status=document.getElementById("mensagemCorrida");
+  const chave="nerocar_cheguei_"+id;
+
+  if(sessionStorage.getItem(chave)==="1"){
+    mostrarNotificacao("AVISO JÁ ENVIADO","O passageiro já foi avisado nesta corrida.","sucesso");
+    return;
+  }
+
+  btn.disabled=true;
+  btn.textContent="ENVIANDO AVISO...";
+  status.textContent="Avisando o passageiro que você chegou...";
+
+  try{
+    const {data,error}=await db.rpc("enviar_mensagem_corrida",{
+      p_corrida_id:corridaAtual.ride_id,
+      p_mensagem:"🚨 NEROCAR_AVISO_CHEGUEI 🚨 O motorista chegou ao local de embarque! Dirija-se ao veículo, por favor."
+    });
+
+    if(error)throw error;
+    if(!data || !data.success){
+      throw new Error(data?.message||"Não foi possível avisar o passageiro.");
+    }
+
+    sessionStorage.setItem(chave,"1");
+    atualizarContadorMotorista();
+    btn.textContent="✓ PASSAGEIRO AVISADO";
+    status.textContent="Aviso enviado ao passageiro.";
+    mostrarNotificacao(
+      "PASSAGEIRO AVISADO",
+      "A mensagem de chegada foi enviada para a conversa da corrida.",
+      "sucesso"
+    );
+
+    ultimoConteudoChat="";
+    await carregarMensagens();
+
+  }catch(e){
+    btn.disabled=false;
+    btn.textContent="🔔 AVISAR PASSAGEIRO: CHEGUEI";
+    status.textContent="Erro ao avisar o passageiro: "+e.message;
+    mostrarNotificacao("ERRO AO ENVIAR AVISO",e.message,"erro");
+  }
 }
 
 /* =========================================
