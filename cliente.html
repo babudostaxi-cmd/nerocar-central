@@ -90,7 +90,48 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .contador-prazo.encerrado .legenda,.contador-prazo.encerrado .tempo{color:#ff8585}
 
 .destaque{color:#f5c400;font-weight:bold}
-.motorista{background:#292929;border:1px solid #555;padding:15px;border-radius:10px;line-height:1.8;margin-top:15px}
+/* Cartão compacto e horizontal dos dados do motorista */
+#dadosMotorista.motorista{
+ background:linear-gradient(135deg,#202020,#111);
+ border:1px solid #454545;
+ border-left:4px solid #f5c400;
+ padding:12px 13px;
+ border-radius:14px;
+ margin-top:12px;
+ line-height:1.35;
+}
+#dadosMotorista .motorista-titulo{
+ display:flex;
+ align-items:center;
+ gap:8px;
+ color:#f5c400;
+ font-size:13px;
+ font-weight:900;
+ margin-bottom:10px;
+}
+#dadosMotorista .motorista-titulo-icone{
+ width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;
+ border-radius:9px;background:#3a310d;font-size:17px;flex-shrink:0;
+}
+#dadosMotorista .motorista-grade{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:9px 12px;
+}
+#dadosMotorista .motorista-dado{min-width:0}
+#dadosMotorista .motorista-rotulo{
+ display:block;color:#999;font-size:10px;font-weight:700;
+ letter-spacing:.65px;text-transform:uppercase;margin-bottom:3px;
+}
+#dadosMotorista .motorista-valor{
+ display:block;color:#fff;font-size:13px;font-weight:800;
+ overflow-wrap:anywhere;
+}
+@media(max-width:360px){
+ #dadosMotorista.motorista{padding:10px}
+ #dadosMotorista .motorista-grade{gap:8px}
+ #dadosMotorista .motorista-valor{font-size:12px}
+}
 .escondido{display:none!important}
 
 #mensagens{height:230px;overflow-y:auto;background:#111;border:1px solid #444;border-radius:10px;padding:10px;margin-top:12px}
@@ -1257,10 +1298,76 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .sugestao-endereco small {
   color: #666;
 }
+
+/* AVISO FLUTUANTE: MOTORISTA CHEGOU */
+#avisoChegadaFlutuante{
+  display:none;
+  position:fixed;
+  z-index:100000;
+  top:18px;
+  left:50%;
+  transform:translateX(-50%);
+  width:calc(100% - 28px);
+  max-width:460px;
+  padding:18px 16px;
+  border:2px solid #ff3b30;
+  border-radius:16px;
+  background:linear-gradient(135deg,#3b0909,#171010);
+  color:#fff;
+  box-shadow:0 12px 38px #000d,0 0 22px #ff3b3055;
+  text-align:center;
+  animation:nerocarChegadaPulse 1.1s ease-in-out infinite alternate;
+}
+#avisoChegadaFlutuante.visivel{display:block}
+#avisoChegadaFlutuante .chegada-titulo{
+  display:block;
+  color:#ff6259;
+  font-size:19px;
+  font-weight:900;
+  margin-bottom:7px;
+}
+#avisoChegadaFlutuante .chegada-texto{
+  display:block;
+  font-size:14px;
+  line-height:1.45;
+}
+#avisoChegadaFlutuante .chegada-acoes{
+  display:flex;
+  gap:8px;
+  margin-top:13px;
+}
+#avisoChegadaFlutuante button{
+  flex:1;
+  width:auto;
+  margin:0;
+  padding:11px 8px;
+  border-radius:9px;
+  background:#ff453a;
+  color:#fff;
+  font-size:12px;
+}
+#avisoChegadaFlutuante button.chegada-fechar{
+  background:#333;
+  color:#fff;
+}
+@keyframes nerocarChegadaPulse{
+  from{box-shadow:0 12px 30px #000b,0 0 8px #ff3b3033}
+  to{box-shadow:0 12px 38px #000d,0 0 25px #ff3b3088}
+}
+
 </style>
 </head>
 
 <body>
+
+<div id="avisoChegadaFlutuante" role="alert" aria-live="assertive">
+  <span class="chegada-titulo">🚨 SEU MOTORISTA CHEGOU!</span>
+  <span class="chegada-texto">O motorista está no local de embarque. Dirija-se ao veículo, por favor.</span>
+  <div class="chegada-acoes">
+    <button type="button" onclick="repetirSireneChegada()">🔊 OUVIR SIRENE</button>
+    <button type="button" class="chegada-fechar" onclick="fecharAvisoChegada()">FECHAR</button>
+  </div>
+</div>
 
 <div id="notificacao" role="status" aria-live="polite">
  <button class="toast-fechar" onclick="fecharNotificacao()" aria-label="Fechar">×</button>
@@ -1498,21 +1605,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
       </div>
     </header>
 
-    <div class="nerocar-acompanhar-titulo">
-      <span class="nerocar-acompanhar-etiqueta">ACOMPANHAMENTO</span>
-      <h2>Acompanhar minha corrida</h2>
-      <p>Estamos acompanhando sua solicitação em tempo real.</p>
-    </div>
-
-    <div class="nerocar-acompanhar-passageiro">
-      <div class="nerocar-acompanhar-avatar">👤</div>
-      <div>
-        <small>PASSAGEIRO</small>
-        <strong id="nomePassageiroFixo">Aguardando...</strong>
-      </div>
-      <span class="nerocar-acompanhar-online">● ATIVO</span>
-    </div>
-
     <div class="nerocar-acompanhar-card">
       <div class="nerocar-acompanhar-card-titulo">
         <span>ANDAMENTO DA VIAGEM</span>
@@ -1665,6 +1757,8 @@ let ultimoMotorista="";
 let ultimaMensagemId="";
 let primeiraLeituraChat=true;
 let toastTimer=null;
+let avisoChegadaTimer=null;
+let sireneChegadaAtiva=false;
 let audioContext=null;
 let audioLiberado=false;
 let consultandoCorrida=false;
@@ -2075,7 +2169,6 @@ async function recuperarCorridaSalva(){
  telaSolicitacao.classList.add("escondido");
  telaCorrida.classList.remove("escondido");
 
- document.getElementById("nomePassageiroFixo").textContent=nomePassageiro;
 
  primeiraLeituraChat=true;
  iniciarAcompanhamento();
@@ -2168,6 +2261,13 @@ function atualizarContadorPassageiro(corrida){
  const tempo=document.getElementById("tempoPrazoPassageiro");
  const detalhe=document.getElementById("detalhePrazoPassageiro");
  const status=String(corrida.status||"").toLowerCase();
+ const chaveAvisoChegada="nerocar_aviso_chegada_"+String(corridaId);
+ if(localStorage.getItem(chaveAvisoChegada)){
+  caixa.classList.add("escondido");
+  document.getElementById("pistaChegada").style.display="none";
+  document.getElementById("textoChegada").style.display="none";
+  return;
+ }
 
  if(status==="accepted"){
   caixa.classList.remove("escondido","encerrado");
@@ -2385,7 +2485,6 @@ if(!referencia){
   sessionStorage.setItem("nerocar_passageiro_token",String(passageiroToken));
   sessionStorage.setItem("nerocar_nome_passageiro",nome);
 
-  document.getElementById("nomePassageiroFixo").textContent=nome;
 
   ultimoStatus="pending";
   ultimoMotorista=identificadorMotorista(resultado);
@@ -2428,11 +2527,28 @@ function mostrarMotorista(dados){
  dadosMotorista.classList.remove("escondido");
 
  dadosMotorista.innerHTML=`
-  <strong class="destaque">Motorista da sua corrida</strong><br>
-  <strong>Nome:</strong> ${escaparHTML(dados.driver_name||"Aguardando")}<br>
-  <strong>Veículo:</strong> ${escaparHTML(dados.vehicle_model||"-")}<br>
-  <strong>Cor:</strong> ${escaparHTML(dados.vehicle_color||"-")}<br>
-  <strong>Placa:</strong> ${escaparHTML(dados.vehicle_plate||"-")}
+  <div class="motorista-titulo">
+   <span class="motorista-titulo-icone">🚘</span>
+   <span>Motorista da sua corrida</span>
+  </div>
+  <div class="motorista-grade">
+   <div class="motorista-dado">
+    <span class="motorista-rotulo">Nome</span>
+    <span class="motorista-valor">${escaparHTML(dados.driver_name||"Aguardando")}</span>
+   </div>
+   <div class="motorista-dado">
+    <span class="motorista-rotulo">Veículo</span>
+    <span class="motorista-valor">${escaparHTML(dados.vehicle_model||"-")}</span>
+   </div>
+   <div class="motorista-dado">
+    <span class="motorista-rotulo">Cor</span>
+    <span class="motorista-valor">${escaparHTML(dados.vehicle_color||"-")}</span>
+   </div>
+   <div class="motorista-dado">
+    <span class="motorista-rotulo">Placa</span>
+    <span class="motorista-valor">${escaparHTML(dados.vehicle_plate||"-")}</span>
+   </div>
+  </div>
  `;
 }
 
@@ -2653,6 +2769,100 @@ function formatarMensagem(texto){
  return resultado.replace(/\n/g,"<br>");
 }
 
+
+function tocarSireneChegada(){
+ if(sireneChegadaAtiva)return;
+ sireneChegadaAtiva=true;
+
+ const executar=()=>{
+  if(!audioContext || audioContext.state!=="running"){
+   sireneChegadaAtiva=false;
+   return;
+  }
+
+  try{
+   const inicio=audioContext.currentTime;
+   const osc=audioContext.createOscillator();
+   const ganho=audioContext.createGain();
+
+   osc.type="square";
+   ganho.gain.setValueAtTime(0.0001,inicio);
+   ganho.gain.exponentialRampToValueAtTime(0.13,inicio+0.08);
+
+   // Sirene alternada, em três ciclos curtos.
+   for(let i=0;i<12;i++){
+    const t=inicio+i*0.42;
+    osc.frequency.setValueAtTime(i%2===0?680:1080,t);
+   }
+
+   ganho.gain.setValueAtTime(0.13,inicio+4.75);
+   ganho.gain.exponentialRampToValueAtTime(0.0001,inicio+5.05);
+
+   osc.connect(ganho);
+   ganho.connect(audioContext.destination);
+   osc.start(inicio);
+   osc.stop(inicio+5.1);
+
+   if(navigator.vibrate){
+    try{navigator.vibrate([250,100,250,100,250]);}catch(e){}
+   }
+  }catch(e){
+   console.warn("Não foi possível tocar a sirene de chegada:",e);
+  }finally{
+   setTimeout(()=>{sireneChegadaAtiva=false;},5300);
+  }
+ };
+
+ if(!audioContext){
+  liberarAudio().then(executar);
+ }else if(audioContext.state==="suspended"){
+  audioContext.resume().then(executar).catch(()=>{sireneChegadaAtiva=false;});
+ }else{
+  executar();
+ }
+}
+
+function repetirSireneChegada(){
+ sireneChegadaAtiva=false;
+ tocarSireneChegada();
+}
+
+function fecharAvisoChegada(){
+ const aviso=document.getElementById("avisoChegadaFlutuante");
+ if(aviso)aviso.classList.remove("visivel");
+ if(avisoChegadaTimer)clearTimeout(avisoChegadaTimer);
+ avisoChegadaTimer=null;
+}
+
+function notificarChegadaMotorista(){
+ const aviso=document.getElementById("avisoChegadaFlutuante");
+ if(!aviso)return;
+
+ aviso.classList.add("visivel");
+ tocarSireneChegada();
+
+ if(avisoChegadaTimer)clearTimeout(avisoChegadaTimer);
+ avisoChegadaTimer=setTimeout(fecharAvisoChegada,15000);
+}
+
+function verificarAvisoEspecialChegada(lista){
+ const marcador="NEROCAR_AVISO_CHEGUEI";
+ const mensagem=lista.find(item=>
+  item.sender_role==="driver" &&
+  String(item.message||"").includes(marcador)
+ );
+
+ if(!mensagem)return;
+
+ const chave="nerocar_aviso_chegada_"+String(corridaId);
+ if(localStorage.getItem(chave))return;
+
+ localStorage.setItem(chave,"1");
+ // Some imediatamente com a contagem e a barra de previsão ao receber o aviso.
+ if(dadosContadorPassageiro)atualizarContadorPassageiro(dadosContadorPassageiro);
+ notificarChegadaMotorista();
+}
+
 async function carregarMensagens(){
  if(!corridaId||!passageiroToken||areaChat.classList.contains("escondido")||consultandoMensagens)return;
 
@@ -2667,6 +2877,7 @@ async function carregarMensagens(){
   if(error)throw error;
 
   const lista=Array.isArray(data)?data:[];
+  verificarAvisoEspecialChegada(lista);
   let indiceUltimaVista=-1;
 
   if(ultimaMensagemId){
@@ -2674,7 +2885,10 @@ async function carregarMensagens(){
   }
 
   const mensagensNovas=primeiraLeituraChat?[]:lista.slice(indiceUltimaVista>=0?indiceUltimaVista+1:lista.length);
-  const novasDoMotorista=mensagensNovas.filter(m=>m.sender_role==="driver");
+  const novasDoMotorista=mensagensNovas.filter(m=>
+   m.sender_role==="driver" &&
+   !String(m.message||"").includes("NEROCAR_AVISO_CHEGUEI")
+  );
   const ultimaId=lista.length?String(lista[lista.length-1].id):"";
 
   if(novasDoMotorista.length){
@@ -2848,7 +3062,6 @@ function novaCorrida(){
 
  document.getElementById("endereco").value="";
  document.getElementById("referencia").value="";
- document.getElementById("nomePassageiroFixo").textContent=nomePassageiro;
 
  dadosMotorista.innerHTML="";
  dadosMotorista.classList.add("escondido");
