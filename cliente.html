@@ -575,21 +575,10 @@ button:disabled{opacity:.5;cursor:not-allowed}
 }
 
 #telaSolicitacao .solicitacao-titulo{
- display:block;
- width:100%;
- text-align:center;
- font-size:27px;
+ font-size:23px;
  font-weight:900;
- line-height:1.25;
- margin:4px auto 25px;
- padding:15px 10px;
- color:#fff;
- border:1px solid #806900;
- border-radius:16px;
- background:linear-gradient(100deg,#24200d,#171717,#24200d);
- box-shadow:0 0 18px rgba(255,208,0,.12);
+ margin:0 0 18px;
 }
-#telaSolicitacao .solicitacao-titulo::first-letter{color:#ffd000;}
 
 #telaSolicitacao .solicitacao-passageiro{
  min-height:85px;
@@ -1419,8 +1408,16 @@ button:disabled{opacity:.5;cursor:not-allowed}
       ⇄ &nbsp; Solicitar uma corrida
     </h2>
 
-    <!-- Mantido oculto para o JavaScript continuar preenchendo o nome do passageiro -->
-    <span id="nomePassageiroSolicitacao" class="escondido">Carregando...</span>
+    <div class="solicitacao-passageiro">
+      <div class="solicitacao-avatar">♟</div>
+
+      <div class="solicitacao-passageiro-info">
+        <small>PASSAGEIRO:</small>
+        <strong id="nomePassageiroSolicitacao">Carregando...</strong>
+      </div>
+
+      <div style="font-size:27px;color:#aaa">›</div>
+    </div>
 
     <label for="endereco">📍 &nbsp; Endereço de origem</label>
 
