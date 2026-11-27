@@ -120,7 +120,18 @@ body.modo-corrida #conta{display:block!important}
 body.modo-corrida #conta>.card:first-child{display:none!important}
 body.modo-corrida #painelCorrida{display:block!important;position:fixed;inset:0;z-index:9998;width:100%;max-width:620px;height:100vh;height:100dvh;overflow-y:auto;margin:0 auto;padding:22px 18px 32px;border:0;border-radius:0;box-shadow:0 0 35px #0009}
 body.modo-corrida #toastContainer{z-index:10000}
-@media(max-width:480px){
+
+/* Modal flutuante para selecionar previsão de chegada */
+#modalTempoChegada{position:fixed;inset:0;z-index:10020;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:18px}
+#modalTempoChegada.hidden{display:none!important}
+.modal-tempo-card{width:min(100%,420px);background:#171717;border:1px solid #ffc107;border-radius:20px;padding:22px;box-shadow:0 15px 50px #000b;text-align:center}
+.modal-tempo-card h3{color:#ffc107;margin:0 0 8px;font-size:20px}
+.modal-tempo-card p{color:#bbb;font-size:13px;line-height:1.4;margin:0 0 16px}
+.modal-tempo-opcoes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.modal-tempo-opcoes button{margin:0;padding:16px 8px;background:#292929;border:1px solid #444;color:white;border-radius:12px;font-size:18px;font-weight:900}
+.modal-tempo-opcoes button:hover{background:#ffc107;color:#111;border-color:#ffc107}
+#modalTempoChegada .modal-cancelar{margin-top:14px;background:#3a1515;border:1px solid #8d3333;color:#fff}
+\n@media(max-width:480px){
 #conta .card:not(#painelCorrida){padding:19px 15px;border-radius:21px}
 #conta h2{font-size:21px}
 #conta h3{font-size:18px}
@@ -147,6 +158,21 @@ header h2{font-size:18px}
 </header>
 
 <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+<div id="modalTempoChegada" class="hidden" role="dialog" aria-modal="true" aria-labelledby="tituloModalTempo">
+  <div class="modal-tempo-card">
+    <h3 id="tituloModalTempo">Qual seu tempo de chegada?</h3>
+    <p>Escolha a previsão. Ao tocar em uma opção, a corrida será aceita e o tempo enviado ao passageiro.</p>
+    <div class="modal-tempo-opcoes">
+      <button type="button" onclick="aceitarCorrida(5)">5 min</button>
+      <button type="button" onclick="aceitarCorrida(6)">6 min</button>
+      <button type="button" onclick="aceitarCorrida(8)">8 min</button>
+      <button type="button" onclick="aceitarCorrida(10)">10 min</button>
+      <button type="button" onclick="aceitarCorrida(12)">12 min</button>
+      <button type="button" onclick="aceitarCorrida(15)">15 min</button>
+    </div>
+    <button type="button" class="modal-cancelar" onclick="fecharModalTempo()">VOLTAR</button>
+  </div>
+</div>
 
 <section id="acesso" class="card">
 <h3>Entrar na minha conta</h3>
@@ -224,7 +250,7 @@ header h2{font-size:18px}
 <input id="tempoChegada" type="number" min="1" max="60" step="1" placeholder="Informe de 1 a 60 minutos">
 </div>
 
-<button id="btnAceitar" class="primary hidden" onclick="aceitarCorrida()">ACEITAR CORRIDA</button>
+<button id="btnAceitar" class="primary hidden" onclick="abrirModalTempo()">ESCOLHER TEMPO E ACEITAR</button>
 <button id="btnRecusar" class="danger hidden" onclick="recusarCorrida()">RECUSAR CORRIDA</button>
 <button id="btnFinalizar" class="primary hidden" onclick="finalizarCorrida()">FINALIZAR CORRIDA</button>
 <button id="btnCancelarCorrida" class="danger hidden" onclick="cancelarCorridaMotorista()">CANCELAR CORRIDA</button>
@@ -934,7 +960,8 @@ function mostrarCorrida(c){
 
   document.getElementById("btnAceitar").classList.toggle("hidden",!pendente);
   document.getElementById("btnRecusar").classList.toggle("hidden",!pendente);
-  document.getElementById("tempoChegadaBox").classList.toggle("hidden",!pendente);
+  document.getElementById("tempoChegadaBox").classList.add("hidden");
+  fecharModalTempo();
 
   if(mudou)document.getElementById("tempoChegada").value="";
 
@@ -1457,26 +1484,29 @@ async function responderCorrida(funcao){
   }
 }
 
+/* Janela de escolha do tempo: abre somente após o motorista tocar em ACEITAR */
+function abrirModalTempo(){
+  if(!corridaAtual || corridaAtual.status!=="pending") return;
+  document.getElementById("modalTempoChegada").classList.remove("hidden");
+}
+function fecharModalTempo(){
+  document.getElementById("modalTempoChegada").classList.add("hidden");
+}
+
 /* =========================================
    ACEITAR CORRIDA
 ========================================= */
 
-async function aceitarCorrida(){
+async function aceitarCorrida(minutosEscolhidos){
   if(!corridaAtual)return;
 
-  const campo=document.getElementById("tempoChegada");
-  const minutos=Number(campo.value);
-
-  if(!Number.isInteger(minutos)||minutos<1||minutos>60){
-    mostrarNotificacao(
-      "TEMPO INVÁLIDO",
-      "Informe um tempo entre 1 e 60 minutos.",
-      "erro"
-    );
-
-    campo.focus();
+  const minutos=Number(minutosEscolhidos);
+  const temposPermitidos=[5,6,8,10,12,15];
+  if(!temposPermitidos.includes(minutos)){
+    mostrarNotificacao("TEMPO INVÁLIDO","Escolha uma das opções disponíveis.","erro");
     return;
   }
+  fecharModalTempo();
 
   const id=corridaAtual.ride_id;
 
