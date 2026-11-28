@@ -2618,6 +2618,19 @@ async function cancelarCorridaPassageiro(){
   canceladaPeloPassageiro=true;
   pararAtualizacoes();
 
+  // Envia um aviso especial pelo mesmo chat usado no aviso de chegada.
+  // Se o cancelamento já tiver bloqueado o envio, o monitoramento do motorista
+  // continua sendo a alternativa de segurança.
+  try{
+   await db.rpc("enviar_mensagem_corrida",{
+    p_corrida_id:corridaId,
+    p_mensagem:"NEROCAR_AVISO_CANCELAMENTO_PASSAGEIRO: O passageiro cancelou esta corrida.",
+    p_token:passageiroToken
+   });
+  }catch(erroAviso){
+   console.warn("Aviso de cancelamento pelo chat não enviado; o monitoramento da corrida permanece ativo:",erroAviso);
+  }
+
   const temCobranca=await carregarCobrancaPendente();
 
   if(temCobranca){
@@ -2693,7 +2706,7 @@ async function acompanharCorrida(){
    areaChat.classList.remove("escondido");
 
    if(ultimoStatus!=="accepted"){
-    notificar("Corrida aceita!","O motorista confirmou sua viagem e está a caminho.","sucesso");
+    notificar("Corrida em andamento","Seu motorista está a caminho.","sucesso");
    }
 
   }else if(status==="completed"){
@@ -2704,7 +2717,7 @@ async function acompanharCorrida(){
    document.getElementById("btnCancelarCorrida").classList.add("escondido");
 
    if(ultimoStatus!=="completed"){
-    notificar("Viagem finalizada","Obrigado por viajar com a Nerocar!","sucesso");
+    notificar("Corrida finalizada!","Obrigado por viajar com a Nerocar.","sucesso");
    }
 
    atualizarEtapas(status);
@@ -2718,7 +2731,7 @@ async function acompanharCorrida(){
    document.getElementById("btnCancelarCorrida").classList.add("escondido");
 
    if(ultimoStatus!=="cancelled"&&!canceladaPeloPassageiro){
-    notificar("Corrida cancelada","O atendimento foi encerrado. Você pode solicitar novamente.","erro");
+    notificar("Atenção","Não foi possível concluir o atendimento desta corrida. Você pode solicitar outra corrida.","erro");
    }
 
    atualizarEtapas(status);
