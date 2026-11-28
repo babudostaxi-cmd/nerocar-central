@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -32,6 +31,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .id-text{font-size:12px;color:#aaa;word-break:break-all}
 .valor{font-size:27px;font-weight:bold;color:#f5c400}
 .secao-titulo{color:#f5c400}
+.subtitulo{color:#f5c400;margin:20px 0 10px}
 #btnMotoristas{width:100%;padding:17px;text-align:left;font-size:15px}
 </style>
 </head>
@@ -53,52 +53,46 @@ button:disabled{opacity:.5;cursor:not-allowed}
 </section>
 
 <section id="painel" class="hidden">
-
-<!-- MENU MOTORISTAS -->
 <div class="card top">
-<button class="primary" onclick="alternarMotoristas()" id="btnMotoristas">
-MOTORISTAS CADASTRADOS ▼
-</button>
+<button class="primary" onclick="alternarMotoristas()" id="btnMotoristas">MOTORISTAS CADASTRADOS ▼</button>
 <button class="neutral" onclick="sair()">Sair</button>
 </div>
 
-<!-- MOTORISTAS ESCONDIDOS INICIALMENTE -->
 <div id="secaoMotoristas" class="hidden">
-
 <div class="card top">
 <h2>Motoristas cadastrados</h2>
 <button class="primary" onclick="carregar()">Atualizar</button>
 </div>
-
 <div id="resumo" class="card"></div>
-<div id="lista"></div>
-
+<h3 class="subtitulo">MOTORISTAS DE CARRO</h3>
+<div id="listaCarros"></div>
+<h3 class="subtitulo">MOTORISTAS DE MOTO</h3>
+<div id="listaMotos"></div>
 </div>
 
-<!-- FILA DE ESPERA: SEMPRE VISÍVEL -->
 <div class="card">
 <div class="top">
 <h2>Fila de espera</h2>
 <button class="primary" onclick="carregarFila()">Atualizar fila</button>
 </div>
-<p class="small">Motoristas organizados por ordem de entrada.</p>
-<div id="resumoFila" class="numero">0 motoristas</div>
-<div id="fila"></div>
+<p class="small">Filas independentes, organizadas pela ordem de entrada em cada modalidade.</p>
+<h3 class="subtitulo">FILA DE CARROS</h3>
+<div id="resumoFilaCarros" class="numero">0 motoristas</div>
+<div id="filaCarros"></div>
+<h3 class="subtitulo">FILA DE MOTOS</h3>
+<div id="resumoFilaMotos" class="numero">0 motoristas</div>
+<div id="filaMotos"></div>
 </div>
 
-<!-- COBRANÇAS DE PASSAGEIROS -->
 <div class="card">
 <div class="top">
 <h2 class="secao-titulo">Cobranças de Passageiros</h2>
 <button class="primary" onclick="carregarCobrancas()">Atualizar cobranças</button>
 </div>
-<p class="small">
-Taxas de cancelamento de R$ 8,00. Confira o recebimento do Pix no banco antes de confirmar.
-</p>
+<p class="small">Taxas de cancelamento de R$ 8,00. Confira o recebimento do Pix no banco antes de confirmar.</p>
 <div id="resumoCobrancas" class="numero">Carregando...</div>
 <div id="listaCobrancas"></div>
 </div>
-
 </section>
 </div>
 
@@ -118,7 +112,6 @@ async function login(){
  const password=document.getElementById("password").value;
  const msg=document.getElementById("loginMsg");
  msg.textContent="Verificando acesso...";
-
  const {error}=await db.auth.signInWithPassword({email,password});
  if(error){msg.textContent="Erro ao entrar: "+error.message;return;}
  await verificarAdmin();
@@ -139,18 +132,24 @@ async function verificarAdmin(){
 }
 
 async function carregar(){
- const lista=document.getElementById("lista");
- lista.innerHTML='<div class="card">Carregando...</div>';
+ const listaCarros=document.getElementById("listaCarros");
+ const listaMotos=document.getElementById("listaMotos");
+ listaCarros.innerHTML='<div class="card">Carregando...</div>';
+ listaMotos.innerHTML='<div class="card">Carregando...</div>';
 
  const {data,error}=await db.from("drivers")
- .select("id,name,vehicle_model,vehicle_color,vehicle_plate,approved,rejected,created_at")
+ .select("id,name,vehicle_type,vehicle_model,vehicle_color,vehicle_plate,approved,rejected,created_at")
  .order("created_at",{ascending:false});
 
  if(error){
-  lista.innerHTML='<div class="card">Erro: '+escapar(error.message)+'</div>';
+  const mensagem='<div class="card">Erro: '+escapar(error.message)+'</div>';
+  listaCarros.innerHTML=mensagem;
+  listaMotos.innerHTML="";
   return;
  }
 
+ const carros=data.filter(d=>(d.vehicle_type||"carro")==="carro");
+ const motos=data.filter(d=>d.vehicle_type==="moto");
  const pendentes=data.filter(d=>!d.approved&&!d.rejected).length;
  const aprovados=data.filter(d=>d.approved).length;
  const reprovados=data.filter(d=>d.rejected).length;
@@ -159,34 +158,35 @@ async function carregar(){
  <strong>Total:</strong> ${data.length}
  | <span class="pendente">Aguardando: ${pendentes}</span>
  | <span class="aprovado">Aprovados: ${aprovados}</span>
- | <span class="reprovado">Reprovados: ${reprovados}</span>`;
+ | <span class="reprovado">Reprovados: ${reprovados}</span>
+ <p class="small">Carros: ${carros.length} | Motos: ${motos.length}</p>`;
 
- lista.innerHTML=data.length?data.map(d=>{
- let status="Aguardando aprovação",classe="pendente",botoes="";
-
- if(d.approved){status="Aprovado";classe="aprovado";}
- if(d.rejected){status="Reprovado";classe="reprovado";}
-
- if(!d.approved&&!d.rejected){
-  botoes=`<button class="primary" onclick="alterar('${d.id}','aprovar')">Aprovar motorista</button>
-  <button class="reject" onclick="alterar('${d.id}','reprovar')">Reprovar</button>`;
- }else if(d.approved){
-  botoes=`<button class="reject" onclick="alterar('${d.id}','reprovar')">Retirar aprovação</button>`;
- }else{
-  botoes=`<button class="primary" onclick="alterar('${d.id}','aprovar')">Aprovar motorista</button>
-  <button class="neutral" onclick="alterar('${d.id}','pendente')">Voltar para pendente</button>`;
+ function montarMotorista(d){
+  let status="Aguardando aprovação",classe="pendente",botoes="";
+  if(d.approved){status="Aprovado";classe="aprovado";}
+  if(d.rejected){status="Reprovado";classe="reprovado";}
+  if(!d.approved&&!d.rejected){
+   botoes=`<button class="primary" onclick="alterar('${d.id}','aprovar')">Aprovar motorista</button>
+   <button class="reject" onclick="alterar('${d.id}','reprovar')">Reprovar</button>`;
+  }else if(d.approved){
+   botoes=`<button class="reject" onclick="alterar('${d.id}','reprovar')">Retirar aprovação</button>`;
+  }else{
+   botoes=`<button class="primary" onclick="alterar('${d.id}','aprovar')">Aprovar motorista</button>
+   <button class="neutral" onclick="alterar('${d.id}','pendente')">Voltar para pendente</button>`;
+  }
+  botoes+=`<button class="delete" onclick="excluirMotorista('${d.id}','${escapar(d.name)}')">EXCLUIR CADASTRO</button>`;
+  return `<div class="card">
+   <div class="status ${classe}">${status}</div>
+   <h2>${escapar(d.name)}</h2>
+   <p><strong>Modalidade:</strong> ${d.vehicle_type==="moto"?"Moto":"Carro"}</p>
+   <p><strong>Veículo:</strong> ${escapar(d.vehicle_model)}</p>
+   <p><strong>Cor:</strong> ${escapar(d.vehicle_color)}</p>
+   <p><strong>Placa:</strong> ${escapar(d.vehicle_plate)}</p>
+   ${botoes}</div>`;
  }
 
- botoes+=`<button class="delete" onclick="excluirMotorista('${d.id}','${escapar(d.name)}')">EXCLUIR CADASTRO</button>`;
-
- return `<div class="card">
- <div class="status ${classe}">${status}</div>
- <h2>${escapar(d.name)}</h2>
- <p><strong>Veículo:</strong> ${escapar(d.vehicle_model)}</p>
- <p><strong>Cor:</strong> ${escapar(d.vehicle_color)}</p>
- <p><strong>Placa:</strong> ${escapar(d.vehicle_plate)}</p>
- ${botoes}</div>`;
- }).join(""):'<div class="card">Nenhum motorista cadastrado.</div>';
+ listaCarros.innerHTML=carros.length?carros.map(montarMotorista).join(""):'<div class="card">Nenhum motorista de carro cadastrado.</div>';
+ listaMotos.innerHTML=motos.length?motos.map(montarMotorista).join(""):'<div class="card">Nenhum motorista de moto cadastrado.</div>';
 }
 
 async function alterar(id,acao){
@@ -194,7 +194,6 @@ async function alterar(id,acao){
  if(acao==="aprovar")dados={approved:true,rejected:false};
  else if(acao==="reprovar")dados={approved:false,rejected:true};
  else dados={approved:false,rejected:false};
-
  const {error}=await db.from("drivers").update(dados).eq("id",id);
  if(error){alert("Erro: "+error.message);return;}
  alert("Cadastro atualizado!");
@@ -211,42 +210,23 @@ async function excluirMotorista(id,nome){
   "Essa operação não pode ser desfeita.\n\n"+
   "Deseja continuar?"
  );
-
  if(!confirmar)return;
-
  const palavra=prompt('Para confirmar, digite EXCLUIR:');
- if(palavra!=="EXCLUIR"){
-  alert("Exclusão cancelada.");
-  return;
- }
-
+ if(palavra!=="EXCLUIR"){alert("Exclusão cancelada.");return;}
  const botoes=document.querySelectorAll(".delete");
  botoes.forEach(b=>b.disabled=true);
-
  try{
-  const {data,error}=await db.functions.invoke("excluir-motorista",{
-   body:{driver_id:id}
-  });
-
+  const {data,error}=await db.functions.invoke("excluir-motorista",{body:{driver_id:id}});
   if(error){
    let detalhe=error.message;
-   try{
-    const resposta=await error.context.json();
-    if(resposta.message)detalhe=resposta.message;
-   }catch(e){}
+   try{const resposta=await error.context.json();if(resposta.message)detalhe=resposta.message;}catch(e){}
    alert("Não foi possível concluir a exclusão:\n"+detalhe);
    return;
   }
-
-  if(!data||data.success!==true){
-   alert(data?.message||"A exclusão não foi confirmada.");
-   return;
-  }
-
+  if(!data||data.success!==true){alert(data?.message||"A exclusão não foi confirmada.");return;}
   alert("Motorista excluído com sucesso!");
   await carregar();
   await carregarFila();
-
  }catch(e){
   alert("Erro ao excluir: "+e.message);
  }finally{
@@ -255,61 +235,79 @@ async function excluirMotorista(id,nome){
 }
 
 async function carregarFila(){
- const fila=document.getElementById("fila");
- fila.innerHTML='<p class="small">Carregando fila...</p>';
+ const filaCarros=document.getElementById("filaCarros");
+ const filaMotos=document.getElementById("filaMotos");
+ filaCarros.innerHTML='<p class="small">Carregando fila...</p>';
+ filaMotos.innerHTML='<p class="small">Carregando fila...</p>';
 
+ // Usa a RPC administrativa já existente e consulta somente a modalidade dos IDs retornados.
  const {data,error}=await db.rpc("listar_fila_motoristas");
-
  if(error){
-  fila.innerHTML='<p class="small">Erro ao carregar fila: '+escapar(error.message)+'</p>';
+  const mensagem='<p class="small">Erro ao carregar fila: '+escapar(error.message)+'</p>';
+  filaCarros.innerHTML=mensagem;filaMotos.innerHTML=mensagem;
   return;
  }
-
- document.getElementById("resumoFila").textContent=
- data.length+" motorista(s)";
 
  if(!data.length){
-  fila.innerHTML='<p class="small">Ninguém na fila neste momento.</p>';
+  document.getElementById("resumoFilaCarros").textContent="0 motoristas";
+  document.getElementById("resumoFilaMotos").textContent="0 motoristas";
+  filaCarros.innerHTML='<p class="small">Ninguém na fila de carros.</p>';
+  filaMotos.innerHTML='<p class="small">Ninguém na fila de motos.</p>';
   return;
  }
 
- fila.innerHTML=data.map((d,i)=>`
- <div class="card">
- <div class="numero">#${i+1}</div>
- <h3>${escapar(d.nome)}</h3>
- <p><strong>Veículo:</strong> ${escapar(d.modelo)}</p>
- <p><strong>Cor:</strong> ${escapar(d.cor)}</p>
- <p><strong>Placa:</strong> ${escapar(d.placa)}</p>
- <p class="small">Entrada: ${new Date(d.horario_entrada).toLocaleString("pt-BR")}</p>
- </div>`).join("");
+ const ids=data.map(d=>d.driver_id);
+ const {data:modalidades,error:erroModalidades}=await db.from("drivers")
+  .select("id,vehicle_type").in("id",ids);
+ if(erroModalidades){
+  const mensagem='<p class="small">Erro ao identificar modalidade: '+escapar(erroModalidades.message)+'</p>';
+  filaCarros.innerHTML=mensagem;filaMotos.innerHTML=mensagem;
+  return;
+ }
+
+ const tipos=new Map(modalidades.map(d=>[d.id,d.vehicle_type||"carro"]));
+ const carros=data.filter(d=>tipos.get(d.driver_id)==="carro");
+ const motos=data.filter(d=>tipos.get(d.driver_id)==="moto");
+
+ function montarFila(lista){
+  if(!lista.length)return '<p class="small">Ninguém nesta fila no momento.</p>';
+  return lista.map((d,i)=>`
+   <div class="card">
+    <div class="numero">#${i+1}</div>
+    <h3>${escapar(d.nome)}</h3>
+    <p><strong>Veículo:</strong> ${escapar(d.modelo)}</p>
+    <p><strong>Cor:</strong> ${escapar(d.cor)}</p>
+    <p><strong>Placa:</strong> ${escapar(d.placa)}</p>
+    <p class="small">Entrada: ${new Date(d.horario_entrada).toLocaleString("pt-BR")}</p>
+   </div>`).join("");
+ }
+
+ document.getElementById("resumoFilaCarros").textContent=carros.length+" motorista(s)";
+ document.getElementById("resumoFilaMotos").textContent=motos.length+" motorista(s)";
+ filaCarros.innerHTML=montarFila(carros);
+ filaMotos.innerHTML=montarFila(motos);
 }
 
 /* CARREGAR COBRANÇAS PENDENTES */
 async function carregarCobrancas(){
  const lista=document.getElementById("listaCobrancas");
  const resumo=document.getElementById("resumoCobrancas");
-
  lista.innerHTML='<p class="small">Carregando cobranças...</p>';
  resumo.textContent="Carregando...";
-
  const {data,error}=await db.from("passenger_fees")
  .select("id,passenger_user_id,ride_id,amount,status,created_at")
  .eq("status","pending")
  .order("created_at",{ascending:true});
-
  if(error){
   resumo.textContent="Erro";
   lista.innerHTML='<div class="card">Erro ao carregar cobranças: '+escapar(error.message)+'</div>';
   return;
  }
-
  resumo.textContent=data.length+" cobrança(s) pendente(s)";
-
  if(!data.length){
   lista.innerHTML='<div class="card"><p class="aprovado"><strong>Nenhuma cobrança pendente.</strong></p></div>';
   return;
  }
-
  lista.innerHTML=data.map(c=>`
  <div class="card">
   <div class="status pendente">AGUARDANDO PAGAMENTO</div>
@@ -320,58 +318,43 @@ async function carregarCobrancas(){
   <p><strong>Corrida (ID):</strong></p>
   <div class="id-text">${escapar(c.ride_id)}</div>
   <p class="small">Confira no extrato bancário se o Pix foi recebido antes de confirmar.</p>
-  <button class="success" id="confirmar-${c.id}" onclick="confirmarPagamento('${c.id}')">
-   CONFIRMAR PAGAMENTO
-  </button>
- </div>
- `).join("");
+  <button class="success" id="confirmar-${c.id}" onclick="confirmarPagamento('${c.id}')">CONFIRMAR PAGAMENTO</button>
+ </div>`).join("");
 }
 
-/* CONFIRMAR PAGAMENTO PIX */
 async function confirmarPagamento(id){
  const confirmar=confirm(
   "ATENÇÃO!\n\n"+
   "Você conferiu no extrato bancário que recebeu o Pix de R$ 8,00?\n\n"+
   "Ao confirmar, o passageiro será liberado para solicitar novas corridas."
  );
-
  if(!confirmar)return;
-
  const botao=document.getElementById("confirmar-"+id);
  if(botao)botao.disabled=true;
-
  try{
-  const {data,error}=await db.rpc("confirmar_pagamento_passageiro",{
-   p_cobranca_id:id
-  });
-
+  const {data,error}=await db.rpc("confirmar_pagamento_passageiro",{p_cobranca_id:id});
   if(error){
    alert("Erro ao confirmar pagamento: "+error.message);
    if(botao)botao.disabled=false;
    return;
   }
-
   if(!data||data.success!==true){
    alert(data?.message||"Não foi possível confirmar o pagamento.");
    if(botao)botao.disabled=false;
    await carregarCobrancas();
    return;
   }
-
   alert("Pagamento confirmado!\n\nO passageiro está liberado para solicitar novas corridas.");
   await carregarCobrancas();
-
  }catch(e){
   alert("Erro: "+e.message);
   if(botao)botao.disabled=false;
  }
 }
 
-/* ABRIR E FECHAR MOTORISTAS CADASTRADOS */
 function alternarMotoristas(){
  const secao=document.getElementById("secaoMotoristas");
  const botao=document.getElementById("btnMotoristas");
-
  if(secao.classList.contains("hidden")){
   secao.classList.remove("hidden");
   botao.textContent="MOTORISTAS CADASTRADOS ▲";
