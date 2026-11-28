@@ -92,6 +92,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
 #tempoChegada{background:#191a21;border:1px solid #393b45;border-radius:16px;padding:17px}
 #painelCorrida #btnAceitar,#painelCorrida #btnRecusar,#painelCorrida #btnFinalizar,#painelCorrida #btnCancelarCorrida{min-height:58px;border-radius:25px;font-size:16px;margin:7px 0}
 #painelCorrida #btnAceitar,#painelCorrida #btnFinalizar{background:linear-gradient(90deg,#ffd000,#ffbd00);color:#000}
+#painelCorrida #btnAvisarChegada{background:linear-gradient(90deg,#168a4a,#0f6b39);color:#fff;border:1px solid #39c878;min-height:58px;border-radius:25px;font-size:15px;font-weight:900;box-shadow:0 5px 16px rgba(30,190,100,.18)}
+#painelCorrida #btnAvisarChegada:disabled{background:#28533a;color:#ddd}
 #painelCorrida #btnRecusar,#painelCorrida #btnCancelarCorrida{background:#220d0e;border:1px solid #ff2929;color:#fff}
 #mensagemCorrida{color:#bbbcc5;font-size:13px;margin:12px 0 18px}
 #painelCorrida .chat-area{border-top:1px solid #383941;margin-top:22px;padding-top:20px}
@@ -345,6 +347,19 @@ function mostrarNotificacao(titulo,texto,tipo=""){
     aviso.style.transition="opacity .25s, transform .25s";
     setTimeout(()=>aviso.remove(),280);
   },5500);
+}
+
+/* Alerta específico quando o passageiro cancela: reutiliza a sirene já ativada no motorista. */
+function notificarCancelamentoPassageiro(id){
+  if(ultimaCorridaCanceladaNotificada===String(id))return;
+  ultimaCorridaCanceladaNotificada=String(id);
+  mostrarNotificacao(
+    "CORRIDA CANCELADA",
+    "O passageiro cancelou esta corrida.",
+    "erro"
+  );
+  // Usa exatamente o mesmo som de alerta configurado para as chamadas no painel do motorista.
+  tocarBipes();
 }
 
 /* =========================================
@@ -1039,15 +1054,7 @@ async function verificarCorrida(){
       if(data.status==="cancelled"){
         pararRepeticaoAlerta();
 
-        if(ultimaCorridaCanceladaNotificada!==data.ride_id){
-          ultimaCorridaCanceladaNotificada=data.ride_id;
-
-          mostrarNotificacao(
-            "CORRIDA CANCELADA",
-            "O passageiro cancelou esta corrida.",
-            "erro"
-          );
-        }
+        notificarCancelamentoPassageiro(data.ride_id);
 
         document.getElementById("mensagemCorrida").textContent=
           "O passageiro cancelou a corrida.";
@@ -1113,15 +1120,7 @@ async function verificarCorrida(){
 
           }else if(resultado&&resultado.success&&resultado.status==="cancelled"){
 
-            if(ultimaCorridaCanceladaNotificada!==idAnterior){
-              ultimaCorridaCanceladaNotificada=idAnterior;
-
-              mostrarNotificacao(
-                "CORRIDA CANCELADA",
-                "O passageiro cancelou esta corrida.",
-                "erro"
-              );
-            }
+            notificarCancelamentoPassageiro(idAnterior);
 
             document.getElementById("mensagemFila").textContent=
               "O passageiro cancelou a corrida.";
@@ -1274,6 +1273,14 @@ async function carregarMensagens(){
     if(!corridaAtual||corridaAtual.ride_id!==id)return;
 
     const msgs=Array.isArray(data)?data:[];
+
+    // Recebe pelo mesmo chat o aviso especial enviado quando o passageiro cancela.
+    const avisoCancelamentoEncontrado=msgs.some(m=>
+      m.sender_role==="passenger" && String(m.message||"").includes("NEROCAR_AVISO_CANCELAMENTO_PASSAGEIRO")
+    );
+    if(avisoCancelamentoEncontrado){
+      notificarCancelamentoPassageiro(id);
+    }
 
     // Também reconhece o aviso caso a página seja recarregada ou aberta novamente.
     const avisoChegadaEncontrado=msgs.some(m=>
