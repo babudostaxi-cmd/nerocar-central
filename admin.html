@@ -6,33 +6,40 @@
 <title>Nerocar | Administração</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
+:root{--gold:#f5c400;--gold2:#ffd84d;--bg:#090b10;--panel:#141923;--panel2:#1b2230;--line:#2a3444;--muted:#9aa5b5;--green:#43d17a;--red:#ff6969}
 *{box-sizing:border-box}
-body{margin:0;background:#101010;color:#fff;font-family:Arial,sans-serif;padding:20px}
-.container{max-width:850px;margin:auto}
-header{text-align:center;margin:25px 0 30px}
-.logo{font-size:32px;font-weight:bold;color:#f5c400}
-.card{background:#1d1d1d;border:1px solid #333;border-radius:15px;padding:20px;margin-bottom:16px}
-input{width:100%;padding:14px;margin:8px 0;border-radius:9px;border:1px solid #444;background:#292929;color:white;font-size:16px}
-button{border:0;border-radius:9px;padding:13px 17px;font-weight:bold;cursor:pointer;margin:5px 4px 5px 0}
-.primary{background:#f5c400;color:#111}
-.reject{background:#a93232;color:white}
-.neutral{background:#444;color:white}
-.delete{background:#e00000;color:white}
-.success{background:#16834a;color:white}
-button:disabled{opacity:.5;cursor:not-allowed}
-.hidden{display:none}
-.small{color:#aaa;font-size:13px}
-.status{font-weight:bold;margin:12px 0}
-.pendente{color:#f5c400}
-.aprovado{color:#43d17a}
-.reprovado{color:#ff6969}
+body{margin:0;background:radial-gradient(ellipse at top,#20202a 0%,#0b0d12 48%,#08090d 100%);color:#f7f8fa;font-family:Inter,Arial,sans-serif;padding:22px;min-height:100vh}
+.container{max-width:1000px;margin:auto}
+header{text-align:center;margin:18px 0 30px}
+.logo{font-size:34px;font-weight:900;letter-spacing:2px;color:var(--gold);text-shadow:0 0 24px #f5c40035}
+header h1{font-size:clamp(25px,4vw,34px);margin:10px 0 7px}
+.card{background:linear-gradient(145deg,#1a202b,#121720);border:1px solid var(--line);border-radius:18px;padding:21px;margin-bottom:17px;box-shadow:0 12px 30px #0003}
+input{width:100%;padding:15px;margin:8px 0;border-radius:11px;border:1px solid #394354;background:#0e131c;color:white;font-size:16px;outline:none}
+input:focus{border-color:var(--gold);box-shadow:0 0 0 3px #f5c40020}
+button{border:0;border-radius:11px;padding:13px 17px;font-weight:800;cursor:pointer;margin:5px 4px 5px 0;transition:transform .18s,filter .18s}
+button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.primary{background:linear-gradient(135deg,var(--gold2),#e4ad00);color:#17130a;box-shadow:0 5px 18px #f5c40025}
+.reject{background:#a93232;color:white}.neutral{background:#303a49;color:white}.delete{background:#d92828;color:white}.success{background:#16834a;color:white}
+button:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.hidden{display:none!important}.small{color:var(--muted);font-size:13px;line-height:1.5}
+.status{font-weight:800;margin:12px 0;letter-spacing:.3px}.pendente{color:var(--gold)}.aprovado{color:var(--green)}.reprovado{color:var(--red)}
 .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-.numero{font-size:25px;color:#f5c400;font-weight:bold}
-.id-text{font-size:12px;color:#aaa;word-break:break-all}
-.valor{font-size:27px;font-weight:bold;color:#f5c400}
-.secao-titulo{color:#f5c400}
-.subtitulo{color:#f5c400;margin:20px 0 10px}
+.numero{font-size:25px;color:var(--gold);font-weight:900}
+.id-text{font-size:12px;color:#aab4c2;word-break:break-all}.valor{font-size:27px;font-weight:900;color:var(--gold)}
+.secao-titulo{color:var(--gold)}.subtitulo{color:var(--gold);margin:20px 0 10px}
 #btnMotoristas{width:100%;padding:17px;text-align:left;font-size:15px}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.section-head h2{margin:0;font-size:22px}
+.summary-card{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center;background:#0e141e;border:1px solid #303b4c;border-radius:14px;padding:16px;margin-bottom:18px;line-height:1.8}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:7px;background:#0c1119;border:1px solid #303a49;border-radius:16px;margin:17px 0 18px}
+.tab-btn{margin:0;padding:15px 12px;background:transparent;color:#aeb8c7;border:1px solid transparent;border-radius:12px;font-size:14px;display:flex;align-items:center;justify-content:center;gap:9px;min-height:58px}
+.tab-btn.active{background:linear-gradient(135deg,#f9d84d,#e5b500);color:#17130a;box-shadow:0 6px 20px #f5c40025}
+.tab-icon{font-size:21px}.tab-count{font-size:12px;padding:3px 8px;border-radius:20px;background:#ffffff20}
+.tab-panel{animation:fadeIn .2s ease}.driver-card{background:linear-gradient(145deg,#202938,#151b25);border:1px solid #354153;border-radius:16px;padding:19px;margin:12px 0;box-shadow:0 8px 22px #0002}
+.driver-card h2{margin:5px 0 13px;font-size:20px}.driver-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 15px;color:#d4dbe5;font-size:14px}.driver-meta p{margin:4px 0}.empty-state{text-align:center;padding:28px 16px;color:var(--muted);background:#0e141e;border:1px dashed #394354;border-radius:15px}
+.queue-card{background:#151d29;border:1px solid #303c4e;border-radius:15px;padding:16px;margin:11px 0}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:560px){body{padding:12px}.card{padding:16px}.tabs{gap:6px;padding:5px}.tab-btn{font-size:12px;padding:12px 5px;gap:5px}.tab-icon{font-size:18px}.driver-meta{grid-template-columns:1fr}.section-head h2{font-size:19px}}
 </style>
 </head>
 <body>
@@ -54,20 +61,24 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
 <section id="painel" class="hidden">
 <div class="card top">
-<button class="primary" onclick="alternarMotoristas()" id="btnMotoristas">MOTORISTAS CADASTRADOS ▼</button>
-<button class="neutral" onclick="sair()">Sair</button>
+<div><div class="small">ÁREA ADMINISTRATIVA</div><strong style="font-size:18px">Central de gerenciamento Nerocar</strong></div>
+<button class="neutral" onclick="sair()">Sair da conta</button>
 </div>
 
-<div id="secaoMotoristas" class="hidden">
-<div class="card top">
-<h2>Motoristas cadastrados</h2>
-<button class="primary" onclick="carregar()">Atualizar</button>
+<div id="secaoMotoristas">
+<div class="card">
+<div class="section-head">
+<div><div class="small">CADASTROS</div><h2>Gerenciar condutores</h2></div>
+<button class="primary" onclick="carregar()">↻ Atualizar</button>
 </div>
-<div id="resumo" class="card"></div>
-<h3 class="subtitulo">MOTORISTAS DE CARRO</h3>
-<div id="listaCarros"></div>
-<h3 class="subtitulo">MOTORISTAS DE MOTO</h3>
-<div id="listaMotos"></div>
+<div id="resumo" class="summary-card">Carregando cadastros...</div>
+<div class="tabs" role="tablist" aria-label="Categorias de motoristas">
+<button type="button" class="tab-btn active" id="tabCarros" role="tab" aria-selected="true" onclick="mostrarAbaMotoristas('carro')"><span class="tab-icon">🚘</span> MOTORISTAS CADASTRADOS <span class="tab-count" id="contagemCarros">0</span></button>
+<button type="button" class="tab-btn" id="tabMotos" role="tab" aria-selected="false" onclick="mostrarAbaMotoristas('moto')"><span class="tab-icon">🏍️</span> MOTO-TÁXI CADASTRADOS <span class="tab-count" id="contagemMotos">0</span></button>
+</div>
+<div id="painelCarros" class="tab-panel" role="tabpanel"><div id="listaCarros"></div></div>
+<div id="painelMotos" class="tab-panel hidden" role="tabpanel"><div id="listaMotos"></div></div>
+</div>
 </div>
 
 <div class="card">
@@ -155,11 +166,12 @@ async function carregar(){
  const reprovados=data.filter(d=>d.rejected).length;
 
  document.getElementById("resumo").innerHTML=`
- <strong>Total:</strong> ${data.length}
- | <span class="pendente">Aguardando: ${pendentes}</span>
- | <span class="aprovado">Aprovados: ${aprovados}</span>
- | <span class="reprovado">Reprovados: ${reprovados}</span>
- <p class="small">Carros: ${carros.length} | Motos: ${motos.length}</p>`;
+ <span><strong>Total de cadastros:</strong> ${data.length}</span>
+ <span class="pendente">● Aguardando: ${pendentes}</span>
+ <span class="aprovado">● Aprovados: ${aprovados}</span>
+ <span class="reprovado">● Reprovados: ${reprovados}</span>`;
+ document.getElementById("contagemCarros").textContent=carros.length;
+ document.getElementById("contagemMotos").textContent=motos.length;
 
  function montarMotorista(d){
   let status="Aguardando aprovação",classe="pendente",botoes="";
@@ -175,18 +187,20 @@ async function carregar(){
    <button class="neutral" onclick="alterar('${d.id}','pendente')">Voltar para pendente</button>`;
   }
   botoes+=`<button class="delete" onclick="excluirMotorista('${d.id}','${escapar(d.name)}')">EXCLUIR CADASTRO</button>`;
-  return `<div class="card">
-   <div class="status ${classe}">${status}</div>
+  return `<div class="driver-card">
+   <div class="status ${classe}">● ${status}</div>
    <h2>${escapar(d.name)}</h2>
-   <p><strong>Modalidade:</strong> ${d.vehicle_type==="moto"?"Moto":"Carro"}</p>
-   <p><strong>Veículo:</strong> ${escapar(d.vehicle_model)}</p>
-   <p><strong>Cor:</strong> ${escapar(d.vehicle_color)}</p>
-   <p><strong>Placa:</strong> ${escapar(d.vehicle_plate)}</p>
-   ${botoes}</div>`;
+   <div class="driver-meta">
+    <p><strong>Veículo:</strong> ${escapar(d.vehicle_model)}</p>
+    <p><strong>Cor:</strong> ${escapar(d.vehicle_color)}</p>
+    <p><strong>Placa:</strong> ${escapar(d.vehicle_plate)}</p>
+    <p><strong>Modalidade:</strong> ${d.vehicle_type==="moto"?"Moto-táxi":"Carro"}</p>
+   </div>
+   <div style="margin-top:12px">${botoes}</div></div>`;
  }
 
- listaCarros.innerHTML=carros.length?carros.map(montarMotorista).join(""):'<div class="card">Nenhum motorista de carro cadastrado.</div>';
- listaMotos.innerHTML=motos.length?motos.map(montarMotorista).join(""):'<div class="card">Nenhum motorista de moto cadastrado.</div>';
+ listaCarros.innerHTML=carros.length?carros.map(montarMotorista).join(""):'<div class="empty-state">🚘<br><strong>Nenhum motorista cadastrado</strong><br><span class="small">Os cadastros de carros aparecerão aqui.</span></div>';
+ listaMotos.innerHTML=motos.length?motos.map(montarMotorista).join(""):'<div class="empty-state">🏍️<br><strong>Nenhum moto-taxista cadastrado</strong><br><span class="small">Os cadastros de moto-táxi aparecerão aqui.</span></div>';
 }
 
 async function alterar(id,acao){
@@ -272,7 +286,7 @@ async function carregarFila(){
  function montarFila(lista){
   if(!lista.length)return '<p class="small">Ninguém nesta fila no momento.</p>';
   return lista.map((d,i)=>`
-   <div class="card">
+   <div class="queue-card">
     <div class="numero">#${i+1}</div>
     <h3>${escapar(d.nome)}</h3>
     <p><strong>Veículo:</strong> ${escapar(d.modelo)}</p>
@@ -352,16 +366,14 @@ async function confirmarPagamento(id){
  }
 }
 
-function alternarMotoristas(){
- const secao=document.getElementById("secaoMotoristas");
- const botao=document.getElementById("btnMotoristas");
- if(secao.classList.contains("hidden")){
-  secao.classList.remove("hidden");
-  botao.textContent="MOTORISTAS CADASTRADOS ▲";
- }else{
-  secao.classList.add("hidden");
-  botao.textContent="MOTORISTAS CADASTRADOS ▼";
- }
+function mostrarAbaMotoristas(tipo){
+ const carros=tipo==="carro";
+ document.getElementById("painelCarros").classList.toggle("hidden",!carros);
+ document.getElementById("painelMotos").classList.toggle("hidden",carros);
+ document.getElementById("tabCarros").classList.toggle("active",carros);
+ document.getElementById("tabMotos").classList.toggle("active",!carros);
+ document.getElementById("tabCarros").setAttribute("aria-selected",String(carros));
+ document.getElementById("tabMotos").setAttribute("aria-selected",String(!carros));
 }
 
 async function sair(){
