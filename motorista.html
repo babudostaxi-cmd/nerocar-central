@@ -188,6 +188,10 @@ header h2{font-size:18px}
 <input id="nome" placeholder="Nome completo">
 <input id="cadEmail" type="email" placeholder="Seu e-mail">
 <input id="cadSenha" type="password" placeholder="Crie uma senha">
+<select id="modalidadeVeiculo" aria-label="Modalidade do veículo" required>
+<option value="carro" selected>Carro</option>
+<option value="moto">Moto</option>
+</select>
 <input id="modelo" placeholder="Modelo do veículo">
 <input id="cor" placeholder="Cor do veículo">
 <input id="placa" placeholder="Placa do veículo">
@@ -612,6 +616,7 @@ async function cadastrar(){
   const name=document.getElementById("nome").value.trim();
   const email=document.getElementById("cadEmail").value.trim();
   const password=document.getElementById("cadSenha").value;
+  const vehicle_type=document.getElementById("modalidadeVeiculo").value;
   const vehicle_model=document.getElementById("modelo").value.trim();
   const vehicle_color=document.getElementById("cor").value.trim();
   const vehicle_plate=document.getElementById("placa").value.trim().toUpperCase();
@@ -633,7 +638,7 @@ async function cadastrar(){
       email,
       password,
       options:{
-        data:{name,vehicle_model,vehicle_color,vehicle_plate}
+        data:{name,vehicle_type,vehicle_model,vehicle_color,vehicle_plate}
       }
     });
 
@@ -692,7 +697,7 @@ async function carregarConta(user){
   document.getElementById("conta").classList.remove("hidden");
 
   const {data,error}=await db.from("drivers")
-    .select("name,vehicle_model,vehicle_color,vehicle_plate")
+    .select("name,vehicle_type,vehicle_model,vehicle_color,vehicle_plate")
     .eq("user_id",user.id)
     .single();
 
@@ -703,8 +708,9 @@ async function carregarConta(user){
   }
 
   document.getElementById("nomeMotorista").textContent=data.name;
+  const modalidade = data.vehicle_type === "moto" ? "Moto" : "Carro";
   document.getElementById("veiculoMotorista").textContent=
-    data.vehicle_model+" • "+data.vehicle_color+" • "+data.vehicle_plate;
+    modalidade+" • "+data.vehicle_model+" • "+data.vehicle_color+" • "+data.vehicle_plate;
 
   await atualizarStatus();
   iniciarVerificacao();
