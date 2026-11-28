@@ -703,6 +703,40 @@ button:disabled{opacity:.5;cursor:not-allowed}
  font-size:22px;
 }
 
+/* Seletor destacado de modalidade para o passageiro */
+#telaSolicitacao .modalidade-opcoes{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:12px;
+ margin:10px 0 18px;
+}
+#telaSolicitacao .modalidade-opcao{
+ min-height:116px;
+ padding:16px 10px;
+ display:flex;
+ flex-direction:column;
+ align-items:center;
+ justify-content:center;
+ gap:7px;
+ border:1px solid #454545;
+ border-radius:18px;
+ background:linear-gradient(145deg,#262626,#111);
+ color:#fff;
+ cursor:pointer;
+ font-family:Arial,sans-serif;
+ transition:border-color .18s,background .18s,transform .18s;
+}
+#telaSolicitacao .modalidade-opcao.ativa{
+ border:2px solid #ffd000;
+ background:linear-gradient(145deg,#403500,#171300);
+ box-shadow:0 0 0 2px rgba(255,208,0,.10);
+}
+#telaSolicitacao .modalidade-opcao:active{transform:scale(.98)}
+#telaSolicitacao .modalidade-opcao .modalidade-emoji{font-size:34px;line-height:1.2}
+#telaSolicitacao .modalidade-opcao strong{font-size:16px;letter-spacing:.5px}
+#telaSolicitacao .modalidade-opcao small{font-size:12px;color:#c7c7c7}
+#telaSolicitacao #modalidadeCorrida{display:none}
+
 #telaSolicitacao .campo-nerocar textarea,
 #telaSolicitacao .campo-nerocar input{
  flex:1;
@@ -1535,6 +1569,26 @@ button:disabled{opacity:.5;cursor:not-allowed}
     <!-- Mantido oculto para o JavaScript continuar preenchendo o nome do passageiro -->
     <span id="nomePassageiroSolicitacao" class="escondido">Carregando...</span>
 
+    <label>Escolha como deseja viajar</label>
+
+    <div class="modalidade-opcoes" role="group" aria-label="Escolha Carro ou Moto">
+      <button type="button" class="modalidade-opcao ativa" id="opcaoCorridaCarro" aria-pressed="true" onclick="selecionarModalidadeCorrida('carro')">
+        <span class="modalidade-emoji" aria-hidden="true">🚘</span>
+        <strong>CARRO</strong>
+        <small>Corrida por R$ 18,00</small>
+      </button>
+      <button type="button" class="modalidade-opcao" id="opcaoCorridaMoto" aria-pressed="false" onclick="selecionarModalidadeCorrida('moto')">
+        <span class="modalidade-emoji" aria-hidden="true">🏍️</span>
+        <strong>MOTO</strong>
+        <small>Corrida por R$ 8,00</small>
+      </button>
+    </div>
+
+    <select id="modalidadeCorrida" aria-hidden="true" tabindex="-1">
+      <option value="carro" selected>Carro</option>
+      <option value="moto">Moto</option>
+    </select>
+
     <label for="endereco">📍 &nbsp; Endereço de origem</label>
 
    <div class="campo-nerocar campo-autocomplete">
@@ -1566,11 +1620,12 @@ button:disabled{opacity:.5;cursor:not-allowed}
 </div>
 
     <div class="tarifa-nerocar">
-      <div class="tarifa-carro">🚘</div>
+      <div class="tarifa-carro" id="iconeTarifaCorrida">🚘</div>
 
       <div class="tarifa-info">
         Valor da corrida dentro de Nerópolis
-        <span class="tarifa-valor">R$ 18,00</span>
+        <span class="tarifa-valor" id="valorTarifaCorrida">R$ 18,00</span>
+        <span id="textoModalidadeTarifa">Modalidade: Carro</span>
       </div>
     </div>
 
@@ -2413,6 +2468,26 @@ function atualizarEtapas(status){
  if(status==="cancelled")motorista.classList.add("ativa");
 }
 
+/* MODALIDADE E TARIFA DA CORRIDA */
+function selecionarModalidadeCorrida(modalidade){
+ document.getElementById("modalidadeCorrida").value=modalidade;
+ atualizarTarifaCorrida();
+}
+
+function atualizarTarifaCorrida(){
+ const modalidade=document.getElementById("modalidadeCorrida").value;
+ const ehMoto=modalidade==="moto";
+ const carro=document.getElementById("opcaoCorridaCarro");
+ const moto=document.getElementById("opcaoCorridaMoto");
+ carro.classList.toggle("ativa",!ehMoto);
+ moto.classList.toggle("ativa",ehMoto);
+ carro.setAttribute("aria-pressed",String(!ehMoto));
+ moto.setAttribute("aria-pressed",String(ehMoto));
+ document.getElementById("iconeTarifaCorrida").textContent=ehMoto?"🏍️":"🚘";
+ document.getElementById("valorTarifaCorrida").textContent=ehMoto?"R$ 8,00":"R$ 18,00";
+ document.getElementById("textoModalidadeTarifa").textContent="Modalidade: "+(ehMoto?"Moto":"Carro");
+}
+
 /* SOLICITAR CORRIDA */
 
 async function solicitarCorrida(){
@@ -2422,6 +2497,7 @@ async function solicitarCorrida(){
  }
 
  const nome=perfilPassageiro.full_name;
+ const vehicle_type=document.getElementById("modalidadeCorrida").value;
  const endereco=document.getElementById("endereco").value.trim();
  const referencia=document.getElementById("referencia").value.trim();
 
@@ -2444,7 +2520,8 @@ if(!referencia){
   const {data,error}=await db.rpc("solicitar_corrida",{
    p_nome:nome,
    p_endereco:endereco,
-   p_referencia:referencia||null
+   p_referencia:referencia||null,
+   p_vehicle_type:vehicle_type
   });
 
   if(error)throw error;
